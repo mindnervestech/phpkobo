@@ -298,9 +298,7 @@ public class FormLoaderTask extends AsyncTask<String, String, FormLoaderTask.FEC
                         .localeChanged(fec.getModel().getLanguage(),
                             fec.getModel().getForm().getLocalizer());
             }
-
             return true;
-
         }
     }
 

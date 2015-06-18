@@ -14,12 +14,13 @@
 
 package org.koboc.collect.android.application;
 
-import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+
+import com.orm.SugarApp;
 
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.database.ActivityLogger;
@@ -41,7 +42,7 @@ import java.io.File;
  * 
  * @author carlhartung
  */
-public class Collect extends Application {
+public class Collect extends SugarApp {
 
     // Storage paths
     public static final String ODK_ROOT = Environment.getExternalStorageDirectory()
@@ -54,6 +55,8 @@ public class Collect extends Application {
     public static final String TMPDRAWFILE_PATH = CACHE_PATH + File.separator + "tmpDraw.jpg";
     public static final String TMPXML_PATH = CACHE_PATH + File.separator + "tmp.xml";
     public static final String LOG_PATH = ODK_ROOT + File.separator + "log";
+
+    public long index;
 
     public static final String DEFAULT_FONTSIZE = "21";
 
@@ -194,7 +197,7 @@ public class Collect extends Application {
         singleton = this;
 
         // // set up logging defaults for apache http component stack
-         //Log log;
+        // Log log;
         // log = LogFactory.getLog("org.opendatakit.httpclientandroidlib");
         // log.enableError(true);
         // log.enableWarn(true);

@@ -49,7 +49,7 @@
 		android:clickable="false"
 		android:layout_centerVertical="true"
 		android:layout_alignParentRight="true" />
-</org.koboc.collect.android.views.TwoItemMultipleChoiceView> 
+</org.koboc.collect.android.views.TwoItemMultipleChoiceView>
 <!--
 changed to new package hierarchy to match opening brace 
 /media/10/dev/kobo/KoboCollect/res/layout/two_item_multiple_choice.xml:52: error: Error parsing XML: mismatched tag

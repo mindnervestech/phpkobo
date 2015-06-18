@@ -90,6 +90,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
         }
 
         mMapView = (MapView) findViewById(R.id.mapview);
+
         mCancelLocation = (Button) findViewById(R.id.cancel_location);
         mCancelLocation.setOnClickListener(new OnClickListener() {
 

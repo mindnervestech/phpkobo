@@ -384,7 +384,6 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                 } else if (getContentResolver().getType(uri) == FormsColumns.CONTENT_ITEM_TYPE) {
                     Cursor c = null;
                     try {
-
                         c = getContentResolver().query(uri, null, null, null, null);
                         if (c.getCount() != 1) {
                             this.createErrorDialog("Bad URI: " + uri, EXIT);

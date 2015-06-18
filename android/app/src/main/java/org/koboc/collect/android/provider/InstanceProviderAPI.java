@@ -38,7 +38,6 @@ public final class InstanceProviderAPI {
      * Notes table
      */
     public static final class InstanceColumns implements BaseColumns {
-        public static final String CASE_ID = "caseId";  // This has been added by Jagbir.
 
         // This class cannot be instantiated
         private InstanceColumns() {}
@@ -53,6 +52,8 @@ public final class InstanceProviderAPI {
         public static final String INSTANCE_FILE_PATH = "instanceFilePath";
         public static final String JR_FORM_ID = "jrFormId";
         public static final String JR_VERSION = "jrVersion";
+        public static final String CASE_ID = "caseId";  // This has been added by Jagbir.
+
         //public static final String FORM_ID = "formId";
         
         // these are generated for you (but you can insert something else if you want)

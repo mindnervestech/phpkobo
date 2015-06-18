@@ -31,7 +31,6 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.koboc.collect.android.R;
@@ -76,6 +75,8 @@ public class MainMenuActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        System.out.println("in menu Activity::::");
+
         // must be at the beginning of any activity that can be called from an
         // external intent
         Log.i(t, "Starting up, creating directories");
@@ -87,12 +88,6 @@ public class MainMenuActivity extends Activity {
         }
 
         setContentView(R.layout.main_menu);
-
-        {
-            // dynamically construct the "ODK Collect vA.B" string
-            TextView mainMenuMessageLabel = (TextView) findViewById(R.id.main_menu_header);
-            mainMenuMessageLabel.setText(Collect.getInstance().getVersionedAppName());
-        }
 
         setTitle(getString(R.string.app_name) + " > " + getString(R.string.main_menu));
 
@@ -121,7 +116,7 @@ public class MainMenuActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Collect.getInstance().getActivityLogger().logAction(this, "editSavedForm", "click");
-                Intent i = new Intent(getApplicationContext(), InstanceChooserList.class);
+                Intent i = new Intent(getApplicationContext(), FormInstanceChooserList.class);
                 startActivity(i);
             }
         });

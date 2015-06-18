@@ -14,12 +14,6 @@
 
 package org.koboc.collect.android.provider;
 
-import org.koboc.collect.android.R;
-import org.koboc.collect.android.application.Collect;
-import org.koboc.collect.android.database.ODKSQLiteOpenHelper;
-import org.koboc.collect.android.provider.InstanceProviderAPI.InstanceColumns;
-import org.koboc.collect.android.utilities.MediaUtils;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -32,10 +26,18 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.koboc.collect.android.R;
+import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.database.CaseRecord;
+import org.koboc.collect.android.database.ODKSQLiteOpenHelper;
+import org.koboc.collect.android.provider.InstanceProviderAPI.InstanceColumns;
+import org.koboc.collect.android.utilities.MediaUtils;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -193,6 +195,7 @@ public class InstanceProvider extends ContentProvider {
             values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
         }
 
+            System.out.println("table entry of case id::"+Collect.getInstance().getCaseId());
             values.put(InstanceColumns.CASE_ID, Collect.getInstance().getCaseId()); // This is added by jagbir
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -202,15 +205,35 @@ public class InstanceProvider extends ContentProvider {
             getContext().getContentResolver().notifyChange(instanceUri, null);
         	Collect.getInstance().getActivityLogger().logActionParam(this, "insert",
         			instanceUri.toString(), values.getAsString(InstanceColumns.INSTANCE_FILE_PATH));
+            doCaseToFormBinding(rowId,InstanceColumns.STATUS);
             return instanceUri;
         }
         //TODO:Akshay call doCaseToFormBinding(rowId,values.containsKey(InstanceColumns.STATUS))
+
         throw new SQLException("Failed to insert row into " + uri);
     }
 
     //TODO: Akshay to implement this
-    private void doCaseToFormBinding(long rowId, boolean status) {
-        Collect.getInstance().getCaseId();
+    private void doCaseToFormBinding(long rowId, String status) {
+        System.out.println("idddd::"+Collect.getInstance().getCaseId());
+        CaseRecord caseRecord=new CaseRecord();
+        final List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where case_Id = ?",Collect.getInstance().getCaseId());
+        System.out.println("size:::"+caseRecords.size());
+        for(CaseRecord caseRecord1:caseRecords){
+            caseRecord1.formId=rowId;
+            caseRecord1.status=status;
+            caseRecord1.save();
+        }
+        /*final List<CaseRecord> recordList=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record ");
+        System.out.println("size:::"+recordList.size());
+        for(CaseRecord caseRecord1:recordList){
+            System.out.println("case id"+caseRecord1.caseId);
+            System.out.println("form id"+caseRecord1.formId);
+            System.out.println("stau id"+caseRecord1.status);
+        }*/
+
+
+
     }
 
     private String getDisplaySubtext(String state, Date date) {
@@ -352,7 +375,7 @@ public class InstanceProvider extends ContentProvider {
                         values.put(InstanceColumns.DISPLAY_SUBTEXT, text);
                     }
                 }
-
+               updateCaseToFormBinding(instanceId,InstanceColumns.STATUS);
                 count =
                     db.update(INSTANCES_TABLE_NAME, values, InstanceColumns._ID + "=" + instanceId
                             + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
@@ -366,6 +389,19 @@ public class InstanceProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
+    private void updateCaseToFormBinding(String instanceId, String status){
+        System.out.println("update status:::");
+        CaseRecord caseRecord=new CaseRecord();
+        final List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where form_Id = ?",instanceId);
+        System.out.println("size:::"+caseRecords.size());
+        for(CaseRecord caseRecord1:caseRecords){
+            caseRecord1.status=status;
+            caseRecord1.save();
+        }
+    }
+
+
+
 
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -382,6 +418,7 @@ public class InstanceProvider extends ContentProvider {
         sInstancesProjectionMap.put(InstanceColumns.JR_VERSION, InstanceColumns.JR_VERSION);
         sInstancesProjectionMap.put(InstanceColumns.STATUS, InstanceColumns.STATUS);
         sInstancesProjectionMap.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, InstanceColumns.LAST_STATUS_CHANGE_DATE);
+        sInstancesProjectionMap.put(InstanceColumns.CASE_ID, InstanceColumns.CASE_ID); //added by Akshay
         sInstancesProjectionMap.put(InstanceColumns.DISPLAY_SUBTEXT, InstanceColumns.DISPLAY_SUBTEXT);
     }
 

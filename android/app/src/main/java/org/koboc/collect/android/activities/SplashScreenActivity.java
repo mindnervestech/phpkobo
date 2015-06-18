@@ -14,10 +14,6 @@
 
 package org.koboc.collect.android.activities;
 
-import org.koboc.collect.android.R;
-import org.koboc.collect.android.application.Collect;
-import org.koboc.collect.android.preferences.PreferencesActivity;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -36,6 +32,10 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import org.koboc.collect.android.R;
+import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.preferences.PreferencesActivity;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -43,7 +43,7 @@ import java.io.IOException;
 
 public class SplashScreenActivity extends Activity {
 
-    private static final int mSplashTimeout = 2000; // milliseconds
+    private static final int mSplashTimeout = 3000; // milliseconds
     private static final boolean EXIT = true;
 
     private int mImageMaxWidth;
@@ -53,6 +53,10 @@ public class SplashScreenActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        System.out.println("in splash:::::::::::::::");
+
+
 
         // must be at the beginning of any activity that can be called from an external intent
         try {
@@ -85,8 +89,10 @@ public class SplashScreenActivity extends Activity {
         boolean showSplash =
             mSharedPreferences.getBoolean(PreferencesActivity.KEY_SHOW_SPLASH, false);
         String splashPath =
-            mSharedPreferences.getString(PreferencesActivity.KEY_SPLASH_PATH,
-                getString(R.string.default_splash_path));
+            mSharedPreferences.getString(PreferencesActivity.KEY_SPLASH_PATH,"splash");
+              //  getString(R.string.default_splash_path));
+
+        firstRun = true;  //have to change
 
         // if you've increased version code, then update the version number and set firstRun to true
         if (mSharedPreferences.getLong(PreferencesActivity.KEY_LAST_VERSION, 0) < packageInfo.versionCode) {
@@ -97,7 +103,7 @@ public class SplashScreenActivity extends Activity {
         }
 
         // do all the first run things
-        if (firstRun || showSplash) {
+        if (firstRun) {
             editor.putBoolean(PreferencesActivity.KEY_FIRST_RUN, false);
             editor.commit();
             startSplashScreen(splashPath);
@@ -111,7 +117,7 @@ public class SplashScreenActivity extends Activity {
     private void endSplashScreen() {
 
         // launch new activity and close splash screen
-        startActivity(new Intent(SplashScreenActivity.this, MainMenuActivity.class));
+        startActivity(new Intent(SplashScreenActivity.this, TabsActivity.class));
         finish();
     }
 
@@ -231,5 +237,24 @@ public class SplashScreenActivity extends Activity {
 		Collect.getInstance().getActivityLogger().logOnStop(this); 
     	super.onStop();
     }
+    @Override
+    public void onBackPressed() {
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Do you want to exit app ?")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        SplashScreenActivity.super.onBackPressed();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+
+    }
 }

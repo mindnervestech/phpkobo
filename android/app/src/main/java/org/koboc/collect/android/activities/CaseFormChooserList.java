@@ -38,12 +38,12 @@ import org.koboc.collect.android.utilities.VersionHidingCursorAdapter;
 
 /**
  * Responsible for displaying all the valid forms in the forms directory. Stores the path to
- * selected form for use by {@link MainMenuActivity}.
- * 
+ * selected form for use by {@link org.koboc.collect.android.activities.MainMenuActivity}.
+ *
  * @author Yaw Anokwa (yanokwa@gmail.com)
  * @author Carl Hartung (carlhartung@gmail.com)
  */
-public class FormChooserList extends ListActivity implements DiskSyncListener {
+public class CaseFormChooserList extends ListActivity implements DiskSyncListener {
 
     private static final String t = "FormChooserList";
     private static final boolean EXIT = true;
@@ -65,7 +65,7 @@ public class FormChooserList extends ListActivity implements DiskSyncListener {
             return;
         }
 
-        setContentView(R.layout.form_chooser_list_layout);
+        setContentView(R.layout.chooser_list_layout);
         setTitle(getString(R.string.app_name) + " > " + getString(R.string.enter_data));
 
         String sortOrder = FormsColumns.DISPLAY_NAME + " ASC, " + FormsColumns.JR_VERSION + " DESC";
@@ -77,6 +77,8 @@ public class FormChooserList extends ListActivity implements DiskSyncListener {
         int[] view = new int[] {
                 R.id.text1, R.id.text2, R.id.text3
         };
+
+
 
         // render total instance view
         SimpleCursorAdapter instances =
@@ -132,7 +134,6 @@ public class FormChooserList extends ListActivity implements DiskSyncListener {
             setResult(RESULT_OK, new Intent().setData(formUri));
         } else {
             // caller wants to view/edit a form, so launch formentryactivity
-            //TODO: pass case ID to intent
             startActivity(new Intent(Intent.ACTION_EDIT, formUri));
         }
 
@@ -214,4 +215,5 @@ public class FormChooserList extends ListActivity implements DiskSyncListener {
         mAlertDialog.setButton(getString(R.string.ok), errorListener);
         mAlertDialog.show();
     }
+
 }
