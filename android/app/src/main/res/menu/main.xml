@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"/>
+    <!--
+    replaced  
+    android:title="@string/action_settings"/>
+    with
+    android:title="@string/main_menu"/>
+    /media/10/dev/kobo/KoboCollect/res/menu/main.xml:3: error: Error: No resource found that matches the given name (at 'title' with value '@string/action_settings'). 
+     -->
+
+</menu>
