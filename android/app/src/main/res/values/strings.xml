@@ -22,7 +22,7 @@
 <string name="advance">forward to\nnext\nprompt</string>
 <string name="altitude">Altitude</string>
 <string name="app_name">KoBoCollect</string>
-<string name="base_url">http://192.168.1.4:8080</string>
+<string name="base_url">http://192.168.1.9:8080</string>
 <string name="audio_file_error">No audio file was specified.</string>
 <string name="audio_file_invalid">File: %s is not a valid audio file.</string>
 <string name="backup">back to\nprevious\nprompt</string>
@@ -49,7 +49,7 @@
 <string name="data_saved_ok">Form successfully saved!</string>
 <string name="default_completed">Default to Finalized</string>
 <string name="default_completed_summary">Mark form as finalized by default</string>
-<string name="default_server_url">https://kobocloud.appspot.com</string>
+<string name="default_server_url">http://192.168.1.9:8001</string>
 <string name="delete_confirm">Delete %s form(s)?</string>
 <string name="delete_file">Delete Selected</string>
 <string name="delete_no">Do Not Delete</string>
@@ -168,7 +168,7 @@
 <string name="change_font_size">Text Font Size</string>
 <string name="form_scan_starting">Scanning for forms&#8230;</string>
 <string name="powered_by_odk">Powered by Open Data Kit</string>
-<string name="default_odk_formlist">/formList</string>
+<string name="default_odk_formlist">/kobo/formList</string>
 <string name="default_odk_submission">/submission</string>
 <string name="access_error">Error while accessing %s: </string>
 <string name="manifest_server_error">Manifest reply does not report an OpenRosa version &#8212; bad server?</string>

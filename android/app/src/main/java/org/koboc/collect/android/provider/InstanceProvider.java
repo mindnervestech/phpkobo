@@ -195,7 +195,6 @@ public class InstanceProvider extends ContentProvider {
             values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
         }
 
-            System.out.println("table entry of case id::"+Collect.getInstance().getCaseId());
             values.put(InstanceColumns.CASE_ID, Collect.getInstance().getCaseId()); // This is added by jagbir
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();

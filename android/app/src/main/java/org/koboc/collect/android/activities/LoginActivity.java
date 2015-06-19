@@ -38,7 +38,7 @@ public class LoginActivity extends Activity {
         passwordEditText= (EditText) findViewById(R.id.passwordEditText);
         submit= (Button) findViewById(R.id.submitButton);
 
-        BASE_URL = "http://192.168.2.11:8001";//getApplicationContext().getString(R.string.base_url);//
+        BASE_URL = getApplicationContext().getString(R.string.default_server_url);
 
 
 

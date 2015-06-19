@@ -75,8 +75,6 @@ public class MainMenuActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        System.out.println("in menu Activity::::");
-
         // must be at the beginning of any activity that can be called from an
         // external intent
         Log.i(t, "Starting up, creating directories");
