@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import kobo.entities.AuthUser;
 import kobo.entities.LoggerCase;
@@ -26,6 +27,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 
 @Controller
 public class ApplicationController {
@@ -52,7 +57,26 @@ public class ApplicationController {
 		return null;
 	}
 	
+	@RequestMapping(value="login",method=RequestMethod.POST)
+	@ResponseBody
+	private JsonNode login (HttpServletRequest httpRequest) throws UnirestException {
+		String username = httpRequest.getParameter("username");
+		String password = httpRequest.getParameter("password");
+		HttpResponse<JsonNode> response = Unirest.post("http://localhost:8001/api/v1/login").
+		basicAuth(username, password).asJson();
+		JsonNode node = response.getBody();
+		HttpSession session = httpRequest.getSession();
+		session.setAttribute("user", node);
+		return node;
+	}
 	
+	@RequestMapping(value="logout",method=RequestMethod.POST)
+	@ResponseBody
+	private String logout (HttpServletRequest httpRequest) throws UnirestException {
+		HttpSession session = httpRequest.getSession();
+		session.invalidate();
+		return "logout";
+	}
 
 	private AuthUser getUserFromRequest(HttpServletRequest httpRequest) {
 		
@@ -67,7 +91,6 @@ public class ApplicationController {
 			String base64Credentials = authorization.substring("Basic".length()).trim();
 			String credentials = new String(Base64.decode(base64Credentials),
 	                Charset.forName("UTF-8"));
-			System.out.println("credentials=="+credentials);
 			final String[] values = credentials.split(":",2);
 			
 			
