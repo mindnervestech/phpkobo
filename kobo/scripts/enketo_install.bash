@@ -1,0 +1,5 @@
+su - vagrant -c     "sh $V_S/enketo/10_clone_code.sh"
+su - root -c        "sh $V_S/enketo/20_apt_installs.sh"
+su - root -c        "sh $V_S/enketo/30_start_redis.sh"
+su - vagrant -c     "sh $V_S/enketo/40_npm_installs.sh"
+su - vagrant -c     "sh $V_S/enketo/50_build_statics.sh"

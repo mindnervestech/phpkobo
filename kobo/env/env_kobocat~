@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# kobocat specific environment variables
+export DJANGO_SETTINGS_MODULE="kobocat_settings"
+export PYTHONPATH="$HOME_VAGRANT/env:$PYTHONPATH"
