@@ -1,0 +1,22 @@
+{
+ "dataset":[
+    {
+        "data": [["Mon", 67],["Tue", 91],["Wed", 36],["Thu", 150],["Fri", 28],["Sat", 123],["Sun", 38]],
+        "label": "Open",
+        "color": "#ffce54"
+    },
+    
+    {
+        "data": [["Mon", 59],["Tue", 49],["Wed", 45],["Thu", 94],["Fri", 76],["Sat", 22],["Sun", 31]],
+        "label": "Escalated",
+        "color": "#FF0000"
+    },
+    
+    {
+        "data": [["Mon", 159],["Tue", 149],["Wed", 145],["Thu", 194],["Fri", 176],["Sat", 122],["Sun", 131]],
+        "label": "Closed",
+        "color": "#01c6ad"
+    }
+    
+ ]
+}

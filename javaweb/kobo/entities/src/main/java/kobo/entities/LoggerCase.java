@@ -1,16 +1,12 @@
 package kobo.entities;
 
 import java.io.Serializable;
-
 import javax.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.sql.Timestamp;
 
 
 /**
- * The persistent class for the logger_note database table.
+ * The persistent class for the logger_case database table.
  * 
  */
 @Entity
@@ -20,59 +16,32 @@ public class LoggerCase implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(unique=true, nullable=false)
 	private Integer id;
 
-	@Column(name="date_created", nullable=false)
+	@Column(name="date_created")
 	private Timestamp dateCreated;
 
-	@Column(name="date_modified", nullable=false)
+	@Column(name="date_modified")
 	private Timestamp dateModified;
 
-	@Column(nullable=false)
 	private String note;
 
+	private String status;
+
+	//bi-directional many-to-one association to AuthUser
+	@ManyToOne
+	@JoinColumn(name="consultant_id")
+	private AuthUser consultant;
+
+	//bi-directional many-to-one association to AuthUser
+	@ManyToOne
+	@JoinColumn(name="user_id")
+	private AuthUser owner;
+
 	//bi-directional many-to-one association to LoggerInstance
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name="instance_id")
 	private LoggerInstance loggerInstance;
-	
-	@OneToOne
-	@JoinColumn(name="user_id", nullable=false)
-	private AuthUser authUser;
-	
-	@JsonIgnore
-	public AuthUser getAuthUser() {
-		return authUser;
-	}
-
-	public void setAuthUser(AuthUser authUser) {
-		this.authUser = authUser;
-	}
-
-	@Column(name="longitude", nullable=false)
-	private Double longitude;
-	
-	public Double getLongitude() {
-		return longitude;
-	}
-
-	public void setLongitude(Double longitude) {
-		this.longitude = longitude;
-	}
-
-	public Double getLatitude() {
-		return latitude;
-	}
-
-	public void setLatitude(Double latitude) {
-		this.latitude = latitude;
-	}
-
-	@Column(name="latitude", nullable=false)
-	private Double latitude;
-
 
 	public LoggerCase() {
 	}
@@ -107,6 +76,30 @@ public class LoggerCase implements Serializable {
 
 	public void setNote(String note) {
 		this.note = note;
+	}
+
+	public String getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public AuthUser getOwner() {
+		return this.owner;
+	}
+
+	public void setOwner(AuthUser authUser1) {
+		this.owner = authUser1;
+	}
+
+	public AuthUser getConsultant() {
+		return this.consultant;
+	}
+
+	public void setConsultant(AuthUser authUser2) {
+		this.consultant = authUser2;
 	}
 
 	public LoggerInstance getLoggerInstance() {

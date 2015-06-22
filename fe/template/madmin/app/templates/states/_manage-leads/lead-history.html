@@ -1,0 +1,31 @@
+<div class="row">
+	<table class="table table-hover table-advanced table-bordered">
+		<thead class="primary">
+			<tr>
+				<th style="width: 5%;">#</th>
+				<th>Date</th>
+				<th>New Disp 1</th>
+				<th>New Disp 2</th>
+				<th>Old Disp 1</th>
+				<th>Old Disp 1</th>
+				<th>Reason</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr data-ng-repeat="data in showCase.leadHistory">
+				<td>{{data.number}}</td>
+				<td>{{data.date | date:'dd-M-yyyy'}}</td>
+				<td>{{data.newDisposition1}}</td>
+				<td>{{data.newDisposition2}}</td>
+				<td>{{data.oldDisposition1}}</td>
+				<td>{{data.oldDisposition2}}</td>
+				<td>{{data.reason}}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<style>
+.page-content {
+	min-height: 300px;
+}
+</style>

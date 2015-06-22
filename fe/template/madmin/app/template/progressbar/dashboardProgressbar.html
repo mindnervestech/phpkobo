@@ -1,0 +1,21 @@
+<a ui-sref="{{value.href}}" >
+<div  class="panel-body">
+           <p class="icon"><i class="{{value.iconClass}}"></i></p>
+           <h4 class="value">
+            <span>{{value.actualValue}}</span>
+            <span>{{value.symbol}}</span>
+           </h4>
+            <p class="description">{{value.description}}</p>
+			
+			<div class="progress progress-sm mbn">
+			    <div class="progress-bar" 
+			    ng-class="value.type && 'progress-bar-' + value.type" 
+			    role="progressbar" 
+			    aria-valuenow="{{value.value}}" 
+			    aria-valuemin="0" 
+			    aria-valuemax="{{max}}" 
+			    ng-style="{width: percent + '%'}" 
+			    aria-valuetext="{{percent | number:0}}%" ng-transclude>
+			    </div>
+			</div>
+</div></a>

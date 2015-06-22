@@ -1,0 +1,11 @@
+{
+"columns" :  [
+            { "data": "name", "name":"Name" },
+            { "data": "position","name":"Position" },
+            { "data": "office","name":"Office Ph" },
+            { "data": "extn","name":"Extn" },
+            { "data": "start_date","name":"Start Date" },
+            { "data": "salary","name":"Salary" }
+        ]
+
+}

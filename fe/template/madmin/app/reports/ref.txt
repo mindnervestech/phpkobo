@@ -1,0 +1,15 @@
+http://selmanh.github.io/angularjs-form-builder/#/forms/create
+https://github.com/Textalk/angular-schema-form
+https://github.com/Textalk/angular-schema-form/blob/master/docs/index.md
+http://schemaform.io/examples/bootstrap-example.html
+https://github.com/danhunsaker/angular-dynamic-forms
+
+
+
+http://pykcharts.com/
+
+
+TODO:
+adding all to select
+chaingin of select box
+grid header disappear after re-seach

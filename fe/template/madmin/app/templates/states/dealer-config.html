@@ -1,0 +1,58 @@
+<div class="row" >
+  <div class="col-lg-12">
+    <div class="panel panel-red">
+      <div class="panel-heading">Dealer Bucket Configuration</div>
+      <div class="panel-body pan">
+        <form role="form" class="form-horizontal form-bordered">
+          <div class="form-actions pal">
+            <button type="submit" class="btn btn-primary" data-ng-click="updateDealerConfig()">Save</button>&nbsp;
+          </div>
+          <div class="form-body">
+       		<div class="form-group">
+              <label class="control-label col-md-3" style="padding-top: 27px;">Pin-Code</label>
+              <div class="col-md-4">
+                <tags-input on-tag-added="onTagAdded($tag)" ng-model="zipcode" placeholder="Enter Pin-Code" max-tags="1" display-property="pin" add-from-autocomplete-only="true">
+			      <auto-complete  source="loadPin($query)"></auto-complete>
+			    </tags-input>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-12" >
+		     <div class="portlet-body">
+		        <div class="row mbm">
+		          <div class="col-lg-12">
+		            <div class="table-responsive"  >
+		              <table id="my_leads"
+		              class="table table-hover table-striped table-bordered table-advanced tablesorter display tb-sticky-header">
+		              	<thead>
+		                  <tr>
+		                   <!-- <th style="width: 3%; padding: 10px; background: #efefef">
+		                      <input type="checkbox" class="checkall"/>
+		                    </th> -->
+		                    <th style="background-color: #dc6767;color:white;" width="30%">Name</th>
+		                    <th style="background-color: #dc6767;color:white;" width="50%">Address</th>
+		                    <th style="background-color: #dc6767;color:white;" width="20%">Percentage</th>
+		                  </tr>
+		                  </thead>
+		                  
+		          		  <tbody>
+		                  <tr data-ng-repeat="dealer in dealerConfig">
+		                    <!-- <td><label class="checkbox checkbox-custom checkbox-custom-sm m-0">
+		                    <input type="checkbox" data-ng-model="order.selected"><i></i></label></td> -->
+		                    <td>{{ dealer.dealerName }}</td>
+		                    <td>{{ dealer.dealerAddress }}</td>
+		                    <td><input type="text"  class="form-control" data-ng-model="dealer.percentage"></td>
+		                  </tr>
+		                  </tbody>	        
+		              </table>
+		            </div>
+		           </div>
+		          </div>
+		      </div>      
+		  </div>        
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

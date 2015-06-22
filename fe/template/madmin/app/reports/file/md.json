@@ -1,0 +1,110 @@
+[
+	{
+		"jsonForm":[
+			{
+			"type":"section",
+			"htmlClass":"row",
+			
+			"items":[
+				{
+					"htmlClass":"col-xs-1",
+					"type":"section",
+					"items":[
+						{"key":"name","feedback":false,"labelHtmlClass":"labelHtmlClass","fieldHtmlClass":"input-sm-cust"}
+					]
+					
+				},
+				{
+					"items":[
+						{"key":"email","feedback":false,"labelHtmlClass":"labelHtmlClass","fieldHtmlClass":"input-sm-cust"}
+					],
+					"htmlClass":"col-xs-1 form-group-sm",
+					"type":"section"
+				},
+				{
+					"items":[
+						{
+						"key":"department","feedback":false,
+						"fieldHtmlClass":"input-sm-cust","type":"select","labelHtmlClass":"labelHtmlClass",
+						 "titleMap":[
+						     {"value":"a","name":"1"},
+						     {"value":"b","name":"2"}
+						
+						 ]
+						}
+					],
+					"htmlClass":"col-xs-1",
+					"type":"section"
+				},
+				{
+					"items":[
+						{
+						"key":"department2","feedback":false, "type":"checkboxes","labelHtmlClass":"labelHtmlClass",
+						 "titleMap":[
+						     {"value":"a","name":"this is checkbox 1"},
+						     {"value":"b","name":"this is checkbox 2"}
+						
+						 ]
+						}
+					],
+					"htmlClass":"col-xs-1-5",
+					"type":"section"
+				},
+				{
+					"items":[
+						{
+						"key":"department3","feedback":false, "type":"strapselect","htmlClass":"strapselect-multiple",
+						"placeholder":"Please Select",
+						"options": {"multiple": "true", "inlineMaxLength": "2",
+                					"inlineMaxLengthHtml": "Too many items to show..." } ,"labelHtmlClass":"labelHtmlClass",
+						 "titleMap":[
+						     {"value":"a","name":"this is checkbox 1"},
+						     {"value":"b","name":"this is checkbox 2"}
+						
+						 ]
+						}
+					],
+					"htmlClass":"col-xs-1",
+					"type":"section"
+				},
+				{
+					"items":[
+						{
+						"key":"fromdate","htmlClass":"strapselect-date","feedback":false,
+						"fieldHtmlClass":"input-sm-cust","labelHtmlClass":"labelHtmlClass"
+						}
+					],
+					"htmlClass":"col-xs-1",
+					"type":"section"
+				},
+				{
+					"items":[
+						{
+						"key":"todate","htmlClass":"strapselect-date","feedback":false,
+						"fieldHtmlClass":"input-sm-cust","labelHtmlClass":"labelHtmlClass"
+						}
+					],
+					"htmlClass":"col-xs-1",
+					"type":"section"
+				}
+			]
+			}
+		],
+		
+		"jsonSchema":{
+			"properties":{
+				"email":{"title":"Email","type":"string"},
+				"name":{"title":"Name","type":"string"},
+				"department":{"title":"Department","type":"string"},
+				"department2":{"title":"Department 2","type":"string"},
+				"department3":{"title":"Department 3","type":"array","items": { "type": "string"}},
+				"fromdate":{"title":"Date","type":"string","format":"datepicker"},
+				"todate":{"title":"Date","type":"string","format":"datepicker"}
+			},
+			"type":"object","title": "Comment"
+		},
+		"name":"Customer",
+		"description":"this is report for all users",
+		"id":1
+	}
+]

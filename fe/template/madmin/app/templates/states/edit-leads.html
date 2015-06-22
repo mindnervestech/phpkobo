@@ -1,0 +1,18 @@
+<div id="table-advanced" class="row" data-ng-controller="ManageLeadsTableCtrl as showCase">
+  <div class="col-lg-12">
+  <a ui-sref="manage-leads"  class="btn btn-primary" style="float:right;"><i class="fa fa-reply"></i>&nbsp;Back To Manage Leads</a>
+    <ul id="tableadvancedTab" ng-tab="" class="nav nav-tabs">
+      <li class="active"><a href="#table-sorter-tab" data-toggle="tab">Lead Details</a></li>
+      <li><a href="#table-color-tab" data-toggle="tab">Lead History</a></li>
+      
+    </ul>
+    <div id="tableadvancedTabContent" class="tab-content">
+      <div id="table-sorter-tab" class="tab-pane fade in active">
+        <ng-include src="'templates/states/lead-details.html'"></ng-include>
+      </div>
+      <div id="table-color-tab" class="tab-pane fade">
+        <ng-include src="'templates/states/lead-history.html'"></ng-include>
+      </div>
+    </div>
+  </div>
+</div>

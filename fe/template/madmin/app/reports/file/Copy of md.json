@@ -1,0 +1,12 @@
+{
+			"properties":{
+				"dealer_name":{"title":"Dealer Name","type":"string"},
+				"city":{"title":"City","type":"string"},
+				"state":{"title":"State","type":"string"},
+				"zone":{"title":"Zone","type":"array","items": { "type": "string"}},
+				"status":{"title":"Status","type":"array","items": { "type": "string"}},
+				"fromdate":{"title":"Date","type":"string","format":"datepicker"},
+				"todate":{"title":"Date","type":"string","format":"datepicker"}
+			},
+			"type":"object","title": "form"
+		}

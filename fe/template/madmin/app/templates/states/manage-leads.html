@@ -1,0 +1,21 @@
+<div id="table-advanced" class="row" >
+  <div class="col-lg-12">
+  <a data-ng-click="manageLeadTab()" id="gotoManage" style="display:none" class="btn btn-primary" style="float:right;"><i class="fa fa-reply"></i>&nbsp;Back To Manage Leads</a>
+    <ul id="tableadvancedTab" ng-tab="" class="nav nav-tabs">
+      <li id="myLeads" class="active"><a id="myLeadsTab" href="#lead-grid-tab" data-toggle="tab"><i class="fa fa-table"></i> {{showCase.tabHeading}}</a></li>
+      <li id="leadDetails" style="display: none;"><a  id="leadDetailsTab" href="#table-sorter-tab" data-toggle="tab">Lead Details</a></li>
+     	  <li id="leadHistory" style="display: none;"><a href="#table-color-tab" data-toggle="tab">Lead History</a></li>
+    </ul>
+    <div id="tableadvancedTabContent" class="tab-content">
+      <div id="lead-grid-tab" class="tab-pane fade in active">
+        <ng-include src="'templates/states/_manage-leads/manage-leads-table.html'" onload="table_advanced_update()"></ng-include>
+      </div>
+      <div id="table-sorter-tab" class="tab-pane fade">
+        <ng-include src="'templates/states/_manage-leads/lead-details.html'"></ng-include>
+      </div>
+      <div id="table-color-tab" class="tab-pane fade">
+        <ng-include src="'templates/states/_manage-leads/lead-history.html'"></ng-include>
+      </div>
+    </div>
+  </div>
+</div>

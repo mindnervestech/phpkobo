@@ -1,0 +1,228 @@
+<div class="row">
+<div class="col-lg-12">
+            <div class="panel panel-red">
+              <div class="panel-heading">Lead Details</div>
+              <div class="panel-body pan">
+                <form action="">
+                  <div class="form-actions top pll prl">
+                  <div class="row">
+	                  <div data-ng-if="showCase.lead.isCompleated">
+	                   <div class="form-group col-md-12" style="font-size: 23px;margin-bottom: 0px; ">
+	                    	<i data-ng-if="showCase.lead.disposition2 == 'Won' " class="icon fa fa-thumbs-up"></i>
+	                    	<i data-ng-if="showCase.lead.disposition2 == 'Lost' " class="icon fa fa-thumbs-down"></i>
+	                      <label for="inputUsername" class="control-label">{{showCase.lead.disposition2}}</label>
+		                 
+	                  	</div>
+	                  	
+	                  </div>
+							<div ng-if="!showCase.lead.isCompleated">
+								<div class="col-md-3">
+									<button data-ng-click="updateLead()" class="btn btn-primary">Save</button>
+									&nbsp;
+								</div>
+
+								<div class="col-md-9">
+									<div class="form-group col-md-6">
+										<label class="control-label">Disposition 1</label>
+										<div class="">
+											<select data-style="btn-white" ng-model="dropdown"
+												class="selectpicker form-control"
+												ng-change="selectDropdown1(dropdown)"
+												ng-options="b.name for b in dispositoion1">
+												<option value="">Select</option>
+											</select>
+										</div>
+									</div>
+									<div class="form-group col-md-6" id="desposition2"
+										style="display: none">
+										<label class="control-label ">Disposition 2</label>
+										<div class="">
+											<select data-style="btn-white" ng-model="category"
+												class="selectpicker form-control"
+												ng-change="selectDropdown2(category)"
+												ng-options="c.name for c in dispositoion2">
+												<option value="">Select</option>
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-9">
+									<div class="form-group mbn" style="display: none" id="reason">
+										<label for="inputContent" class="control-label">Reason</label>
+										<textarea id="inputContent"
+											data-ng-model="showCase.lead.reason" rows="2"
+											class="form-control"></textarea>
+									</div>
+									<!-- <div class="form-group" style="display:none" id="date">
+		                        <label class=" control-label">Define Follow-up</label>
+		                        <div class="control col-xs-12">
+		                          <div class="row datetimepicker">
+		                            <div class="col-xs-12">
+		                               <div id="datetimepicker"></div>
+		                            </div>
+		                          </div>
+		                        </div>
+		                    </div> -->
+									<ng-bs3-datepicker style="display:none; height:230px"
+										language="ca" ng-model="dpDate" id="date"></ng-bs3-datepicker>
+								</div>
+							</div>
+						</div>
+                  </div>
+                  <div class="form-body pal">
+                  <div class="row">
+                   <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputUsername" class="control-label">Lead Number</label>
+                      <div class="input-icon"><!-- <i class="fa fa-user"></i> -->
+                        <input id="inputUsername" type="text" placeholder="Lead Number" value="{{showCase.lead.leadNumber}}" style="cursor: auto;" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                   </div> 
+                   <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputEmail" class="control-label">Assigned Date</label>
+                      <div class="input-icon"><!-- <span class="input-group-addon"><i class="fa fa-envelope"></i> --></span>
+                        <input type="text" placeholder="Assigned Date" value="11 May 2015" style="cursor: auto;" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                    </div>
+                    <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputEmail" class="control-label">Product Name</label>
+                      <div class="input-icon"><!-- <span class="input-group-addon"><i class="fa fa-envelope"></i> --></span>
+                        <input type="text" placeholder="Product Name" value="{{showCase.lead.name}}" style="cursor: auto;" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                    </div>
+                    </div>
+                    
+                    <div class="row">
+                    <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputEmail" class="control-label">Contact Name</label>
+                      <div class="input-icon"><i class="fa fa-user"></i>
+                        <input type="text" placeholder="Contact Name" value="{{showCase.lead.nam}}" style="cursor: auto;" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                    </div>
+                   <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputUsername" class="control-label">Email</label>
+                      <div class="input-icon"><i class="fa fa-envelope"></i>
+                        <input id="inputUsername" type="text" placeholder="email" style="cursor: auto;" value="{{showCase.lead.email}}" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                   </div> 
+                   <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputEmail" class="control-label">Contact Number</label>
+                      <div class="input-icon"><!-- <span class="input-group-addon"><i class="fa fa-envelope"></i> --></span>
+                        <input type="text" placeholder="Contact Number" value="{{showCase.lead.contactNo}}" style="cursor: auto;" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                    </div>
+                    </div>
+                    
+                    <div class="row">
+                    <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputEmail" class="control-label">State</label>
+                      <div class="input-icon"><!-- <span class="input-group-addon"><i class="fa fa-envelope"></i> --></span>
+                        <input type="text" placeholder="State" value="{{showCase.lead.state}}" style="cursor: auto;" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                    </div>
+                   <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputUsername" class="control-label">City</label>
+                      <div class="input-icon"><!-- <i class="fa fa-user"></i> -->
+                        <input id="inputUsername" type="text" placeholder="City" value="{{showCase.lead.city}}" style="cursor: auto;" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                   </div> 
+                   <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputEmail" class="control-label">Pincode</label>
+                      <div class="input-icon"><!-- <span class="input-group-addon"><i class="fa fa-envelope"></i> --></span>
+                        <input type="text" placeholder="Pincode" value="{{showCase.lead.pinCode}}" style="cursor: auto;" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                    </div>
+                    </div>
+                    
+                    <div class="row">
+                    <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputEmail" class="control-label">Type</label>
+                      <div class="input-icon"><!-- <span class="input-group-addon"><i class="fa fa-envelope"></i> --></span>
+                        <input type="text" placeholder="Type" value="{{showCase.lead.type}}" style="cursor: auto;" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                    </div>
+                   <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputUsername" class="control-label">Campaign Name</label>
+                      <div class="input-icon"><!-- <i class="fa fa-user"></i> -->
+                        <input id="inputUsername" type="text" value="{{showCase.lead.campaignName}}" style="cursor: auto;" placeholder="Campaign Name" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                   </div> 
+                   <div class="col-md-4">
+	                    <div class="form-group">
+	                      <label for="inputUsername" class="control-label">Categorization</label>
+	                      <div class="input-icon">
+	                        <select class="form-control" disabled="disabled" style="cursor: auto;">
+	                        	<option value="{{showCase.lead.categorization}}">{{showCase.lead.categorization}}</option>
+	                        </select>
+	                      </div>
+	                    </div>
+                    </div>
+                   
+                    </div>
+                    
+                    <div class="row">
+                   <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputEmail" class="control-label">Area of Interest 1</label>
+                      <div class="input-icon"><!-- <span class="input-group-addon"><i class="fa fa-envelope"></i> --></span>
+                        <input type="text" placeholder="Area of Interest 1" style="cursor: auto;" value="{{showCase.lead.areaofInterest1}}" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                    </div>
+                    <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputEmail" class="control-label">Area of Interest 2</label>
+                      <div class="input-icon"><!-- <span class="input-group-addon"><i class="fa fa-envelope"></i> --></span>
+                        <input type="text" placeholder="Area of Interest 2" style="cursor: auto;" value="{{showCase.lead.areaofInterest2}}" class="form-control" readonly="readonly"/>
+                      </div>
+                    </div>
+                    </div> 
+                   <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="inputEmail" class="control-label">Remarks</label>
+                      <div class="input-icon"><!-- <span class="input-group-addon"><i class="fa fa-envelope"></i> --></span>
+                      	<textarea rows="2" class="form-control" disabled="disabled" style="cursor: auto;">{{showCase.lead.remarks1}}</textarea>
+                      </div>
+                    </div>
+                    </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+</div>    
+
+
+    <!-- <script type="text/javascript">
+        function explode(){
+        	 $('#datetimepicker').datetimepicker({
+                 inline: true,
+                 sideBySide: true
+             });
+        	 console.log( $('#datetimepicker').val())
+       	}
+       	setTimeout(explode, 100);
+    </script>
+ -->

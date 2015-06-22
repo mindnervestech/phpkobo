@@ -1,0 +1,14 @@
+
+<div id="table-advanced" class="row">
+  <div class="col-lg-12">
+    <ul id="productMappingTab" ng-tab="" class="nav nav-tabs">
+      
+      <li class="active"><a href="#lead-grid-tab" data-toggle="tab"><i class="fa fa-table"></i> Products</a></li>
+    </ul>
+    <div id="productMappingTabContent" class="tab-content">
+      <div id="lead-grid-tab" class="tab-pane fade in active">
+        <ng-include src="'templates/states/_product-mapping/product-mapping-table.html'" onload="table_advanced_update()"></ng-include>
+      </div>
+    </div>
+  </div>
+</div>

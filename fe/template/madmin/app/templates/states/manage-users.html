@@ -1,0 +1,21 @@
+<div id="table-advanced" class="row">
+  <div class="col-lg-12">
+    <ul id="manageUserTab" ng-tab="" class="nav nav-tabs">
+      
+      <li class="active"><a href="#user-details" data-toggle="tab" ng-click="hideUserTab()" id="userDetailsTab"><i class="fa fa-table"></i> Users</a></li>
+      <li><a href="#create-user" data-toggle="tab" ng-click="hideUserTab()"><i class="fa fa-file-text-o"></i> Create User</a></li>
+      <li id="userTab" style="display: none;"><a href="#show-user" data-toggle="tab" id="viewUserTab"><i class="fa fa-file-text-o"></i> View User</a></li>
+    </ul>
+    <div id="manageUserTabContent" class="tab-content">
+      <div id="user-details" class="tab-pane fade in active">
+        <ng-include src="'templates/states/_manage-users/manage-users-table.html'" onload="table_advanced_update()"></ng-include>
+      </div>
+      <div id="create-user" class="tab-pane fade">
+        <ng-include src="'templates/states/_manage-users/create-user.html'"></ng-include>
+      </div>
+       <div id="show-user" class="tab-pane fade">
+        <ng-include src="'templates/states/_manage-users/view-users.html'"></ng-include>
+      </div>
+    </div>
+  </div>
+</div>

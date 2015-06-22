@@ -1,0 +1,46 @@
+[
+	{
+		"initValue": {
+			"type":"warning", 
+			"iconClass":"icon fa fa-suitcase", 
+			"value":40 , 
+			"description":"Assigned Leads", 
+			"actualValue":"20", 
+			"symbol":""
+		}
+    			 
+	},
+	
+	{
+		"initValue": {
+			"type":"warning", 
+			"iconClass":"icon fa fa-folder-open", 
+			"value":80 , 
+			"description":"Open Leads", 
+			"actualValue":"50", 
+			"symbol":""
+		}		
+	},
+	
+	{
+		"initValue": {
+			"type":"success", 
+			"iconClass":"icon fa fa-thumbs-up", 
+			"value":80 , 
+			"description":"Won Leads", 
+			"actualValue":"30", 
+			"symbol":""
+		}		
+	},
+	
+	{
+		"initValue": {
+			"type":"danger", 
+			"iconClass":"icon fa fa-thumbs-down", 
+			"value":80 , 
+			"description":"Lost Leads", 
+			"actualValue":"10", 
+			"symbol":""
+		}		
+	}
+]

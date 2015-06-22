@@ -1,0 +1,30 @@
+
+<div class="page-header pull-left">
+  <div class="page-title">{{data.title}}</div>
+</div>
+<ol class="breadcrumb page-breadcrumb pull-left">
+  <!-- <li><i class="fa fa-home"></i>&nbsp;<a href="/#/">Home</a>&nbsp;&nbsp;<i class="fa fa-angle-right"></i></li>
+  <li ng-repeat="(k,v) in data.breadcrumb" ng-class="{active:$last}">
+    &nbsp;&nbsp;
+    {{v}}
+    &nbsp;&nbsp;<i ng-if="!$last" class="fa fa-angle-right"></i>
+  </li> -->
+</ol>
+<div class="btn btn-blue reportrange" style="float: right;"><i class="fa fa-calendar"></i>&nbsp;<span>May 7, 2015 - June 5, 2015</span>&nbsp;report&nbsp;<i class="fa fa-angle-down"></i><input type="hidden" name="datestart"><input type="hidden" name="endstart"></div>
+<div data-ng-if="userRole == 1 || userRole == 2 || userRole == 3 || userRole == 4 || userRole == 10" class="col-md-2" style = "padding: 7px; float: right;">
+  <div class="">
+    <select data-ng-model="zone" class="form-control btn-blue"  data-ng-change="getDashBoard(zone, product)"  required>
+    	<option value="0">All Zones</option>
+      <option data-ng-repeat="zone in zoneList" value="{{zone.name}}" >{{zone.name}}</option>
+    </select>
+  </div>
+</div>
+<div data-ng-if="userRole == 1 || userRole == 2 || userRole == 3 || userRole == 4 || userRole == 10" class="col-md-2" style = "padding: 7px; float: right;">
+  <div class="">
+    <select data-ng-model="product" class="form-control btn-blue"  data-ng-change="getDashBoard(zone, product)"  required>
+    	<option value="0">All Products</option>
+      <option data-ng-repeat="product in productList" value="{{product.id}}" >{{product.name}}</option>
+    </select>
+  </div>
+</div>
+<div class="clearfix"></div>

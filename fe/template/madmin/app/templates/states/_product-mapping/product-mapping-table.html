@@ -1,0 +1,54 @@
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-red">
+      <div class="panel-heading">Product Mapping</div>
+      <div class="panel-body pan">
+        <form role="form" class="form-horizontal form-bordered">
+          <div class="form-body">
+       		<div class="form-group">
+              <label class="control-label col-md-3">Select Brand</label>
+              <div class="col-md-4">
+                <select data-style="btn-white"  ng-model="brand"  class="selectpicker form-control" ng-change="selectBrand(brand)" ng-options="b.name for b in brands">
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-md-3">Select Category</label>
+              <div class="col-md-4">
+                <select data-style="btn-white"  ng-model="category"  class="selectpicker form-control" ng-change="selectCategory(brand)" ng-options="c.name for c in categories">
+                </select>
+              </div>
+            </div>
+            <div class="form-group" id="product-list" style="display:none;">
+              <label class="control-label col-md-3">Select Products</label>
+              <div class="col-md-6">
+                <select id="pre-selected-options" multiple="multiple">
+                  <option value="elem_1" selected="selected">Product Name 1</option>
+                  <option value="elem_2">Product Name 2</option>
+                  <option value="elem_3">Product Name 3</option>
+                  <option value="elem_4" selected="selected">Product Name 4</option>
+                  <option value="elem_5">Product Name 5</option>
+                  <option value="elem_6">Product Name 6</option>
+                  <option value="elem_7">Product Name 7</option>
+                  <option value="elem_8">Product Name 8</option>
+                  <option value="elem_9">Product Name 9</option>
+                  <option value="elem_10">Product Name 10</option>
+                  <option value="elem_11">Product Name 11</option>
+                  <option value="elem_12">Product Name 12</option>
+                  <option value="elem_13">Product Name 13</option>
+                  <option value="elem_14">Product Name 14</option>
+                  <option value="elem_15">Product Name 15</option>
+                  <option value="elem_16">Product Name 16</option>
+                  <option value="elem_17">Product Name 17</option>
+                  <option value="elem_18">Product Name 18</option>
+                  <option value="elem_19">Product Name 19</option>
+                  <option value="elem_20">Product Name 20</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,149 @@
+<div class="row" ng-controller="DealersTableCtrl">
+          <div class="col-lg-12">
+            <div class="panel panel-red">
+              <div class="panel-heading">View Dealer</div>
+              <div class="panel-body pan">
+                <form ng-submit="updateDealer(showCase.dealer)" class="horizontal-form">
+                  <div class="form-body pal">
+                    
+                    <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group has-success">
+                          <label for="inputFirstName" class="control-label">Dealer Code <span class='require'>*</span></label>
+                          <div class="input-icon">
+                            <input id="inputFirstName" type="text" placeholder="Dealer Code" ng-model="showCase.dealer.code" class="form-control"/>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group has-success">
+                          <label for="inputFirstName" class="control-label">Dealer Name <span class='require'>*</span></label>
+                          <div class="input-icon"><i class="fa fa-user"></i>
+                            <input id="inputFirstName" type="text" placeholder="Dealer Name" ng-model="showCase.dealer.name" class="form-control"/>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group has-success">
+                          <label for="inputFirstName" class="control-label">Customer Group </label>
+                          <div class="input-icon">
+                            <input id="inputFirstName" type="text" placeholder="Customer Group" ng-model="showCase.dealer.customerGroup" class="form-control"/>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group has-success">
+                          <label for="inputFirstName" class="control-label">Phone </label>
+                          <div class="input-icon">
+                            <input id="inputFirstName" type="text" placeholder="Phone" ng-model="showCase.dealer.phone" class="form-control"  data-ng-pattern="/^[0-9]{1,10}$/"/>
+                             <span ng-show="myForm.price_field.$error.pattern">Not a valid number!</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="inputEmail" class="control-label">Email <span class='require'>*</span></label>
+                          <div class="input-icon"><i class="fa fa-envelope"></i>
+                            <input type="email" placeholder="Email Address" ng-model="showCase.dealer.email" class="form-control"/>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="selPSM" class="control-label">Zone <span class='require'>*</span></label>
+                          <select id="selPSM" ng-model="showCase.dealer.zone" data-ng-change="getRSM(showCase.dealer.zone)" class="form-control">
+                          	<option value="">Select Zone</option>
+                            <option data-ng-selected="showCase.dealer.zone.id == zone.id" ng-repeat="zone in zoneList" value="{{zone}}" >{{zone.name}}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="selPSM" class="control-label">Territory <span class='require'>*</span></label>
+                          <select id="selPSM" ng-model="showCase.dealer.territory" class="form-control">
+                            <option value="">Select Territory</option>
+                            <option data-ng-selected="showCase.dealer.territory.id == t.id" ng-repeat="t in territoryList" value="{{t}}" >{{t.name}}</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="selPSM" class="control-label">RSM <span class='require'>*</span></label>
+                          <select id="selPSM" ng-model="showCase.dealer.rsm" class="form-control">
+                            <option value="">Select RSM</option>
+                            <option data-ng-selected="showCase.dealer.rsm == t.id" data-ng-repeat="t in rsm" value="{{t.id}}" >{{t.name}}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label for="inputPinCodes" class="control-label">Pin-Codes</label>
+                          <tags-input ng-model="showCase.dealer.pins" display-property="pin" add-from-autocomplete-only="true">
+						      <auto-complete source="loadPin($query)"></auto-complete>
+						  </tags-input>
+                        </div>
+                      </div>
+                    </div>
+                   
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label for="inputStreet" class="control-label">Address Line <span class='require'>*</span></label>
+                          <textarea rows="1" cols="" ng-model="showCase.dealer.address" class="form-control"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="selPSM" class="control-label">State <span class='require'>*</span></label>
+                          <select id="selPSM" ng-model="showCase.dealer.state" class="form-control">
+                           <option value="">Select state</option>
+                            <option ng-repeat="state in stateList" value="{{state.name}}" >{{state.name}}</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="selPSM" class="control-label">District <span class='require'>*</span></label>
+                          <select id="selPSM" ng-model="showCase.dealer.district" class="form-control">
+                            <option value="">Select District</option>
+                            <option ng-repeat="district in districtList" value="{{district.name}}" >{{district.name}}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group has-success">
+                          <label for="inputFirstName" class="control-label">Sub District </label>
+                          <div class="input-icon">
+                            <input id="inputFirstName" type="text" ng-model="showCase.dealer.subdist" placeholder="Sub District" class="form-control"/>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="inputPostCode" class="control-label">Zip Code</label>
+                          <input id="inputPostCode" type="text" ng-model="showCase.dealer.zipCode" placeholder="Zip Code" class="form-control"/>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-actions text-right pal">
+                    <button type="submit" class="btn btn-primary">Submit</button>&nbsp;
+                    <button type="button" class="btn btn-green">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>

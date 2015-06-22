@@ -41,16 +41,18 @@ public class ApplicationController {
 	@Autowired
     private SessionFactory sessionFactory;
 	
+	public static String KOBOCAT_URL = "http://192.168.1.9:8001";
+	
 	@RequestMapping(value="case",method=RequestMethod.POST)
 	@ResponseBody
 	@Transactional
 	public LoggerCase createCase(HttpServletRequest httpRequest,@RequestBody String payload) throws JsonParseException, JsonMappingException, IOException {
 		
-		AuthUser user = getUserFromRequest(httpRequest);
+		AuthUser user = getUserFromRequest(httpRequest,sessionFactory);
 		if(user != null) {
 			ObjectMapper mapper = new ObjectMapper();
 			LoggerCase casse = mapper.readValue(payload, LoggerCase.class);
-			casse.setAuthUser(user);
+			casse.setOwner(user);
 			sessionFactory.getCurrentSession().persist(casse);	
 			return casse;
 		}
@@ -59,15 +61,15 @@ public class ApplicationController {
 	
 	@RequestMapping(value="login",method=RequestMethod.POST)
 	@ResponseBody
-	private JsonNode login (HttpServletRequest httpRequest) throws UnirestException {
+	private String login (HttpServletRequest httpRequest) throws UnirestException {
 		String username = httpRequest.getParameter("username");
 		String password = httpRequest.getParameter("password");
-		HttpResponse<JsonNode> response = Unirest.post("http://localhost:8001/api/v1/login").
+		HttpResponse<JsonNode> response = Unirest.post(KOBOCAT_URL + "/api/v1/login").
 		basicAuth(username, password).asJson();
 		JsonNode node = response.getBody();
 		HttpSession session = httpRequest.getSession();
 		session.setAttribute("user", node);
-		return node;
+		return node.toString();
 	}
 	
 	@RequestMapping(value="logout",method=RequestMethod.POST)
@@ -78,7 +80,7 @@ public class ApplicationController {
 		return "logout";
 	}
 
-	private AuthUser getUserFromRequest(HttpServletRequest httpRequest) {
+	public static AuthUser getUserFromRequest(HttpServletRequest httpRequest,SessionFactory sessionFactory) {
 		
 		sessionFactory.getCurrentSession().createCriteria(AuthUser.class)
 		.add(Restrictions.eq("username", "?"))
@@ -122,17 +124,16 @@ public class ApplicationController {
 	@RequestMapping(value="case",method=RequestMethod.GET)
 	@ResponseBody
 	@Transactional(readOnly=true)
-	public List allUserCases(HttpServletRequest httpRequest) {
-		AuthUser user = getUserFromRequest(httpRequest);
+	public List allOwnedUserCases(HttpServletRequest httpRequest) {
+		AuthUser user = getUserFromRequest(httpRequest,sessionFactory);
 		
 		List cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
-		.add(Restrictions.eq("authUser", user))
+		.add(Restrictions.eq("owner", user))
 		.list();
-		
 		return cases;
-		
-		
 	}
+	
+	
 	
 	
 	

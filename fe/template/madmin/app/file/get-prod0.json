@@ -1,0 +1,72 @@
+[
+{
+	"id":1,
+	"name":"Product 1",
+	"selected":false
+},
+{
+	"id":2,
+	"name":"Product 2",
+	"selected":true
+},
+{
+	"id":3,
+	"name":"Product 3",
+	"selected":false
+},
+{
+	"id":4,
+	"name":"Product 4",
+	"selected":true
+},
+{
+	"id":5,
+	"name":"Product 5",
+	"selected":false
+},
+{
+	"id":6,
+	"name":"Product 6",
+	"selected":true
+},
+{
+	"id":7,
+	"name":"Product 7",
+	"selected":false
+},
+{
+	"id":8,
+	"name":"Product 8",
+	"selected":false
+},
+{
+	"id":9,
+	"name":"Product 9",
+	"selected":false
+},
+{
+	"id":10,
+	"name":"Product 10",
+	"selected":false
+},
+{
+	"id":11,
+	"name":"Product 11",
+	"selected":true
+},
+{
+	"id":12,
+	"name":"Product 12",
+	"selected":false
+},
+{
+	"id":13,
+	"name":"Product 13",
+	"selected":false
+},
+{
+	"id":14,
+	"name":"Product 14",
+	"selected":true
+}
+]

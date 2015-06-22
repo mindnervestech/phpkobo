@@ -1,0 +1,21 @@
+<div id="table-advanced" class="row">
+  <div class="col-lg-12" >
+    <ul id="manageRoleTab" ng-tab="" class="nav nav-tabs">
+      
+      <li class="active"><a href="#roles-details" data-toggle="tab" ng-click="hideRoleTab()" id="roleDetailsTab"><i class="fa fa-table"></i> Roles </a></li>
+      <li><a href="#create-role" data-toggle="tab" ng-click="hideRoleTab()"><i class="fa fa-file-text-o"></i> Create Roles</a></li>
+      <li id="roleTab" style="display: none;"><a href="#show-role" data-toggle="tab" id="viewRoleTab"><i class="fa fa-file-text-o"></i> View Roles</a></li>
+    </ul>
+    <div id="manageRoleTabContent" class="tab-content">
+      <div id="roles-details" class="tab-pane fade in active">
+        <ng-include src="'templates/states/_manage-roles/manage-roles-table.html'" onload="table_advanced_update()"></ng-include>
+      </div>
+      <div id="create-role" class="tab-pane fade">
+        <ng-include src="'templates/states/_manage-roles/create-role.html'"></ng-include>
+      </div>
+       <div id="show-role" class="tab-pane fade">
+        <ng-include src="'templates/states/_manage-roles/view-roles.html'"></ng-include>
+      </div>
+    </div>
+  </div>
+</div>

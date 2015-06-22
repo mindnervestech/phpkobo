@@ -1,0 +1,14 @@
+[
+{
+	"roleName":"Dealer",
+	"description":"Dealer"
+},
+{
+	"roleName":"RSM",
+	"description":"Regional Service Manager" 
+},
+{
+	"roleName":"CU",
+	"description":"Cooperate User"
+}
+]

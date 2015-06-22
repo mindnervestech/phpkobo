@@ -1,0 +1,188 @@
+[
+{
+	"leadNumber":110515001,
+	"contactName":"Nivedita Parulkar",
+	"email":"nivedita.parulkar@bshg.com",
+	"contactNumber":"9999999999",
+	"pincode":"411040",
+	"product":"Dishwasher",
+	"status":"Escalated"
+}
+,
+{
+	"leadNumber":110515002,
+	"contactName":"Bhavya Shah",
+	"email":"bhavya.shah@bshg.com",
+	"contactNumber":"8888888888",
+	"pincode":"411041",
+	"product":"Refrigerator",
+	"status":"Contacted"
+},
+{
+	"leadNumber":110515003,
+	"contactName":"Subraman K",
+	"email":"subraman.k@bshg.com",
+	"contactNumber":"7777777777",
+	"pincode":"411042",
+	"product":"Washing Machine",
+	"status":"Tried Contacted"
+},
+{
+	"leadNumber":110515004,
+	"contactName":"Nivedita Parulkar",
+	"email":"nivedita.parulkar@bshg.com",
+	"contactNumber":"9999999999",
+	"pincode":"411040",
+	"product":"Drier",
+	"status":"Callback"
+}
+,
+{
+	"leadNumber":110515005,
+	"contactName":"Bhavya Shah",
+	"email":"bhavya.shah@bshg.com",
+	"contactNumber":"8888888888",
+	"pincode":"411041",
+	"product":"Refrigerator",
+	"status":"Quote Sent"
+},
+{
+	"leadNumber":110515006,
+	"contactName":"Subraman K",
+	"email":"subraman.k@bshg.com",
+	"contactNumber":"7777777777",
+	"pincode":"411042",
+	"product":"Washing Machine",
+	"status":"Tried Contacted"
+},
+{
+	"leadNumber":110515007,
+	"contactName":"Nivedita Parulkar",
+	"email":"nivedita.parulkar@bshg.com",
+	"contactNumber":"9999999999",
+	"pincode":"411040",
+	"product":"Dishwasher",
+	"status":"Escalated"
+}
+,
+{
+	"leadNumber":110515008,
+	"contactName":"Bhavya Shah",
+	"email":"bhavya.shah@bshg.com",
+	"contactNumber":"8888888888",
+	"pincode":"411041",
+	"product":"Drier",
+	"status":"Contacted"
+},
+{
+	"leadNumber":110515009,
+	"contactName":"Subraman K",
+	"email":"subraman.k@bshg.com",
+	"contactNumber":"7777777777",
+	"pincode":"411042",
+	"product":"Dish Washer",
+	"status":"Tried Contacted"
+},
+{
+	"leadNumber":110515010,
+	"contactName":"Nivedita Parulkar",
+	"email":"nivedita.parulkar@bshg.com",
+	"contactNumber":"9999999999",
+	"pincode":"411040",
+	"product":"Dishwasher",
+	"status":"Escalated"
+},
+{
+	"leadNumber":120515001,
+	"contactName":"Nivedita Parulkar",
+	"email":"nivedita.parulkar@bshg.com",
+	"contactNumber":"9999999999",
+	"pincode":"411040",
+	"product":"Dishwasher",
+	"status":"Escalated"
+}
+,
+{
+	"leadNumber":120515002,
+	"contactName":"Bhavya Shah",
+	"email":"bhavya.shah@bshg.com",
+	"contactNumber":"8888888888",
+	"pincode":"411041",
+	"product":"Refrigerator",
+	"status":"Contacted"
+},
+{
+	"leadNumber":120515003,
+	"contactName":"Subraman K",
+	"email":"subraman.k@bshg.com",
+	"contactNumber":"7777777777",
+	"pincode":"411042",
+	"product":"Washing Machine",
+	"status":"Tried Contacted"
+},
+{
+	"leadNumber":120515004,
+	"contactName":"Nivedita Parulkar",
+	"email":"nivedita.parulkar@bshg.com",
+	"contactNumber":"9999999999",
+	"pincode":"411040",
+	"product":"Drier",
+	"status":"Callback"
+}
+,
+{
+	"leadNumber":120515005,
+	"contactName":"Bhavya Shah",
+	"email":"bhavya.shah@bshg.com",
+	"contactNumber":"8888888888",
+	"pincode":"411041",
+	"product":"Refrigerator",
+	"status":"Quote Sent"
+},
+{
+	"leadNumber":120515006,
+	"contactName":"Subraman K",
+	"email":"subraman.k@bshg.com",
+	"contactNumber":"7777777777",
+	"pincode":"411042",
+	"product":"Washing Machine",
+	"status":"Tried Contacted"
+},
+{
+	"leadNumber":120515007,
+	"contactName":"Nivedita Parulkar",
+	"email":"nivedita.parulkar@bshg.com",
+	"contactNumber":"9999999999",
+	"pincode":"411040",
+	"product":"Dishwasher",
+	"status":"Escalated"
+}
+,
+{
+	"leadNumber":120515008,
+	"contactName":"Bhavya Shah",
+	"email":"bhavya.shah@bshg.com",
+	"contactNumber":"8888888888",
+	"pincode":"411041",
+	"product":"Drier",
+	"status":"Contacted"
+},
+{
+	"leadNumber":120515009,
+	"contactName":"Subraman K",
+	"email":"subraman.k@bshg.com",
+	"contactNumber":"7777777777",
+	"pincode":"411042",
+	"product":"Dish Washer",
+	"status":"Tried Contacted"
+},
+{
+	"leadNumber":120515010,
+	"contactName":"Nivedita Parulkar",
+	"email":"nivedita.parulkar@bshg.com",
+	"contactNumber":"9999999999",
+	"pincode":"411040",
+	"product":"Dishwasher",
+	"status":"Escalated"
+}
+]

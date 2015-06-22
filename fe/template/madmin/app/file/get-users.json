@@ -1,0 +1,23 @@
+[
+{
+	"name":"Nivedita Parulkar",
+	"email":"nivedita.parulkar@bshg.com",
+	"contactNumber":"9999999999",
+	"role":"Dealer",
+	"region":"West"
+},
+{
+	"name":"Bhavya Shah",
+	"email":"bhavya.shah@bshg.com",
+	"contactNumber":"8888888888",
+	"role":"Corporate User",
+	"region":"Corporate"
+},
+{
+	"name":"Subraman K",
+	"email":"subraman.k@bshg.com",
+	"contactNumber":"7777777777",
+	"role":"RSM",
+	"region":"West"
+}
+]
