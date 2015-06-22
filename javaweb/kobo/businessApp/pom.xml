@@ -152,4 +152,19 @@
 		
 		
   </dependencies>
+  <build>
+  
+    <finalName>webapp</finalName>
+    <plugins>
+    
+    <plugin>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>3.1</version>
+    <configuration>
+         <source>1.6</source> 
+         <target>1.6</target> 
+    </configuration>
+	</plugin>
+	</plugins>
+  </build>
 </project>
