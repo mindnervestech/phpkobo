@@ -41,7 +41,7 @@ public class ApplicationController {
 	@Autowired
     private SessionFactory sessionFactory;
 	
-	public static String KOBOCAT_URL = "http://192.168.1.9:8001";
+	public static String KOBOCAT_URL = "http://localhost:8001";
 	
 	@RequestMapping(value="case",method=RequestMethod.POST)
 	@ResponseBody

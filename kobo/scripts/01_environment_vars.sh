@@ -18,7 +18,7 @@ else
     THIS_SCRIPT_PATH=$(readlink -f "$0")
     SCRIPT_DIR=$(dirname "$THIS_SCRIPT_PATH")
 	
-    export HOME_VAGRANT="/home/jagbirs/git/dist-kobo-devel"
+    export HOME_VAGRANT="/home/phpkobo/kobo"
     [ `whoami` = "root" ] && export PROFILE_PATH=/root/.profile
     [ ! `whoami` = "root" ] && export PROFILE_PATH=$HOME_VAGRANT/.profile
 fi
