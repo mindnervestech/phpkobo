@@ -25,7 +25,10 @@ import android.widget.TextView;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.database.CaseRecord;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class CaseListAdapter extends BaseAdapter {
@@ -69,12 +72,38 @@ public class CaseListAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.case_list_item, null);
         TextView textView= (TextView) convertView.findViewById(R.id.caseIdText);
         relativeLayout= (RelativeLayout) convertView.findViewById(R.id.mainlayout1);
+        TextView textView1= (TextView) convertView.findViewById(R.id.dateText);
+        TextView textView2= (TextView) convertView.findViewById(R.id.addressText);
         CaseRecord item=mItems.get(position);
+
+        System.out.println("adapter::::::::::"+mItems.size());
+
         textView.setText(item.caseId+"");
-        if(item.status.equals("new")){
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        SimpleDateFormat output = new SimpleDateFormat("'Created on' EEE, MMM dd, yyyy 'at' HH:mm");
+        Date d = null;
+        try {
+            d = sdf.parse(item.dateCreated);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        String formattedTime = output.format(d);
+
+        textView1.setText(formattedTime);
+
+        textView2.setText(item.address);
+
+
+        if(item.status.equals("incomplete")){
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_yellow);
         }
-        if(item.status.equals("draft")){
+
+        if(item.status.equals("complete")){
+            relativeLayout.setBackgroundResource(R.drawable.rect_border_community_green);
+        }
+
+        if(item.status.equals("new")){
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_blue);
         }
 

@@ -53,6 +53,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -122,6 +123,10 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
             HttpResponse response = null;
             try {
                 Log.i(t, "Issuing HEAD request for " + id + " to: " + u.toString());
+
+                // send basic auth in header
+                //TODO
+                    httpHead.setHeader("Authorization", "Basic " + Base64.encodeToString(String.format("%s:%s", "kobo", "kobo").getBytes(), Base64.NO_WRAP));
 
                 response = httpclient.execute(httpHead, localContext);
                 int statusCode = response.getStatusLine().getStatusCode();
@@ -416,6 +421,10 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
             HttpResponse response = null;
             try {
                 Log.i(t, "Issuing POST request for " + id + " to: " + u.toString());
+                //TODO :  Authorization head added by Akshay
+
+                httppost.setHeader("Authorization", "Basic " + Base64.encodeToString(String.format("%s:%s", "kobo", "kobo").getBytes(), Base64.NO_WRAP));
+
                 response = httpclient.execute(httppost, localContext);
                 int responseCode = response.getStatusLine().getStatusCode();
                 WebUtils.discardEntityBytes(response);

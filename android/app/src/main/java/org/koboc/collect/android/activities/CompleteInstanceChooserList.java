@@ -17,18 +17,15 @@ package org.koboc.collect.android.activities;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.ListActivity;
-import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
@@ -42,7 +39,6 @@ import org.json.JSONObject;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.application.Collect;
 import org.koboc.collect.android.database.CaseRecord;
-import org.koboc.collect.android.provider.InstanceProviderAPI;
 import org.koboc.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 
 import java.io.BufferedReader;
@@ -60,7 +56,7 @@ import java.util.List;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  * @author Carl Hartung (carlhartung@gmail.com)
  */
-public class InstanceChooserList extends ListActivity implements LocationListener {
+public class CompleteInstanceChooserList extends ListActivity implements LocationListener {
 
     private static final boolean EXIT = true;
     private static final boolean DO_NOT_EXIT = false;
@@ -184,7 +180,8 @@ public class InstanceChooserList extends ListActivity implements LocationListene
     /**
      * Stores the path of selected instance in the parent class and finishes.
      */
-    @Override
+
+   /* @Override
     protected void onListItemClick(ListView listView, View view, int position, long id) {
         Cursor c = (Cursor) getListAdapter().getItem(position);
         startManagingCursor(c);
@@ -217,7 +214,7 @@ public class InstanceChooserList extends ListActivity implements LocationListene
             startActivity(new Intent(Intent.ACTION_EDIT, instanceUri));
         }
         finish();
-    }
+    }*/
 	
     @Override
     protected void onStart() {

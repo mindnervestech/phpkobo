@@ -86,10 +86,7 @@ public class FormInstanceChooserList extends ListActivity {
 
         setListAdapter(instances);
 
-        if(c.getCount()==0){
-            Intent intent=new Intent(this,CaseFormChooserList.class);
-            startActivity(intent);
-        }
+
 
     }
     
@@ -137,7 +134,7 @@ public class FormInstanceChooserList extends ListActivity {
         }
         finish();
     }
-	
+
     @Override
     protected void onStart() {
     	super.onStart();

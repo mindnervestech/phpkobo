@@ -2,12 +2,16 @@ package org.koboc.collect.android.application;
 
 import org.koboc.collect.android.model.CaseResponseVM;
 import org.koboc.collect.android.model.CaseVM;
+import org.koboc.collect.android.model.SectorVM;
 import org.koboc.collect.android.model.UserVM;
+
+import java.util.List;
 
 import retrofit.Callback;
 import retrofit.http.Body;
 import retrofit.http.Header;
 import retrofit.http.POST;
+import retrofit.http.Path;
 
 /**
  * Created by User on 01-06-2015.
@@ -21,6 +25,9 @@ public interface MyApi {
 
     @POST("/webapp/case")
     public void getCase(@Header("Authorization") String authorization,@Body CaseVM caseVM, Callback<CaseResponseVM> callback);
+
+    @POST("/webapp/getClusterOfSectors/{SID}")
+    public void getClusters(@Path("SID")int id,Callback<List<SectorVM>> callback);
 
 
 

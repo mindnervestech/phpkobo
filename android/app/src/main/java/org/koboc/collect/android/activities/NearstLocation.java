@@ -1,35 +1,36 @@
 package org.koboc.collect.android.activities;
 
 
+import android.app.Dialog;
+import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationListener;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.Menu;
 
-        import android.app.Dialog;
-        import android.content.SharedPreferences;
-        import android.location.Location;
-        import android.location.LocationListener;
-        import android.os.AsyncTask;
-        import android.os.Bundle;
-        import android.support.v4.app.FragmentActivity;
-        import android.util.Log;
-        import android.view.Menu;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-        import com.google.android.gms.common.ConnectionResult;
-        import com.google.android.gms.common.GooglePlayServicesUtil;
-        import com.google.android.gms.maps.CameraUpdateFactory;
-        import com.google.android.gms.maps.GoogleMap;
-        import com.google.android.gms.maps.SupportMapFragment;
-        import com.google.android.gms.maps.model.LatLng;
+import org.json.JSONObject;
+import org.koboc.collect.android.R;
+import org.koboc.collect.android.database.CaseRecord;
 
-        import org.json.JSONObject;
-        import org.koboc.collect.android.R;
-
-        import java.io.BufferedReader;
-        import java.io.IOException;
-        import java.io.InputStream;
-        import java.io.InputStreamReader;
-        import java.net.HttpURLConnection;
-        import java.net.URL;
-        import java.util.HashMap;
-        import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
 
 //import com.mindnerves.map.GoogleMap.GPSTracker;
 
@@ -60,7 +61,6 @@ public class NearstLocation extends FragmentActivity implements LocationListener
 
         // Getting Google Play availability status
         int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
-
 
         if (status != ConnectionResult.SUCCESS) { // Google Play Services are not available
 
@@ -105,6 +105,28 @@ public class NearstLocation extends FragmentActivity implements LocationListener
             sb.append("&sensor=true");
             sb.append("&key=AIzaSyCRLa4LQZWNQBcjCYcIVYA45i9i8zfClqc");
 
+            final CaseRecord caseRecord=new CaseRecord();
+            final List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record");
+
+            for (CaseRecord item:caseRecords){
+                System.out.println("long::::"+item.longitude);
+                System.out.println("latt::::"+item.latitude);
+
+
+
+                //lat = sharedPreferences.getString("lat"+i,"0");
+
+                // Getting the longitude of the i-th location
+               // lng = sharedPreferences.getString("lng"+i,"0");
+
+                // Drawing marker on the map
+                drawMarker(new LatLng(item.latitude, item.longitude));
+
+            }
+
+
+
+
             // Creating a new non-ui thread task to download Google place json data
             PlacesTask placesTask = new PlacesTask();
 
@@ -113,6 +135,17 @@ public class NearstLocation extends FragmentActivity implements LocationListener
 
         }
 
+    }
+
+    private void drawMarker(LatLng point){
+        // Creating an instance of MarkerOptions
+        MarkerOptions markerOptions = new MarkerOptions();
+
+        // Setting latitude and longitude for the marker
+        markerOptions.position(point);
+
+        // Adding marker on the Google Map
+        mGoogleMap.addMarker(markerOptions);
     }
 
     /**
@@ -256,7 +289,7 @@ public class NearstLocation extends FragmentActivity implements LocationListener
         protected void onPostExecute(List<HashMap<String, String>> list) {
 
             // Clears all the existing markers
-            mGoogleMap.clear();
+          //  mGoogleMap.clear();  // commented by Akshay to show markers
 
             /*for (int i = 0; i < list.size(); i++) {
 
@@ -295,7 +328,6 @@ public class NearstLocation extends FragmentActivity implements LocationListener
         }
 
     }
-
 
 
 }

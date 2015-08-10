@@ -12,6 +12,7 @@ public class CaseResponseVM {
     public float longitude;
     public float latitude;
     public long id;
+    public String status;
 
 
 }

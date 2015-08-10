@@ -11,10 +11,10 @@
        android:divider="#eee"
        android:dividerHeight="10dp"
        android:drawSelectorOnTop="false"
+       android:scrollbars="none"
        android:headerDividersEnabled="true"
        android:footerDividersEnabled="true"
-       android:layout_marginLeft="10dp"
-       android:layout_marginRight="10dp">
+       >
        </ListView>
     </RelativeLayout>
 

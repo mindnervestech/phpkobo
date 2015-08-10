@@ -27,11 +27,14 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore.Images;
+import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.DisplayMetrics;
@@ -47,7 +50,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -74,12 +76,12 @@ import org.koboc.collect.android.listeners.AdvanceToNextListener;
 import org.koboc.collect.android.listeners.FormLoaderListener;
 import org.koboc.collect.android.listeners.FormSavedListener;
 import org.koboc.collect.android.logic.FormController;
-import org.koboc.collect.android.logic.PropertyManager;
 import org.koboc.collect.android.logic.FormController.FailedConstraint;
+import org.koboc.collect.android.logic.PropertyManager;
 import org.koboc.collect.android.preferences.AdminPreferencesActivity;
 import org.koboc.collect.android.preferences.PreferencesActivity;
-import org.koboc.collect.android.provider.InstanceProviderAPI;
 import org.koboc.collect.android.provider.FormsProviderAPI.FormsColumns;
+import org.koboc.collect.android.provider.InstanceProviderAPI;
 import org.koboc.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 import org.koboc.collect.android.tasks.FormLoaderTask;
 import org.koboc.collect.android.tasks.SaveToDiskTask;
@@ -90,6 +92,7 @@ import org.koboc.collect.android.widgets.QuestionWidget;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
@@ -132,6 +135,8 @@ public class FormEntryActivity extends Activity implements AnimationListener,
     public static final int DRAW_IMAGE = 13;
     public static final int SIGNATURE_CAPTURE = 14;
     public static final int ANNOTATE_IMAGE = 15;
+
+    private static final int INSTANCE_UPLOADER = 0; //added by Akshay
 
     // Extra returned from gp activity
     public static final String LOCATION_RESULT = "LOCATION_RESULT";
@@ -932,9 +937,10 @@ public class FormEntryActivity extends Activity implements AnimationListener,
 
                 // Create 'save' button
                 ((Button) endView.findViewById(R.id.save_exit_button))
-                        .setOnClickListener(new OnClickListener() {
+                        .setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                //add upload or save code here
                                 Collect.getInstance()
                                         .getActivityLogger()
                                         .logInstanceAction(
@@ -953,7 +959,45 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                             }
                         });
 
+                //created By Akshay
+
+                ((Button) endView.findViewById(R.id.upload_exit_button)).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        boolean mobileDataEnabled = false; // Assume disabled
+                        ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+                        WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+
+                        try {
+                            Class cmClass = Class.forName(cm.getClass().getName());
+                            Method method = cmClass.getDeclaredMethod("getMobileDataEnabled");
+                            method.setAccessible(true); // Make the method callable
+                            // get the setting for "mobile data"
+                            mobileDataEnabled = (Boolean)method.invoke(cm);
+                        } catch (Exception e) {
+                            // Some problem accessible private API
+                            // TODO do whatever error handling you want here
+                        }
+
+                        long[] instanceId=new long[1];
+                        instanceId[0]=Long.parseLong(getIntent().getData().getPathSegments().get(1));
+
+                        if(!mobileDataEnabled && !wifi.isWifiEnabled()){
+                            buildAlertMessageNoInternet();
+                        }else{
+
+                            Intent i = new Intent(FormEntryActivity.this, InstanceUploaderActivity.class);
+                            i.putExtra(FormEntryActivity.KEY_INSTANCES, instanceId);
+                            startActivity(i);
+
+                            saveDataToDisk(EXIT, instanceComplete.isChecked(), saveAs
+                                    .getText().toString());
+                        }
+                    }
+                });
                 return endView;
+
             case FormEntryController.EVENT_QUESTION:
             case FormEntryController.EVENT_GROUP:
             case FormEntryController.EVENT_REPEAT:
@@ -1386,6 +1430,7 @@ public class FormEntryActivity extends Activity implements AnimationListener,
         // show dialog before we execute...
         mSaveToDiskTask.execute();
 
+        // saved complete form
         return true;
     }
 
@@ -2253,6 +2298,39 @@ public class FormEntryActivity extends Activity implements AnimationListener,
     protected void onStop() {
         Collect.getInstance().getActivityLogger().logOnStop(this);
         super.onStop();
+    }
+
+    //added by Akshay
+    private void saveOrNot(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Do you want to Save Form ?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        FormEntryActivity.super.onBackPressed();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+    //added by Akshay
+    private void buildAlertMessageNoInternet() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("You have to enable Internet Connection to upload form.")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        startActivity(
+                                new Intent(Settings.ACTION_SETTINGS));
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 
 }

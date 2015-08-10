@@ -23,7 +23,6 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,13 +43,13 @@ import java.util.ArrayList;
 
 /**
  * Responsible for displaying all the valid forms in the forms directory. Stores the path to
- * selected form for use by {@link MainMenuActivity}.
- * 
+ * selected form for use by {@link org.koboc.collect.android.activities.MainMenuActivity}.
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 
-public class InstanceUploaderList extends ListActivity implements OnLongClickListener {
+public class QuickUploaderList extends ListActivity implements OnLongClickListener {
 
     private static final String BUNDLE_SELECTED_ITEMS_KEY = "selected_items";
     private static final String BUNDLE_TOGGLED_KEY = "toggled";
@@ -113,18 +112,16 @@ public class InstanceUploaderList extends ListActivity implements OnLongClickLis
                 if (ni == null || !ni.isConnected()) {
                     Collect.getInstance().getActivityLogger().logAction(this, "uploadButton", "noConnection");
 
-                           buildAlertMessageNoInternet();
-
-                    //Toast.makeText(InstanceUploaderList.this, R.string.no_connection, Toast.LENGTH_SHORT).show(); commented by Akshay to open settings
+                    Toast.makeText(QuickUploaderList.this, R.string.no_connection, Toast.LENGTH_SHORT).show();
                 } else {
                     Collect.getInstance().getActivityLogger().logAction(this, "uploadButton", Integer.toString(mSelected.size()));
 
                     if (mSelected.size() > 0) {
                         // items selected
-                        uploadSelectedFiles();
+                       // uploadSelectedFiles();
                         mToggled = false;
                         mSelected.clear();
-                        InstanceUploaderList.this.getListView().clearChoices();
+                        QuickUploaderList.this.getListView().clearChoices();
                         mUploadButton.setEnabled(false);
                     } else {
                         // no items selected
@@ -209,12 +206,12 @@ public class InstanceUploaderList extends ListActivity implements OnLongClickLis
     }
 
 
-    private void uploadSelectedFiles() {
+    public void uploadSelectedFiles(Long instanceIDs) {
         // send list of _IDs.
-        long[] instanceIDs = new long[mSelected.size()];
+        /*long[] instanceIDs = new long[mSelected.size()];
         for (int i = 0; i < mSelected.size(); i++) {
             instanceIDs[i] = mSelected.get(i);
-        }
+        }*/
 
         Intent i = new Intent(this, InstanceUploaderActivity.class);
         i.putExtra(FormEntryActivity.KEY_INSTANCES, instanceIDs);
@@ -386,12 +383,12 @@ public class InstanceUploaderList extends ListActivity implements OnLongClickLis
 
 	                                case 0: // show unsent
 		                        	    Collect.getInstance().getActivityLogger().logAction(this, "changeView", "showUnsent");
-	                                	InstanceUploaderList.this.showUnsent();
+	                                	QuickUploaderList.this.showUnsent();
 	                                    break;
 
 	                                case 1: // show all
 		                        	    Collect.getInstance().getActivityLogger().logAction(this, "changeView", "showAll");
-	                                	InstanceUploaderList.this.showAll();
+	                                	QuickUploaderList.this.showAll();
 	                                    break;
 
 	                                case 2:// do nothing
@@ -403,18 +400,5 @@ public class InstanceUploaderList extends ListActivity implements OnLongClickLis
 	    alertDialog.show();
 		return true;
 	}
-    private void buildAlertMessageNoInternet() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("You have to enable Internet Connection to upload form.")
-                .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        startActivity(
-                                new Intent(Settings.ACTION_SETTINGS));
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
-    }
 
 }

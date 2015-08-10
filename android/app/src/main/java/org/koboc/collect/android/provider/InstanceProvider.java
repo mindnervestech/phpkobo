@@ -35,6 +35,7 @@ import org.koboc.collect.android.utilities.MediaUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -193,6 +194,7 @@ public class InstanceProvider extends ContentProvider {
 
         if (values.containsKey(InstanceColumns.STATUS) == false) {
             values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
+           // doCaseToFormBinding(InstanceColumns.STATUS);
         }
 
             values.put(InstanceColumns.CASE_ID, Collect.getInstance().getCaseId()); // This is added by jagbir
@@ -204,7 +206,7 @@ public class InstanceProvider extends ContentProvider {
             getContext().getContentResolver().notifyChange(instanceUri, null);
         	Collect.getInstance().getActivityLogger().logActionParam(this, "insert",
         			instanceUri.toString(), values.getAsString(InstanceColumns.INSTANCE_FILE_PATH));
-            doCaseToFormBinding(rowId,InstanceColumns.STATUS);
+
             return instanceUri;
         }
         //TODO:Akshay call doCaseToFormBinding(rowId,values.containsKey(InstanceColumns.STATUS))
@@ -213,23 +215,16 @@ public class InstanceProvider extends ContentProvider {
     }
 
     //TODO: Akshay to implement this
-    private void doCaseToFormBinding(long rowId, String status) {
+    private void doCaseToFormBinding(String status) {
         System.out.println("idddd::"+Collect.getInstance().getCaseId());
         CaseRecord caseRecord=new CaseRecord();
         final List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where case_Id = ?",Collect.getInstance().getCaseId());
         System.out.println("size:::"+caseRecords.size());
         for(CaseRecord caseRecord1:caseRecords){
-            caseRecord1.formId=rowId;
             caseRecord1.status=status;
             caseRecord1.save();
         }
-        /*final List<CaseRecord> recordList=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record ");
-        System.out.println("size:::"+recordList.size());
-        for(CaseRecord caseRecord1:recordList){
-            System.out.println("case id"+caseRecord1.caseId);
-            System.out.println("form id"+caseRecord1.formId);
-            System.out.println("stau id"+caseRecord1.status);
-        }*/
+
 
 
 
@@ -344,12 +339,16 @@ public class InstanceProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+
         int count;
         String status = null;
         switch (sUriMatcher.match(uri)) {
             case INSTANCES:
                 if (values.containsKey(InstanceColumns.STATUS)) {
                     status = values.getAsString(InstanceColumns.STATUS);
+
+                    updateCaseToFormBinding(status);
 
                     if (values.containsKey(InstanceColumns.DISPLAY_SUBTEXT) == false) {
                         Date today = new Date();
@@ -365,16 +364,18 @@ public class InstanceProvider extends ContentProvider {
             case INSTANCE_ID:
                 String instanceId = uri.getPathSegments().get(1);
 
+
+
                 if (values.containsKey(InstanceColumns.STATUS)) {
                     status = values.getAsString(InstanceColumns.STATUS);
-
+                    updateCaseToFormBinding(status);
                     if (values.containsKey(InstanceColumns.DISPLAY_SUBTEXT) == false) {
                         Date today = new Date();
                         String text = getDisplaySubtext(status, today);
                         values.put(InstanceColumns.DISPLAY_SUBTEXT, text);
                     }
                 }
-               updateCaseToFormBinding(instanceId,InstanceColumns.STATUS);
+
                 count =
                     db.update(INSTANCES_TABLE_NAME, values, InstanceColumns._ID + "=" + instanceId
                             + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
@@ -388,14 +389,20 @@ public class InstanceProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
-    private void updateCaseToFormBinding(String instanceId, String status){
+    private void updateCaseToFormBinding(String status) {
         System.out.println("update status:::");
-        CaseRecord caseRecord=new CaseRecord();
-        final List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where form_Id = ?",instanceId);
-        System.out.println("size:::"+caseRecords.size());
-        for(CaseRecord caseRecord1:caseRecords){
-            caseRecord1.status=status;
+        CaseRecord caseRecord = new CaseRecord();
+        final List<CaseRecord> caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where case_id = ?", Collect.getInstance().getCaseId());
+        System.out.println("size:::" + caseRecords.size());
+        CaseRecord caseRecord1 = caseRecords.get(0);
+        if (status.equals("submitted")) {
+            caseRecord1.status = "complete";
             caseRecord1.save();
+            System.out.println("updated:::");
+        } else if (status.equals("incomplete") || status.equals("complete")) {
+            caseRecord1.status = "incomplete";
+            caseRecord1.save();
+            System.out.println("updated:::");
         }
     }
 
@@ -419,6 +426,27 @@ public class InstanceProvider extends ContentProvider {
         sInstancesProjectionMap.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, InstanceColumns.LAST_STATUS_CHANGE_DATE);
         sInstancesProjectionMap.put(InstanceColumns.CASE_ID, InstanceColumns.CASE_ID); //added by Akshay
         sInstancesProjectionMap.put(InstanceColumns.DISPLAY_SUBTEXT, InstanceColumns.DISPLAY_SUBTEXT);
+    }
+
+    // function created by Akshay to check whether instance is created for caseId
+    public int checkInstance(long caseID){
+        List<String> labels = new ArrayList<String>();
+        mDbHelper = new DatabaseHelper(DATABASE_NAME);
+
+        String selectQuery = "SELECT "+InstanceColumns._ID + " FROM " + INSTANCES_TABLE_NAME + " where " + InstanceColumns.CASE_ID + " = " +caseID;
+
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                labels.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return labels.size();
     }
 
 }

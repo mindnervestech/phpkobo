@@ -1,32 +1,44 @@
 package org.koboc.collect.android.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.util.Base64;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.koboc.collect.android.R;
+import org.koboc.collect.android.adapters.ClusterAdapter;
 import org.koboc.collect.android.application.MyApi;
 import org.koboc.collect.android.database.CaseRecord;
+import org.koboc.collect.android.model.CaseResponseVM;
 import org.koboc.collect.android.model.CaseVM;
+import org.koboc.collect.android.model.ClustersVM;
+import org.koboc.collect.android.model.SectorVM;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import retrofit.Callback;
 import retrofit.RestAdapter;
+import retrofit.RetrofitError;
 import retrofit.client.OkClient;
+import retrofit.client.Response;
 
 public class AlertActivity extends Activity {
 	
@@ -35,25 +47,25 @@ public class AlertActivity extends Activity {
 	// GPSTracker class
 	GPSTracker gps;
     private MyApi myApi;
-    private String BASE_URL,addressText;
+    private String BASE_URL,addressText,caseId;
     private double latitude;
     private double longitude;
     private TextView successText;
+    private Long id;
     RelativeLayout relativeLayout;
+    private Spinner clusterSpinner;
+    private List<ClustersVM> clustersVMs;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
+
         btnShowLocation = (Button) findViewById(R.id.btnShowLocation);
         btnShowLocation.setBackgroundColor(Color.RED);
+        clusterSpinner= (Spinner) findViewById(R.id.clusterSpinner);
 
-        BASE_URL = "http://192.168.2.60:8080";//getApplicationContext().getString(R.string.base_url);
+        BASE_URL = "http://192.168.2.70:8080";//getApplicationContext().getString(R.string.base_url); //"http://192.168.2.60:8080";//
 
-       /* RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(BASE_URL)
-                .setClient(new OkClient()).build();
-        myApi = restAdapter.create(MyApi.class);*/
 
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(BASE_URL)
@@ -63,160 +75,158 @@ public class AlertActivity extends Activity {
         myApi = restAdapter.create(MyApi.class);
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        clustersVMs=new ArrayList<ClustersVM>();
+
+        id = System.currentTimeMillis() / 1000;  //Sangini Code+Date+Sector No.+Cluster No
+
+
+       System.out.println("basic:::::::::::::"+"Basic " + Base64.encodeToString(String.format("%s:%s", "kobo", "kobo").getBytes(), Base64.NO_WRAP));
+
+
+
 
 
         // show location button click event
         btnShowLocation.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {		
-				// create class object
+
+            @Override
+            public void onClick(View arg0) {
+                // create class object
 
                 gps = new GPSTracker(AlertActivity.this);
 
                 // Setting click event lister for the find button
 
-				// check if GPS enabled		
-		        if(gps.canGetLocation()){
-		        	
-		        	 latitude = gps.getLatitude();
-		        	 longitude = gps.getLongitude();
-                   // btnShowLocation.setBackgroundColor(Color.GREEN);
-                     relativeLayout = (RelativeLayout)findViewById(R.id.messageLayout);
-                    TextView message = (TextView)findViewById(R.id.message);
-                    relativeLayout.setVisibility(View.VISIBLE);
-		        	 successText= (TextView) findViewById(R.id.successText);
-		        	// \n is for new line
-                    Geocoder geocoder = new Geocoder(AlertActivity.this, Locale.getDefault());
+                // check if GPS enabled
+                if (gps.canGetLocation()) {
 
+                    latitude = gps.getLatitude();
+                    longitude = gps.getLongitude();
+                    relativeLayout = (RelativeLayout) findViewById(R.id.messageLayout);
+                    TextView message = (TextView) findViewById(R.id.message);
+                    relativeLayout.setVisibility(View.VISIBLE);
+                    successText = (TextView) findViewById(R.id.successText);
+                    // \n is for new line
+                    Geocoder geocoder = new Geocoder(AlertActivity.this, Locale.getDefault());
                     successText.setVisibility(View.VISIBLE);
 
-                    List<Address> addresses  = null;
+                    List<Address> addresses = null;
                     try {
-                        addresses = geocoder.getFromLocation(latitude,longitude,1);
-                        System.out.println("size:::"+addresses.size());
+                        addresses = geocoder.getFromLocation(latitude, longitude, 1);
                         Address returnedAddress = addresses.get(0);
                         StringBuilder strReturnedAddress = new StringBuilder("Address:\n");
-                        for(int i=0; i<returnedAddress.getMaxAddressLineIndex(); i++) {
+                        for (int i = 0; i < returnedAddress.getMaxAddressLineIndex(); i++) {
                             strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
                         }
-                        addressText=strReturnedAddress.toString();
-                       System.out.println("address to::::"+strReturnedAddress.toString());
-                        System.out.println("long:::"+longitude+"latti"+latitude);
-                        /*String address = addresses.get(0).getAddressLine(0);
-                        String city = addresses.get(0).getLocality();
-                        String zip = addresses.get(0).getPostalCode();*/
+                        addressText = strReturnedAddress.toString();
                         message.setText(strReturnedAddress.toString()); //"Your Location "+address+", "+city+", "+zip+ " has been captured");
+                        successText.setText("Your Case is successfully posted for  ");
+
+                        successText.postDelayed(new Runnable() {
+                            public void run() {
+                                successText.setVisibility(View.INVISIBLE);
+                                relativeLayout.setVisibility(View.INVISIBLE);
+                            }
+                        }, 3000);
+
+                        String token = prefs.getString("token", null);
+                        System.out.println("token::" + token);
+                        String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", "kobo", token).getBytes(), Base64.NO_WRAP);
+                        System.out.println("auth" + basicAuth);
+
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                        final String createdDate = sdf.format(new Date());
+                        CaseVM caseVM = new CaseVM(id, createdDate, createdDate, addressText, longitude, latitude);
+
+                        myApi.getCase(basicAuth, caseVM, new Callback<CaseResponseVM>() {
+                            @Override
+                            public void success(CaseResponseVM caseVM1, Response response) {
+                                CaseRecord caseRecord = new CaseRecord(longitude, latitude, addressText, caseVM1.id, "new", createdDate, createdDate);
+                                caseRecord.save();
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+                                error.printStackTrace();
+                            }
+                        });
+
+
                     } catch (IOException e) {
-                        message.setText( "Your Location latitude: "+latitude+" and longitude: "+longitude+" has been captured");
+                        message.setText("Your Location latitude: " + latitude + " and longitude: " + longitude + " has been captured");
                         e.printStackTrace();
                     }
-		        }else{
-		        	// can't get location
-		        	// GPS or Network is not enabled
-		        	// Ask user to enable GPS/network in settings
-		        	gps.showSettingsAlert();
-		        }
 
-                /*CaseRecord caseRecord=new CaseRecord(longitude+"",latitude+"",addressText,"100","new");
-                caseRecord.save();
+                } else {
+                    // can't get location
+                    // GPS or Network is not enabled
+                    // Ask user to enable GPS/network in settings
+                    buildAlertMessageNoGps();
+                }
+            }
+        });
 
-                CaseRecord caseRecord1=new CaseRecord(longitude+"",latitude+"",addressText,"101","draft");
-                caseRecord1.save();
+        myApi.getClusters(6, new Callback<List<SectorVM>>() {
+            @Override
+            public void success(List<SectorVM> sectorVMList, Response response) {
+                ClustersVM clustersVM=new ClustersVM();
+                clustersVM.setName("Choose your Location ");
+                clustersVMs.add(clustersVM);
 
-                CaseRecord caseRecord2=new CaseRecord(longitude+"",latitude+"",addressText,"102","new");
-                caseRecord2.save();
+                for(SectorVM vm : sectorVMList) {
 
-                CaseRecord caseRecord3=new CaseRecord(longitude+"",latitude+"",addressText,"103","draft");
-                caseRecord3.save();*/
+                    List<ClustersVM> vms = new ArrayList<ClustersVM>();
+                    vms.addAll(vm.getClustervm());
 
-                successText.setText("Your Case is successfully posted for  ");
-
-                successText.postDelayed(new Runnable() {
-                    public void run() {
-                        successText.setVisibility(View.INVISIBLE);
-                        relativeLayout.setVisibility(View.INVISIBLE);
-                    }
-                }, 3000);
-
-                long cnt=CaseRecord.count(CaseRecord.class,null,null);
-                System.out.println("alert count:::"+cnt);
-
-/*
-            myApi.submit(longitude+"",latitude+"",addressText,"100",new Callback<UserVM>() {
-                @Override
-                public void success(UserVM userVM, Response response) {
-
-                    CaseRecord caseRecord=new CaseRecord(longitude+"",latitude+"",addressText,"100","new");
-                    caseRecord.save();
-                    
-                    
-                    long cnt=CaseRecord.count(CaseRecord.class,null,null);
-                    System.out.println("count:::"+cnt);
-
-                    List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record");
-
-                    for (CaseRecord item:caseRecords){
-                        System.out.println("item::::"+item.caseId);
+                    for(ClustersVM cluster : vms ) {
+                        cluster.setSector_name(vm.getName());
+                        clustersVMs.add(cluster);
                     }
                 }
 
-                @Override
-                public void failure(RetrofitError error) {
+                final ClusterAdapter clusterAdapter=new ClusterAdapter(getApplicationContext(),clustersVMs);
+                clusterSpinner.setAdapter(clusterAdapter);
 
-                }
-            });*/
+                clusterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMMM-yy");
+                        final String createdDate = sdf.format(new Date());
 
-                String token = prefs.getString("token",null);
-                System.out.println("token::" +token);
-                String basicAuth = "Basic "+Base64.encodeToString(String.format("%s:%s", "kobo", token).getBytes(), Base64.NO_WRAP);
-                System.out.println("auth"+basicAuth);
+                        ClustersVM clustersVM1=clusterAdapter.getItem(i);
+                        caseId="kobo" + "-" + createdDate+ "-" + clustersVM1.getSector_name() + "-" + clustersVM1.getName() ;
+                        System.out.println("display case id::::::"+caseId);
+                        System.out.println("sector name::::::::"+clustersVM1.getSector_name());
 
-              /*  Date date=new Date();
-                Dte date1=new Date();
-                SimpleDateFormat simpleFormat = (SimpleDateFormat) DateFormat.getDateInstance();
-                simpleFormat.applyPattern("yyyy-MM-dd'T'HH:mm:ss");
-                try {
-                    date1 = simpleFormat.parse("2013-07-29T18:00:00-04:00");
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                    }
 
-                System.out.println("date::" + date1);*/
+                    @Override
+                    public void onNothingSelected(AdapterView<?> adapterView) {
 
-                CaseVM caseVM=new CaseVM("2015-06-06T08:07:07","2015-06-06T08:07:07","this is note",longitude,latitude);
+                    }
+                });
+            }
 
-
-                //myApi.getCase(basicAuth,caseVM,new Callback<CaseResponseVM>(){
-                  //  @Override
-                    //public void success(CaseResponseVM caseVM1, Response response) {
-                        System.out.println("API called:::");
-    //                    System.out.println("id:::"+caseVM1.id);
-                        CaseRecord caseRecord=new CaseRecord(longitude,latitude,addressText,777/*caseVM1.id*/,"new",0);
-                        caseRecord.save();
-                    //}
-
-//                    @Override
-  //                  public void failure(RetrofitError error) {
-  //                          error.printStackTrace();
-    //                }
-//                });
-
-			}
-		});
+            @Override
+            public void failure(RetrofitError error) {
+                    error.printStackTrace();
+            }
+        });
     }
 
-    private void turnGPSOnOff(){
-        String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if(!provider.contains("gps")){
-            final Intent poke = new Intent();
-            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
-            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
-            poke.setData(Uri.parse("3"));
-            sendBroadcast(poke);
-            //Toast.makeText(this, "Your GPS is Enabled",Toast.LENGTH_SHORT).show();
-        }
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("You have to enable GPS to create CASE.")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 
 }

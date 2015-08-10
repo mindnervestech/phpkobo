@@ -12,17 +12,19 @@ public class CaseRecord extends SugarRecord<CaseRecord> {
 
     public long caseId;
     public String status;
-    public long formId;
+    public String dateCreated;
+    public String dateModified;
 
     public CaseRecord() {
     }
 
-    public CaseRecord(double longitude, double latitude, String address, long caseId, String status, long formId) {
+    public CaseRecord(double longitude, double latitude, String address, long caseId, String status, String dateCreated, String dateModified) {
         this.longitude = longitude;
         this.latitude = latitude;
         this.address = address;
         this.caseId = caseId;
         this.status = status;
-        this.formId = formId;
+        this.dateCreated = dateCreated;
+        this.dateModified = dateModified;
     }
 }

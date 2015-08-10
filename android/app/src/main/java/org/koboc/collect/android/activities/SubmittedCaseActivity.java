@@ -25,11 +25,10 @@ import org.koboc.collect.android.R;
 import org.koboc.collect.android.adapters.CaseListAdapter;
 import org.koboc.collect.android.application.Collect;
 import org.koboc.collect.android.database.CaseRecord;
-import org.koboc.collect.android.provider.InstanceProvider;
 
 import java.util.List;
 
-public class MyCaseActivity extends Activity{
+public class SubmittedCaseActivity extends Activity{
     private ListView listView;
     private CaseListAdapter adapter;
     private  CaseRecord caseRecord;
@@ -47,7 +46,7 @@ public class MyCaseActivity extends Activity{
 
 
         caseRecord=new CaseRecord();
-        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ?","complete");
+        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ?","complete");
         System.out.println("size:::::::::::"+caseRecords.size());
 
         for (CaseRecord item:caseRecords){
@@ -71,22 +70,11 @@ public class MyCaseActivity extends Activity{
                 Collect.getInstance().getActivityLogger().logAction(this, "fillBlankForm", "click");
                 Collect.getInstance().setCaseId(caseRecords.get(i).caseId+"");
 
-                InstanceProvider instanceProvider=new InstanceProvider();
-                instanceProvider.checkInstance(caseRecords.get(i).caseId);
 
-                if(instanceProvider.checkInstance(caseRecords.get(i).caseId) == 0){
-                    Intent intent = new Intent(getApplicationContext(), FormChooserList.class);
-                    startActivity(intent);
-                }else {
-                    Intent intent = new Intent(getApplicationContext(), InstanceChooserList.class);
+                    Intent intent = new Intent(getApplicationContext(), CompleteInstanceChooserList.class);
                     startActivity(intent);
                 }
 
-                System.out.println("total cases::"+caseRecords.size());
-
-
-
-            }
         });
 
     }
@@ -94,7 +82,7 @@ public class MyCaseActivity extends Activity{
     @Override
     public void onStart() {
         super.onStart();
-        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ?","complete");
+        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ?","complete");
         adapter=new CaseListAdapter(getApplicationContext(),caseRecords);
         listView.setAdapter(adapter);
     }
@@ -102,7 +90,7 @@ public class MyCaseActivity extends Activity{
     @Override
     public void onResume() {
         super.onResume();
-        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ?","complete");
+        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ?","complete");
         adapter=new CaseListAdapter(getApplicationContext(),caseRecords);
         listView.setAdapter(adapter);
 

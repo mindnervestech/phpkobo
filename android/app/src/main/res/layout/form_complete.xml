@@ -54,14 +54,7 @@
             android:inputType="text"
             android:textSize="21sp" />
 
-        <CheckBox
-            android:id="@+id/mark_finished"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_marginBottom="10dp"
-            android:text="@string/mark_finished"
-            android:textSize="21sp" />
+
 
         <Button
             android:id="@+id/save_exit_button"
@@ -69,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:padding="20dp"
-            android:text="@string/quit_entry"
+            android:text="Save"
             android:textSize="21sp" />
         <Button
             android:id="@+id/upload_exit_button"
@@ -77,15 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:padding="20dp"
-            android:text="Upload Form and Exit"
-            android:textSize="21sp" />
-        <Button
-            android:id="@+id/exit_button"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:padding="20dp"
-            android:text="Exit"
+            android:text="Upload"
             android:textSize="21sp" />
 
         <View
