@@ -49,7 +49,9 @@
 <string name="data_saved_ok">Form successfully saved!</string>
 <string name="default_completed">Default to Finalized</string>
 <string name="default_completed_summary">Mark form as finalized by default</string>
-<string name="default_server_url">http://192.168.1.9:8001</string>
+<string name="default_server_url">http://10.0.0.35:8001</string>
+<string name="default_java_server_url">http://10.0.0.16:8080</string>
+<string name="default_phython_server_url">http://10.0.0.35:8001</string>
 <string name="delete_confirm">Delete %s form(s)?</string>
 <string name="delete_file">Delete Selected</string>
 <string name="delete_no">Do Not Delete</string>

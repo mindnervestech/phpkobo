@@ -33,23 +33,24 @@ public class LoginActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
-
         userEditText= (EditText) findViewById(R.id.userEditText);
         passwordEditText= (EditText) findViewById(R.id.passwordEditText);
         submit= (Button) findViewById(R.id.submitButton);
 
-        BASE_URL = getApplicationContext().getString(R.string.default_server_url);
+        BASE_URL = getApplicationContext().getString(R.string.default_phython_server_url);
 
 
 
         RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(BASE_URL)
+                .setEndpoint(BASE_URL).setLogLevel(RestAdapter.LogLevel.FULL)
                 .setClient(new OkClient()).build();
         myApi = restAdapter.create(MyApi.class);
 
          preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if(preferences.getString("token",null)!=null){
+        System.out.println("preferences.getString(\"token\", null) ::: "+preferences.getString("token", null));
+
+        if(preferences.getString("token", null)!=null){
             Intent intent=new Intent(LoginActivity.this,SplashScreenActivity.class);
             startActivity(intent);
             finish();
@@ -63,18 +64,21 @@ public class LoginActivity extends Activity {
                     @Override
                     public void success(UserVM userVM, Response response) {
                         SharedPreferences.Editor editor = preferences.edit();
-                        editor.putString("token",userVM.getApi_token());
+                        editor.putString("token", userVM.getApi_token());
+                        editor.putLong("id", userVM.getId());
+                        editor.putString("role",userVM.getGroups().get(0));
                         editor.commit();
-                        System.out.println("url:::"+response.getUrl());
-                        Intent intent=new Intent(LoginActivity.this,SplashScreenActivity.class);
+                        Intent intent=new Intent(getApplicationContext(),SplashScreenActivity.class);
                         startActivity(intent);
+                        System.out.println("url:::" + response.getUrl());
+
                         finish();
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
                         System.out.println("url:::"+error.getResponse().getUrl());
-                            //error.printStackTrace();
+                            error.printStackTrace();
                     }
                 });
 

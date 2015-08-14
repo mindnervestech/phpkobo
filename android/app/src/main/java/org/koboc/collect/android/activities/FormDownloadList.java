@@ -424,7 +424,7 @@ public class FormDownloadList extends ListActivity implements FormListDownloader
                         getString(R.string.default_server_url));
 
                 final String url =
-                    server + settings.getString(PreferencesActivity.KEY_FORMLIST_URL, "/formList");
+                    server + settings.getString(PreferencesActivity.KEY_FORMLIST_URL, "/kobo/formList");
                 Log.i(t, "Trying to get formList from: " + url);
 
                 EditText username = (EditText) dialogView.findViewById(R.id.username_edit);
@@ -571,7 +571,8 @@ public class FormDownloadList extends ListActivity implements FormListDownloader
 
         if (result.containsKey(DownloadFormListTask.DL_AUTH_REQUIRED)) {
             // need authorization
-            showDialog(AUTH_DIALOG);
+            //showDialog(AUTH_DIALOG);
+            authinticationLogin();
         } else if (result.containsKey(DownloadFormListTask.DL_ERROR_MSG)) {
             // Download failed
             String dialogMessage =
@@ -613,6 +614,27 @@ public class FormDownloadList extends ListActivity implements FormListDownloader
             }
             mFormListAdapter.notifyDataSetChanged();
         }
+    }
+
+
+    private void authinticationLogin(){
+        SharedPreferences settings =
+                PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String server =
+                settings.getString(PreferencesActivity.KEY_SERVER_URL,
+                        getString(R.string.default_server_url));
+
+        final String url =
+                server + settings.getString(PreferencesActivity.KEY_FORMLIST_URL, "/kobo/formList");
+        Log.i(t, "Trying to get formList from: " + url);
+
+        String storedUsername = settings.getString(PreferencesActivity.KEY_USERNAME, null);
+        String storedPassword = settings.getString(PreferencesActivity.KEY_PASSWORD, null);
+
+        Collect.getInstance().getActivityLogger().logAction(this, "onCreateDialog.AUTH_DIALOG", "OK");
+        Uri u = Uri.parse(url);
+        WebUtils.addCredentials(storedUsername, storedPassword, u.getHost());
+        downloadFormList();
     }
 
 

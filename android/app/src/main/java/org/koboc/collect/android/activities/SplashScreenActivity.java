@@ -75,6 +75,11 @@ public class SplashScreenActivity extends Activity {
         // get the shared preferences object
         SharedPreferences mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         Editor editor = mSharedPreferences.edit();
+        editor.putString(PreferencesActivity.KEY_USERNAME, "kobo");
+        editor.putString(PreferencesActivity.KEY_PASSWORD, "kobo");
+        editor.putString(PreferencesActivity.KEY_FORMLIST_URL,"/kobo/formList");
+        editor.commit();
+
 
         // get the package info object with version number
         PackageInfo packageInfo = null;

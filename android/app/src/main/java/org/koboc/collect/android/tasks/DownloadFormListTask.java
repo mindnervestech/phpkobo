@@ -127,12 +127,14 @@ public class DownloadFormListTask extends AsyncTask<Void, String, HashMap<String
                     continue;
                 }
                 String name = xformElement.getName();
+                System.out.println(" form name :: "+name);
                 if (!name.equalsIgnoreCase("xform")) {
                     // someone else's extension?
                     continue;
                 }
 
                 // this is something we know how to interpret
+
                 String formId = null;
                 String formName = null;
                 String version = null;
@@ -140,9 +142,11 @@ public class DownloadFormListTask extends AsyncTask<Void, String, HashMap<String
                 String description = null;
                 String downloadUrl = null;
                 String manifestUrl = null;
+                Boolean isFiltered = false;
                 // don't process descriptionUrl
                 int fieldCount = xformElement.getChildCount();
                 for (int j = 0; j < fieldCount; ++j) {
+                    System.out.println(i+"FOR LOODP :: "+j);
                     if (xformElement.getType(j) != Element.ELEMENT) {
                         // whitespace
                         continue;
@@ -160,6 +164,14 @@ public class DownloadFormListTask extends AsyncTask<Void, String, HashMap<String
                         }
                     } else if (tag.equals("name")) {
                         formName = XFormParser.getXMLText(child, true);
+
+                        System.out.println(" before :: ");
+
+                        if(!formName.contains(settings.getString("role", null))){
+                            isFiltered = true;
+                            break;
+                        }
+                        System.out.println(" after :: ");
                         if (formName != null && formName.length() == 0) {
                             formName = null;
                         }
@@ -189,11 +201,20 @@ public class DownloadFormListTask extends AsyncTask<Void, String, HashMap<String
                             manifestUrl = null;
                         }
                     }
+                    System.out.println("Form Name ::: "+formName);
+                    System.out.println("Form Id ::: "+formId);
+                    System.out.println("Role ::: "+settings.getString("role", null));
                 }
-                if (formId == null || downloadUrl == null || formName == null) {
+                if (formId == null || downloadUrl == null || formName == null || isFiltered) {
+                    System.out.println(" :: GOT IT :: ");
                     String error =
-                        "Forms list entry " + Integer.toString(i)
-                                + " is missing one or more tags: formId, name, or downloadUrl";
+                            "Forms list entry " + Integer.toString(i)
+                                    + " is missing one or more tags: formId, name, or downloadUrl";
+
+                    if(isFiltered){
+                        error ="Forms list entry "
+                                        + ": No form to synch ";
+                    }
                     Log.e(t, "Parsing OpenRosa reply -- " + error);
                     formList.clear();
                     formList.put(

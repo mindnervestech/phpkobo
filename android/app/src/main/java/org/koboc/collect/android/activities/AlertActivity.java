@@ -64,7 +64,7 @@ public class AlertActivity extends Activity {
         btnShowLocation.setBackgroundColor(Color.RED);
         clusterSpinner= (Spinner) findViewById(R.id.clusterSpinner);
 
-        BASE_URL = "http://192.168.2.70:8080";//getApplicationContext().getString(R.string.base_url); //"http://192.168.2.60:8080";//
+        BASE_URL = getApplicationContext().getString(R.string.default_java_server_url); //"http://192.168.2.60:8080";//
 
 
         RestAdapter restAdapter = new RestAdapter.Builder()
@@ -167,12 +167,13 @@ public class AlertActivity extends Activity {
             }
         });
 
-        myApi.getClusters(6, new Callback<List<SectorVM>>() {
+        myApi.getClusters(prefs.getLong("id", 0), new Callback<List<SectorVM>>() {
             @Override
             public void success(List<SectorVM> sectorVMList, Response response) {
                 ClustersVM clustersVM=new ClustersVM();
                 clustersVM.setName("Choose your Location ");
                 clustersVMs.add(clustersVM);
+                System.out.println("url:::"+response.getUrl()+" :: "+prefs.getLong("id", 0));
 
                 for(SectorVM vm : sectorVMList) {
 

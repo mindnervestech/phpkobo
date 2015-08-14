@@ -21,12 +21,21 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
 
 import org.koboc.collect.android.R;
+import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.preferences.AdminPreferencesActivity;
+import org.koboc.collect.android.preferences.PreferencesActivity;
 
 /**
  * Modified from the FingerPaint example found in The Android Open Source
@@ -39,7 +48,13 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
      * Called when the activity is first created.
      */
 
+
+    private static final int PASSWORD_DIALOG = 1;
     TabHost tabHost;
+    private ListView mDrawerList;
+    private DrawerLayout mDrawerLayout;
+    private String mActivityTitle;
+    String[] data = { "My Forms", "General Setting", "Admin Setting", "Logout" };
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +62,63 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
 
         // create the TabHost that will contain the Tabs
         tabHost = (TabHost) findViewById(android.R.id.tabhost);
+        mDrawerList = (ListView)findViewById(R.id.navList);
+        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        mActivityTitle = getTitle().toString();
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data);
+
+        final DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
+        final ListView navList = (ListView) findViewById(R.id.navList);
+        navList.setAdapter(adapter);
+        navList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int pos,long id){
+                switch (data[pos]){
+                    case "My Forms":
+                        Intent intent = new Intent(TabsActivity.this, MainMenuActivity.class);
+                        startActivity(intent);
+                        break;
+                    case "Logout":
+                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().clear().commit();
+                        intent = new Intent(getApplicationContext(), LoginActivity.class);
+                        startActivity(intent);
+                        break;
+                    case "General Setting":
+                        Collect.getInstance()
+                                .getActivityLogger()
+                                .logAction(this, "onOptionsItemSelected",
+                                        "MENU_PREFERENCES");
+                        intent = new Intent(getApplicationContext(), PreferencesActivity.class);
+                        startActivity(intent);
+                        break;
+                    case "Admin Setting":
+                        Collect.getInstance().getActivityLogger()
+                                .logAction(this, "onOptionsItemSelected", "MENU_ADMIN");
+                        String pw = getApplicationContext().getSharedPreferences(
+                                AdminPreferencesActivity.ADMIN_PREFERENCES, 0).getString(AdminPreferencesActivity.KEY_ADMIN_PW, "");
+                        if ("".equalsIgnoreCase(pw)) {
+                            intent = new Intent(getApplicationContext(), AdminPreferencesActivity.class);
+                            startActivity(intent);
+                        } else {
+                            showDialog(PASSWORD_DIALOG);
+                            Collect.getInstance().getActivityLogger()
+                                    .logAction(this, "createAdminPasswordDialog", "show");
+                        }
+                        break;
+
+                }
+
+                drawer.setDrawerListener( new DrawerLayout.SimpleDrawerListener(){
+                    @Override
+                    public void onDrawerClosed(View drawerView){
+                        super.onDrawerClosed(drawerView);
+
+                    }
+                });
+                drawer.closeDrawer(navList);
+            }
+        });
 
 
         TabHost.TabSpec tab1 = tabHost.newTabSpec("First Tab");

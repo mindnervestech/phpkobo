@@ -21,6 +21,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
@@ -53,6 +54,7 @@ public class MainMenuActivity extends Activity {
     // menu options
     private static final int MENU_PREFERENCES = Menu.FIRST;
     private static final int MENU_ADMIN = Menu.FIRST + 1;
+    private static final int LOG_OUT = Menu.FIRST + 2;
 
     // buttons
     private Button mEnterDataButton;
@@ -225,10 +227,11 @@ public class MainMenuActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         Collect.getInstance().getActivityLogger().logAction(this, "onCreateOptionsMenu", "show");
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_PREFERENCES, 0, getString(R.string.general_preferences)).setIcon(
+       /* menu.add(0, MENU_PREFERENCES, 0, getString(R.string.general_preferences)).setIcon(
                 android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_ADMIN, 0, getString(R.string.admin_preferences)).setIcon(
                 R.drawable.ic_menu_login);
+        menu.add(0, LOG_OUT, 0, "Log Out");*/
         return true;
     }
 
@@ -255,6 +258,12 @@ public class MainMenuActivity extends Activity {
                     Collect.getInstance().getActivityLogger()
                             .logAction(this, "createAdminPasswordDialog", "show");
                 }
+                return true;
+
+            case LOG_OUT:
+                PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit();
+                Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(i);
                 return true;
         }
         return super.onOptionsItemSelected(item);
