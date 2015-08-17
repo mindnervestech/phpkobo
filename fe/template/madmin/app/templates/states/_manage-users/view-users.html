@@ -1,9 +1,9 @@
-<div class="row">
+<div class="row" ng-init="init()">
           <div class="col-lg-12">
             <div class="panel panel-red">
-              <div class="panel-heading">View User</div>
+              <div class="panel-heading">Create Sector</div>
               <div class="panel-body pan">
-                <form data-ng-submit="editUser(showCase.user)" class="horizontal-form">
+                <form ng-submit="editSector(userData1)" class="horizontal-form">
                   <div class="form-body pal">
                     <h3>Personal</h3>
                     <div class="row">
@@ -11,121 +11,91 @@
                         <div class="form-group has-success">
                           <label for="inputFirstName" class="control-label">Name <span class='require'>*</span></label>
                           <div class="input-icon"><i class="fa fa-user"></i>
-                            <input id="inputFirstName" type="text" placeholder="Name" ng-model="showCase.user.name" class="form-control"/>
+                            <input id="inputFirstName" type="text" placeholder="Name" ng-model="userData1.name" class="form-control" required/>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div class="row">
+                   <!--  <div class="row">
                       <div class="col-md-6">
                         <div class="form-group">
-                          <label for="inputEmail" class="control-label">Email <span class='require'>*</span></label>
-                          <div class="input-icon"><i class="fa fa-envelope"></i>
-                            <input type="email" placeholder="Email Address" ng-model="showCase.user.email" class="form-control"/>
+                          <label for="inputEmail" class="control-label">Area Coordinator <span class='require'>*</span></label>
+                          <div class="input-icon"><i class="fa fa-user"></i>
+                            <input type="email" placeholder="Email Address" ng-model="userData.email" class="form-control" required/>
+                          <select class="form-control" data-ng-model="userData.item" ng-selected="mySector(item)">
+							<option data-ng-repeat="item in AllAreaconsultant" value="{{item.id}}">{{item.firstName}}</option>
+						</select>
                           </div>
                         </div>
                       </div>
-                      <div class="col-md-6">
+                      
+                    </div> -->
+                    
+                     <div class="row">
+                      <div class="col-md-12">
                         <div class="form-group">
-                          <label for="selGender" class="control-label">Gender <span class='require'>*</span></label>
-                          <select id="selGender" ng-model="showCase.user.gender" class="form-control">
-                           <option value="">Select Gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label for="inputBirthday" class="control-label">Birthday</label>
-                          <input id="inputBirthday" type="text" placeholder="dd/mm/yyyy" ng-model="showCase.user.birthday" class="form-control"/>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label for="inputPhone" class="control-label">Contact Number</label>
-                          <input id="inputPhone" type="text" placeholder="" ng-model="showCase.user.phone" class="form-control"/>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label for="inputBirthday" class="control-label">Role</label>
-                          <select id="selPSM" ng-model="showCase.user.role.roleId" class="form-control" required>
-                          	<option value="">Select Role</option>
-                            <option data-ng-selected="showCase.user.role.roleId == role.roleId" 
-                            data-ng-repeat="role in roleList" 
-                            value="{{role.roleId}}" >{{role.name}}</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label for="inputPhone" class="control-label">Zone</label>
-                          <select id="selPSM" ng-model="showCase.user.zone.id" class="form-control" required>
-                          	<option value="">Select Zone</option>
-                            <option data-ng-selected="showCase.user.zone.id == zone.id" ng-repeat="zone in zoneList" 
-                            value="{{zone.id}}" >{{zone.name}}</option>
-                          </select>
+                          <label for="inputPinCodes" class="control-label">Area coordinator <span class='require'>*</span></label>
+                          <tags-input ng-model="userData1.coordinators" display-property="name" add-from-autocomplete-only="true" min-tags="1">
+						      <auto-complete source="loadCoordinator($query)"></auto-complete>
+						  </tags-input>
                         </div>
                       </div>
                     </div>
                     
-               <div class="form-group" id="product-list">
+                    
+                     <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label for="inputPinCodes" class="control-label">Sanghani <span class='require'>*</span></label>
+                          <tags-input ng-model="userData1.sanghni" display-property="name" add-from-autocomplete-only="true" min-tags="1">
+						      <auto-complete source="loadSanghnis($query)"></auto-complete>
+						  </tags-input>
+						  <p style="color: red;" ng-show="isPin"><b>*Please enter pins</b></p>
+                        </div>
+                      </div>
+                    </div>
+                    
+    <div>                
+               <table class="table">
+        <tr>
+            
+            <th>Name</th>
+            <th>Address</th>
+            <th>Contact</th>
+            <th></th>
+        </tr>
+        <tr ng:repeat="item in invoice">
+            <td><input type="text" ng:model="item.name"class="input-small"></td>           
+            <td><input type="text" ng:model="item.address" ng:required class="input-small"></td>
+            <td><input type="text" ng:model="item.contact" ng:required class="input-small"></td>
+            <td>
+                [<a href ng:click="removeItem($index)">X</a>]
+            </td>
+        </tr>
+        <tr>
+            <td><a href ng:click="addItem()" class="btn btn-small">add item</a></td>
+            <td></td>
+            <td></td>
+            <td>{{total() | currency}}</td>
+        </tr>
+    </table>
+    </div>     
+                    
+              <!--  <div class="form-group" id="product-list">
               <label class="control-label col-md-3">Select Products</label>
               <div class="col-md-6">
-	              	<!-- 
+	              	
 	              	<div class="btn-group btn-group-sm mbm"><a id="select-all" class="btn btn-white" ng-click="selectAllFun()">select all</a><a id="deselect-all" class="btn btn-white" ng-click="deselectAll()">deselect all</a>
 	             	</div>
-	                 -->
-	                <select id="pre-selected-options1" multiple="multiple" data-ng-model="showCase.user.productlist">
-	                 <option ng-repeat="product in showCase.user.products" value="{{product.id}}" data-ng-selected="{{product.selected}}">{{product.name}}</option>
+	                
+	                
+	                <select id="pre-selected-options" multiple="multiple" data-ng-model="userData.productlist">
+	                 <option ng-repeat="product in productList" value="{{product.id}}">{{product.name}}</option>
 	                </select>
             	</div>                                
                                                 
-            </div>
-            
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="form-group">
-                          <label for="inputStreet" class="control-label">Address <span class='require'>*</span></label>
-                          <input id="inputStreet" type="text" placeholder="" ng-model="showCase.user.address" class="form-control"/>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label for="inputFirstName" class="control-label">state</label>
-                          <select id="selPSM" ng-model="showCase.user.state.id" class="form-control" required>
-                           <option value="">Select state</option>
-                            <option data-ng-selected="showCase.user.state.id == state.id" ng-repeat="state in stateList" 
-                            value="{{state.id}}" >{{state.name}}</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label for="inputCity" class="control-label">City <span class='require'>*</span></label>
-                          <select id="selPSM" ng-model="showCase.user.district.id" class="form-control" required>
-                            <option value="">Select District</option>
-                            <option data-ng-selected="showCase.user.district.id == district.id" 
-                            ng-repeat="district in districtList" value="{{district.id}}" >{{district.name}}</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label for="inputPostCode" class="control-label">Post Code</label>
-                          <input id="inputPostCode" type="text" placeholder="" ng-model="showCase.user.postCode" class="form-control"/>
-                        </div>
-                      </div>
-                    </div>
+            </div> -->
+                    
                   </div>
                   <div class="form-actions text-right pal">
                     <button type="submit" class="btn btn-primary">Submit</button>&nbsp;

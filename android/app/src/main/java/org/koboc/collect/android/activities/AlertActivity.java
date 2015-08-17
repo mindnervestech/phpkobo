@@ -17,10 +17,12 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.adapters.ClusterAdapter;
 import org.koboc.collect.android.application.MyApi;
+import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.model.CaseResponseVM;
 import org.koboc.collect.android.model.CaseVM;
@@ -78,14 +80,6 @@ public class AlertActivity extends Activity {
         clustersVMs=new ArrayList<ClustersVM>();
 
         id = System.currentTimeMillis() / 1000;  //Sangini Code+Date+Sector No.+Cluster No
-
-
-       System.out.println("basic:::::::::::::"+"Basic " + Base64.encodeToString(String.format("%s:%s", "kobo", "kobo").getBytes(), Base64.NO_WRAP));
-
-
-
-
-
         // show location button click event
         btnShowLocation.setOnClickListener(new View.OnClickListener() {
 
@@ -128,26 +122,31 @@ public class AlertActivity extends Activity {
                                 relativeLayout.setVisibility(View.INVISIBLE);
                             }
                         }, 3000);
-
-                        String token = prefs.getString("token", null);
+                        AuthUser authUser = AuthUser.findLoggedInUser();
+                        String token = authUser.getApi_token();
+                        String username = authUser.getUsername();
                         System.out.println("token::" + token);
-                        String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", "kobo", token).getBytes(), Base64.NO_WRAP);
-                        System.out.println("auth" + basicAuth);
-
+                        String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", username, token).getBytes(), Base64.NO_WRAP);
 
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                         final String createdDate = sdf.format(new Date());
                         CaseVM caseVM = new CaseVM(id, createdDate, createdDate, addressText, longitude, latitude);
 
-                        myApi.getCase(basicAuth, caseVM, new Callback<CaseResponseVM>() {
+                        myApi.postCase(basicAuth, caseVM, new Callback<CaseResponseVM>() {
                             @Override
                             public void success(CaseResponseVM caseVM1, Response response) {
-                                CaseRecord caseRecord = new CaseRecord(longitude, latitude, addressText, caseVM1.id, "new", createdDate, createdDate);
-                                caseRecord.save();
+                                if(caseVM1 == null) {
+
+                                    Toast.makeText(getApplicationContext(),"Not able to log case",Toast.LENGTH_SHORT);
+                                } else {
+                                    CaseRecord caseRecord = new CaseRecord(longitude, latitude, addressText, caseVM1.id, "new", createdDate, createdDate);
+                                    caseRecord.save();
+                                }
                             }
 
                             @Override
                             public void failure(RetrofitError error) {
+                                Toast.makeText(getApplicationContext(),"Not able to log case",Toast.LENGTH_SHORT);
                                 error.printStackTrace();
                             }
                         });
@@ -167,13 +166,18 @@ public class AlertActivity extends Activity {
             }
         });
 
-        myApi.getClusters(prefs.getLong("id", 0), new Callback<List<SectorVM>>() {
+        AuthUser authUser = AuthUser.findLoggedInUser();
+        if(authUser == null ) {
+            startActivity(new Intent(getApplicationContext(),LoginActivity.class));
+            finish();
+        }
+
+        myApi.getClusters(authUser.getUserId(), new Callback<List<SectorVM>>() {
             @Override
             public void success(List<SectorVM> sectorVMList, Response response) {
                 ClustersVM clustersVM=new ClustersVM();
                 clustersVM.setName("Choose your Location ");
                 clustersVMs.add(clustersVM);
-                System.out.println("url:::"+response.getUrl()+" :: "+prefs.getLong("id", 0));
 
                 for(SectorVM vm : sectorVMList) {
 
@@ -197,9 +201,8 @@ public class AlertActivity extends Activity {
                         final String createdDate = sdf.format(new Date());
 
                         ClustersVM clustersVM1=clusterAdapter.getItem(i);
+                        //TODO: kobo need to be actual username
                         caseId="kobo" + "-" + createdDate+ "-" + clustersVM1.getSector_name() + "-" + clustersVM1.getName() ;
-                        System.out.println("display case id::::::"+caseId);
-                        System.out.println("sector name::::::::"+clustersVM1.getSector_name());
 
                     }
 

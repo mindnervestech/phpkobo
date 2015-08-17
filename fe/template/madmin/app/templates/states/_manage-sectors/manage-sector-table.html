@@ -1,0 +1,93 @@
+<div class="row">
+  
+  <div class="col-lg-12">
+     <div class="portlet-body">
+     <div class="col-md-8 myselect-container">
+     <div class="col-md-4"><label for="inputPinCodes" class="control-label">Select Sector </label></div>
+     <select class="form-control" data-ng-model="item" ng-selected="mySector(item)">
+							<option data-ng-repeat="item in myAllsector" value="{{item}}">{{item.pName}}</option>
+						</select></div>
+     		<a id="gotoManage" data-ng-click="editSectorTab()"
+          	 	data-target="#reassign-sector-modal" data-toggle="modal" 
+				class="btn btn-primary" style="float: right; margin: 0px;">
+				ADD </a>
+      </div>
+      
+      
+       <div class="portlet-body">
+     <div class="col-md-8 myselect-container">
+     <div class="col-md-4"><label for="inputPinCodes" class="control-label">Select Subsector </label></div>
+     <select class="form-control" data-ng-model="item.pName">
+							<option data-ng-repeat="item in myAllsubsector" value="{{item.pName}}">{{item.pName}}</option>
+						</select></div>
+     		<a id="gotoManage" data-ng-click="editSubSectorTab()"
+          	 	data-target="#reassign-subsector-modal" data-toggle="modal" 
+				class="btn btn-primary" style="float: right; margin: 0px;">
+				ADD </a>
+      </div>
+      
+  </div>        
+</div>
+
+<div id="reassign-sector-modal" tabindex="-1" role="dialog" aria-labelledby="modal-default-label" aria-hidden="true" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&times;</button>
+            <h4 id="modal-default-label" class="modal-title">Create Sector</h4>
+          </div>
+			<div class="modal-body" style="  float: left; width: 100%; height: 160px;">
+				<div class="col-md-12">
+					<div class="form-group">
+						<div class="col-md-4"><label for="inputPinCodes" class="control-label">Sector </label></div>
+						<div class="col-md-8 myselect-container">
+							<input type="text" ng-model="sectorName" class="form-control">
+						</div>
+					</div>
+				</div>
+			</div>
+		  <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-default">Close</button>
+            <button type="button" data-ng-click="addSector(sectorName)" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div id="reassign-subsector-modal" tabindex="-1" role="dialog" aria-labelledby="modal-default-label" aria-hidden="true" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&times;</button>
+            <h4 id="modal-default-label" class="modal-title">Create Subsector</h4>
+          </div>
+			<div class="modal-body" style="  float: left; width: 100%; height: 160px;">
+				<div class="col-md-12">
+					<div class="form-group">
+						<div class="col-md-4"><label for="inputPinCodes" class="control-label">Sector </label></div>
+						<div class="col-md-8 myselect-container">
+							<input type="text" ng-model="subsectorName" class="form-control">
+						</div>
+					</div>
+				</div>
+			</div>
+		  <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-default">Close</button>
+            <button type="button" data-ng-click="addSubSector(subsectorName)" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<style>
+#myselect-container {
+	position: relative;
+}
+
+#myselect-container select {
+	position: absolute;
+}
+</style>
+
+

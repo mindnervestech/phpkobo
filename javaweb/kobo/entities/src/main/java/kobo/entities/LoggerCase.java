@@ -28,9 +28,9 @@ public class LoggerCase implements Serializable {
 
 	private String status;
 	
-	private Double latitude;
+	private double latitude;
 	
-	private Double longitude;
+	private double longitude;
 
 	//bi-directional many-to-one association to AuthUser
 	@ManyToOne
@@ -113,21 +113,21 @@ public class LoggerCase implements Serializable {
 	public void setLoggerInstance(LoggerInstance loggerInstance) {
 		this.loggerInstance = loggerInstance;
 	}
-	
-	public void setLongitude(Double longitude) {
-		this.longitude = longitude;
+
+	public double getLatitude() {
+		return latitude;
 	}
 
-	public Double getLongitude() {
-		return this.longitude;
-	}
-	
-	public void setLatitude(Double latitude) {
+	public void setLatitude(double latitude) {
 		this.latitude = latitude;
 	}
 
-	public Double getLatitude() {
-		return this.latitude;
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
 	}
 
 }

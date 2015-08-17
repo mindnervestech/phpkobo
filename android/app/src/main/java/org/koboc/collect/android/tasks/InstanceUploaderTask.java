@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.listeners.InstanceUploaderListener;
 import org.koboc.collect.android.logic.PropertyManager;
 import org.koboc.collect.android.preferences.PreferencesActivity;
@@ -125,8 +126,10 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                 Log.i(t, "Issuing HEAD request for " + id + " to: " + u.toString());
 
                 // send basic auth in header
-                //TODO
-                    httpHead.setHeader("Authorization", "Basic " + Base64.encodeToString(String.format("%s:%s", "kobo", "kobo").getBytes(), Base64.NO_WRAP));
+
+                AuthUser user = AuthUser.findLoggedInUser();
+                httpHead.setHeader("Authorization", "Basic " + Base64.encodeToString(String.format("%s:%s", user.getUsername(),
+                        user.getPassword()).getBytes(), Base64.NO_WRAP));
 
                 response = httpclient.execute(httpHead, localContext);
                 int statusCode = response.getStatusLine().getStatusCode();
@@ -421,9 +424,11 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
             HttpResponse response = null;
             try {
                 Log.i(t, "Issuing POST request for " + id + " to: " + u.toString());
-                //TODO :  Authorization head added by Akshay
 
-                httppost.setHeader("Authorization", "Basic " + Base64.encodeToString(String.format("%s:%s", "kobo", "kobo").getBytes(), Base64.NO_WRAP));
+                AuthUser user = new AuthUser();
+
+                httppost.setHeader("Authorization", "Basic " + Base64.encodeToString(String.format("%s:%s", user.getUsername(),
+                        user.getPassword()).getBytes(), Base64.NO_WRAP));
 
                 response = httpclient.execute(httppost, localContext);
                 int responseCode = response.getStatusLine().getStatusCode();

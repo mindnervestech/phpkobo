@@ -194,6 +194,7 @@ App.config(['$stateProvider', '$urlRouterProvider',
                                 'vendors/flot-chart/jquery.flot.stack.js',
                                 'vendors/flot-chart/jquery.flot.spline.js',
                                 'vendors/flot-chart/jquery.flot.time.js',
+                                /*'vendors/gmaps/googlemaps.js',*/
                                 'vendors/bootstrap-daterangepicker/daterangepicker-bs3.css',
                                 'vendors/bootstrap-datepicker/js/bootstrap-datepicker.js',
                                 'vendors/bootstrap-daterangepicker/daterangepicker.js',
@@ -242,6 +243,43 @@ App.config(['$stateProvider', '$urlRouterProvider',
                 }]
             }
         })
+         .state('allcases',{
+        	url: "/allcases",
+        	templateUrl: 'templates/states/_manage-cases/manage-case-table.html',
+            controller: 'AllCasesController',
+            resolve: { 
+                loadMyCtrl: ['$ocLazyLoad', function($ocLazyLoad) {
+                     return $ocLazyLoad.load({
+                        files: [
+								/*"reports/vendor/pivottable/dist/pivot.js",
+								"reports/vendor/pivottable/dist/gchart_renderers.js",
+								"reports/vendor/pivottable/dist/d3_renderers.js",
+								"reports/vendor/pivottable/dist/c3_renderers.js"*/
+
+                                ]
+                     });
+                }]
+            }
+        })
+         .state('MySectors',{
+        	url: "/Sectors",
+        	templateUrl: 'templates/states/manage-users.html',
+            controller: 'AllMySectorsController',
+            resolve: { 
+                loadMyCtrl: ['$ocLazyLoad', function($ocLazyLoad) {
+                     return $ocLazyLoad.load({
+                        files: [
+								/*"reports/vendor/pivottable/dist/pivot.js",
+								"reports/vendor/pivottable/dist/gchart_renderers.js",
+								"reports/vendor/pivottable/dist/d3_renderers.js",
+								"reports/vendor/pivottable/dist/c3_renderers.js"*/
+
+                                ]
+                     });
+                }]
+            }
+        })
+        
         .state('layout-left-sidebar', {
           url:"/layout-left-sidebar",
           templateUrl: 'templates/states/layout-left-sidebar.html'
@@ -1176,6 +1214,12 @@ App.run(function($rootScope, $state, $location, Auth) {
 	
 	
 	App.controller('ReportingController', function ($scope, $http) {
+		$scope.sang = 0; 
+		$scope.consult = 0;
+		$scope.status = 0;
+		$scope.startDate = moment().subtract('days', 7).format("MMDDYYYY");;
+		$scope.endDate = moment().add('days', 1).format("MMDDYYYY");
+		
 		$scope.finishedHeader = false;
 		$scope.dtColumns = [];
 		$scope.expanded = false;
@@ -1282,7 +1326,139 @@ App.run(function($rootScope, $state, $location, Auth) {
 			$event.preventDefault();
 			$(this).tab('show');
 		}
-	  
+
+		
+		//setTimeout(function(){
+	    	$('.reportrange1').daterangepicker(
+	                {
+	                    ranges: {
+	                        'Today': [moment(), moment()],
+	                        'Yesterday': [moment().subtract('days', 1), moment().subtract('days', 1)],
+	                        'Last 7 Days': [moment().subtract('days', 7), moment()],
+	                        'Last 30 Days': [moment().subtract('days', 29), moment()],
+	                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+	                        'Last Month': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')]
+	                    },
+	                    startDate: moment().subtract('days', 7),
+	                    endDate: moment()
+	                },
+	                function(start, end) {
+	                	
+	                	var startDate =  moment(start).format("MMDDYYYY");
+	                	var endDate =  moment(end).format("MMDDYYYY");
+	                	$scope.startDate =  moment(start).format("MMDDYYYY");
+	                	$scope.endDate =  moment(end).format("MMDDYYYY");
+	                	$scope.$emit('reportDateChange', { startDate: startDate, endDate: endDate });
+	                    $('.reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+	                }
+	            );
+	            $('.reportrange1 span').html(moment().subtract('days', 7).format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+	            
+	        $.fn.Data.checkbox();
+
+	    //}, 3000);
+		
+		$scope.ALLStatus = [{
+			id:'',
+			name:'NEW'
+		},
+		{
+			id:'',
+			name:'assigned'
+		},
+		{
+			id:'',
+			name:'Closed'
+		}
+		                    ]
+		
+		$http.get('/webapp/getAreaConsultant').success(function(resp){
+			console.log("get Consultant");
+			console.log(resp);
+			$scope.AllAreaconsultant = resp;
+		});
+		
+		$http.get('/webapp/getAllSanghnis').success(function(resp){
+			console.log("get sanginis");
+			console.log(resp);
+			$scope.Allsanginis = resp;
+		});
+		
+		
+		$scope.getAllSearchCases = function(sangini,consult,status){
+			
+			console.log("search case");
+			
+				$scope.sang = sangini;
+				$scope.consult = consult;
+				$scope.status = status;
+
+				$http.get('/webapp/getSearchCases?start='+$scope.startDate+'&end='+$scope.endDate+'&sangini='+$scope.sang+'&consult='+$scope.consult+'&status='+$scope.status).success(function(resp){
+				console.log("get search case");
+				console.log(resp);
+				$scope.AllSearchcase = resp;
+				
+
+					                 var map = new google.maps.Map(document.getElementById('googleMap'), {
+					                   zoom: 19,
+					                   center: new google.maps.LatLng(19.044218, 72.865868),
+					                   mapTypeId: google.maps.MapTypeId.ROADMAP
+					                 });
+
+					                 var infowindow = new google.maps.InfoWindow();
+
+					                 var marker, i;
+
+					                 for (i = 0; i < $scope.AllSearchcase.length; i++) {  
+					                	 console.log("lattt");
+					                	 console.log($scope.AllSearchcase[i].longitude);
+					                   marker = new google.maps.Marker({
+					                     position: new google.maps.LatLng($scope.AllSearchcase[i].latitude, $scope.AllSearchcase[i].longitude),
+					                     map: map
+					                   });
+
+					                   google.maps.event.addListener(marker, 'click', (function(marker, i) {
+					                     return function() {
+					                       infowindow.setContent($scope.AllSearchcase[i].id+"");
+					                       infowindow.open(map, marker);
+					                     }
+					                   })(marker, i));
+					                 }
+				
+			});
+			
+			
+		};	
+		
+		/*$scope.showMap = function(){
+				
+			 var map = new google.maps.Map(document.getElementById('googleMap'), {
+                 zoom: 15,
+                 center: new google.maps.LatLng(19.044218, 72.855980),
+                 mapTypeId: google.maps.MapTypeId.ROADMAP
+               });
+
+               var infowindow = new google.maps.InfoWindow();
+
+               var marker, i;
+
+                marker = new google.maps.Marker({
+                   position: new google.maps.LatLng(19.044218,72.855980),
+                   map: map
+                });
+                 google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                   return function() {
+                     infowindow.setContent($scope.AllSearchcase[i].id);
+                     infowindow.open(map, marker);
+                   }
+                 })(marker, i));
+               
+
+			
+			
+		}*/
+		
+		
 	});
 	
 	App.directive('myDatatable', function() {
@@ -1350,7 +1526,183 @@ App.run(function($rootScope, $state, $location, Auth) {
 		    }
 		  });
 	
+	App.controller('AllCasesController', function ($scope, $http) {
+		
+		console.log("All Cases Controller");
+	
+		
+			$http.get('/webapp/case').success(function(resp){
+				console.log(resp);
+				$scope.myAllcase = resp;
+				$scope.myAllcaseowner = resp.owner;
+				//$('#saved-report-tab a').click();
+			});
+			
+			$scope.editCaseTab = function(data){
+				console.log("edit case");
+				console.log(data);
+				$scope.myAllcases = data;
+				$scope.mycase = data.id;
+				$scope.myStatus = data.status;
+				console.log($scope.myStatus);
+				$http.get('/webapp/getConsultant').success(function(resp){
+					console.log("get Consultant");
+					console.log(resp);
+					$scope.Allconsultant = resp;
+				});
+			};
+			
+			$scope.assignConsutlt = function(consutlId){
+				console.log("assign Consultant");
+				console.log(consutlId);
+				$scope.caseId = $scope.mycase;
+				$scope.caseStatuss = $scope.myStatus;
+				//console.log($scope.counsaltId);
+				$http.get('/webapp/update/cases/'+$scope.caseId+'/'+$scope.caseStatuss+'/'+consutlId).success(function(resp){
+					console.log("assign Consultant");
+					console.log(resp);
+					//$scope.myAllcase = resp;
+					//$scope.myAllcases.status = $scope.caseStatuss;
+					$scope.myAllcases.consultant.username = resp.name;
+					$('#reassign-case-modal').modal('hide');
+					//$scope.Allconsultant = resp;
+				});
+				
+			};
+		
+		
+	});
+	
+	
+	
 
+App.controller('AllMySectorsController', function ($scope, $http) {
+	$scope.userData1 = {};
+	 $scope.invoice = [];    
+	$scope.hideUserTab = function() {
+    	console.log("view hide");
+    	$('#userTab').hide();
+    }
+
+	$scope.showUserTab = function(sector) {
+		console.log("user vieww");
+		console.log(sector);
+		$scope.userData1 = sector;
+		console.log($scope.userData1);
+		console.log($scope.userData1.name);
+		$scope.invoice = $scope.userData1.inc;
+
+		$('#userTab').removeAttr("style");
+		$('#viewUserTab').click();
+
+	}
+
+	$scope.editSector = function(data){
+		console.log("edit sector");
+		console.log(data);
+		
+		$http({method:'POST',url:'/webapp/editSector',data:data}).success(function(data) {
+			console.log("add sector");
+			console.log(data);
+			
+		});
+		
+	}
+
+	$scope.loadCoordinator = function(query) {
+		console.log("load Coordinator");
+		console.log(query);
+		console.log($http.get('/webapp/AreaCoordinator/'+query));
+
+		return $http.get('/webapp/AreaCoordinator/'+query);
+	};
+
+	$scope.loadSanghnis = function(query) {
+	    	return $http.get('/webapp/Sanghnis/'+query);
+	    };
+		
+		    
+			    
+		 $scope.addItem = function() {
+		        $scope.invoice.push({
+		            name: '',
+		            address: '',
+		            contact: ''
+		        });
+		    };
+
+		    $scope.removeItem = function(index) {
+		        $scope.invoice.splice(index, 1);
+		    },
+
+	
+		$http.get('/webapp/getAreaConsultant').success(function(resp){
+			console.log("get Consultant");
+			console.log(resp);
+			$scope.AllAreaconsultant = resp;
+		});
+		
+		$http.get('/webapp/getSectors').success(function(resp){
+			console.log("sectorrr");
+			console.log(resp);
+			$scope.myAllsector = resp;
+		});
+		
+		$http.get('/webapp/getSubsectors').success(function(resp){
+			console.log("sectorrr");
+			console.log(resp);
+			$scope.myAllsubsector = resp;
+		});
+		
+		$scope.addSector = function(data){
+			//$scope.userData = {};
+			
+			console.log("Add sector");
+			console.log(data);
+			console.log(data.name);
+			console.log(data.item);
+			console.log($scope.invoice);
+			data.inc = $scope.invoice;
+			console.log("full sector");
+			console.log(data);
+			//$scope.sectorName = data;
+			
+			
+			$http({method:'POST',url:'/webapp/addsector',data:data}).success(function(data) {
+				console.log("add sector");
+				console.log(data);
+				$http.get('/webapp/getSectors').success(function(resp){
+					console.log("sectorrr");
+					console.log(resp);
+					$scope.myAllsector = resp;
+				});
+			});
+			
+		}
+		
+		/*$scope.mySector = function(data){
+			console.log(" my sector");
+			console.log(data);
+			$scope.selectSector = data.id;
+			$scope.selectSectorName = data.pName;
+		}*/
+		
+		$scope.addSubSector = function(data){
+			console.log("Add sector");
+			console.log(data);
+			$scope.subsectorName = data;
+			if($scope.selectSector != null){
+			$http.get('/webapp/addsubsector/'+$scope.subsectorName+'/'+$scope.selectSector+'/'+$scope.selectSectorName).success(function(resp){
+				console.log("add sub sector");
+				console.log(resp);
+				$('#reassign-subsector-modal').modal('hide');
+			});
+		}
+		}
+		
+		
+	});
+	
 App.controller('LoginController',function ($scope, $rootScope, $location, $http, Auth) {
 	
 	//$('body').addClass('bounceInLeft');
@@ -2295,11 +2647,12 @@ App.controller('UsersTableCtrl',function($scope,$http, DTOptionsBuilder, DTColum
     },500);*/
     
     $scope.hideUserTab = function() {
-    	
+    	console.log("view hide");
     	$('#userTab').hide();
     }
     
     $scope.showUserTab = function(user) {
+    	console.log("user vieww");
     	vm.user = user;
     	console.log(vm.user);
     	$('#pre-selected-options1').multiSelect('deselect_all');
@@ -9319,6 +9672,64 @@ App.controller('MainController', function ($scope, $routeParams,$http){
         $.fn.Data.checkbox();
 
     }, 3000);
+	
+	$http.get('/webapp/case').success(function(resp){
+		console.log(resp);
+		$scope.myAllcase = resp;
+		$scope.myAllcaseowner = resp.owner;
+		//$('#saved-report-tab a').click();
+	});
+	
+	$scope.myfunc = function(lat,longg){
+		console.log("layytty");
+		console.log(lat);
+		console.log(longg);
+		//$('#mylat').val();
+		var myCenter=new google.maps.LatLng(lat,longg);
+
+		
+		var mapProp = {
+		  center:myCenter,
+		  zoom:5,
+		  mapTypeId:google.maps.MapTypeId.ROADMAP
+		  };
+
+		var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+
+		var marker=new google.maps.Marker({
+		  position:myCenter,
+		  });
+
+		marker.setMap(map);
+		
+
+		google.maps.event.addDomListener(window, "load", initialize);
+	}	
+
+		var myCenter=new google.maps.LatLng(36.0800,-115.1522);
+
+		function initialize()
+		{
+		var mapProp = {
+		  center:myCenter,
+		  zoom:5,
+		  mapTypeId:google.maps.MapTypeId.ROADMAP
+		  };
+
+		var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+
+		var marker=new google.maps.Marker({
+		  position:myCenter,
+		  });
+
+		marker.setMap(map);
+		}
+
+		google.maps.event.addDomListener(window, "load", initialize);
+		
+		
+	
+	
 });
 
 

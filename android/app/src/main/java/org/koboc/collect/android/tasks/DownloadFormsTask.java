@@ -30,6 +30,7 @@ import java.util.List;
 import org.javarosa.xform.parse.XFormParser;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.listeners.FormDownloaderListener;
 import org.koboc.collect.android.logic.FormDetails;
 import org.koboc.collect.android.provider.FormsProviderAPI.FormsColumns;
@@ -265,6 +266,7 @@ public class DownloadFormsTask extends
         URI uri = null;
         try {
             // assume the downloadUrl is escaped properly
+            Log.d("DownloadForm",downloadUrl);
             URL url = new URL(downloadUrl);
             uri = url.toURI();
         } catch (MalformedURLException e) {
@@ -285,7 +287,8 @@ public class DownloadFormsTask extends
 	        // get shared HttpContext so that authentication and cookies are retained.
 	        HttpContext localContext = Collect.getInstance().getHttpContext();
 	
-	        HttpClient httpclient = WebUtils.createHttpClient(WebUtils.CONNECTION_TIMEOUT);
+	        HttpClient httpclient = WebUtils.createHttpClient(WebUtils.CONNECTION_TIMEOUT,
+                    AuthUser.findLoggedInUser().getFormListUser());
 	
 	        // set up request...
 	        HttpGet req = WebUtils.createOpenRosaHttpGet(uri);

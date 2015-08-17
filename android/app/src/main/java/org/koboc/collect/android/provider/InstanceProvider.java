@@ -216,17 +216,13 @@ public class InstanceProvider extends ContentProvider {
 
     //TODO: Akshay to implement this
     private void doCaseToFormBinding(String status) {
-        System.out.println("idddd::"+Collect.getInstance().getCaseId());
-        CaseRecord caseRecord=new CaseRecord();
-        final List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where case_Id = ?",Collect.getInstance().getCaseId());
+
+        final List<CaseRecord> caseRecords=CaseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where case_Id = ?",Collect.getInstance().getCaseId());
         System.out.println("size:::"+caseRecords.size());
         for(CaseRecord caseRecord1:caseRecords){
             caseRecord1.status=status;
             caseRecord1.save();
         }
-
-
-
 
     }
 

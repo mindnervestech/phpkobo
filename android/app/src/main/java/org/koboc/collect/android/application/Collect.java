@@ -122,7 +122,6 @@ public class Collect extends SugarApp {
             String versionName = pinfo.versionName;
             versionDetail = " " + versionName + " (" + versionNumber + ")";
         } catch (NameNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return getString(R.string.app_name) + versionDetail;

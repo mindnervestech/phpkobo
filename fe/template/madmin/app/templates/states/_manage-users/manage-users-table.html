@@ -13,26 +13,23 @@
                       <input type="checkbox" class="checkall"/>
                     </th> -->
                     <th style="background-color: #dc6767;color:white;" width="14%">Name</th>
-                    <th style="background-color: #dc6767;color:white;" width="14%">Email</th>
-                    <th style="background-color: #dc6767;color:white;" width="14%">Contact Number</th>
-                    <th style="background-color: #dc6767;color:white;" width="2%">Role</th>
-                    <th style="background-color: #dc6767;color:white;" width="12%">Region</th>
-                    <th style="background-color: #dc6767;color:white;" width="4%">Actions</th>
+                    <th style="background-color: #dc6767;color:white;" width="14%">Area Coordinator </th>
+                    <th style="background-color: #dc6767;color:white;" width="14%">Sanghanis </th>
+                    
                   </tr>
                   </thead>
                   
           		  <tbody>
-                  <tr data-ng-repeat="user in showCase.users">
+                  <tr data-ng-repeat="sector in myAllsector">
                     <!-- <td><label class="checkbox checkbox-custom checkbox-custom-sm m-0">
                     <input type="checkbox" data-ng-model="order.selected"><i></i></label></td> -->
                     
-                    <td>{{ user.name }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.phone }}</td>
-                    <td>{{ user.role.name }}</td>
-                    <td>{{ user.zone.name }}</td>
+                    <td>{{ sector.name }}</td>
+                    <td style="  width: 20%;"><span ng-repeat="c in sector.coordinators"><font style="color: #d2322d;" ng-if="sector.coordinators.length==1">{{c.name}}</font><font style="color: #d2322d;" ng-if="sector.coordinators.length>1">{{c.name}}</font><font ng-if="sector.coordinators.length>1&&sector.coordinators.length-1!=$index"> , </font></font></span></td>
+                    <td style="  width: 60%;"><span ng-repeat="c in sector.sanghni"><font style="color: #d2322d;" ng-if="sector.sanghni.length==1">{{c.name}}</font><font style="color: #d2322d;" ng-if="sector.sanghni.length>1">{{c.name | limitTo:9}}</font><font ng-if="sector.sanghni.length>1&&sector.sanghni.length-1!=$index"> , </font></font></span></td>
+                   
                     <td>
-                      <a class="btn btn-xs btn-default" ng-click="showUserTab(user)"><i class="fa fa-eye"></i> View</a>
+                      <a class="btn btn-xs btn-default" ng-click="showUserTab(sector)"><i class="fa fa-eye"></i> View</a>
                     </td>
                   </tr>
                   </tbody>	        

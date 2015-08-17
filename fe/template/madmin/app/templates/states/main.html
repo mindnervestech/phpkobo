@@ -113,17 +113,64 @@
         </div>
       </div>
     </div>
+    <!-- <div class="row">
+  
+  <div class="col-lg-12">
+     <div class="portlet-body">
+        <div class="row mbm">
+          <div class="col-lg-12">
+            <div class="table-responsive" >
+              <table id="my_leads" datatable="ng" data-dt-options="myAllcase" data-dt-column-defs="showCase.dtColumnDefs" 
+              class="table table-hover table-striped table-bordered table-advanced tablesorter display tb-sticky-header">
+              	<thead>
+                  <tr>
+                    <th style="background-color: #dc6767;color:white;" width="6%">Case Id</th>
+                  </tr>
+                  </thead>
+                  
+          		  <tbody>
+                  <tr data-ng-repeat="item in myAllcase">
+                    <td>{{ item.id }}</td>
+                  </tr>
+                  </tbody>	        
+              </table>
+            </div>
+           </div>
+          </div>
+      </div>      
+  </div>        
+</div> -->
     <div class="col-lg-12" data-ng-if="userRole != 7 && userRole != 9  && userRole != 5 && userRole != 6 && userRole != 8 ">
       <div class="panel">
         <div class="panel-body">
           <div class="row">
             <div class="col-md-12">
-              <h4 class="mbs text-uppercase">Leads By Zone</h4>
-              <p class="help-block"></p>
-              <!-- <div id="area-chart-spline" style="width: 100%; height:300px" 
-              ng-areachartspline=""></div> -->
-              <flot remote="dashboard.spline1.remote" type="stack" dataset="dataset"  height="250px"></flot>
+              <h4 class="mbs text-uppercase">MAPS</h4>
               
+	              <div class="col-lg-8" id="googleMap" name="googleMap" style="height: 500px;">
+	              </div>
+	              <div class="col-lg-4" style="height: 500px; overflow-y: scroll;">
+	               <table id="my_leads"  
+              class="table table-hover table-striped table-bordered table-advanced tablesorter display tb-sticky-header">
+              	<thead>
+                  <tr>
+                    <th style="background-color: #dc6767;color:white;" width="6%">Case Id</th>
+                  </tr>
+                  </thead>
+                  
+          		  <tbody>
+                  <tr data-ng-repeat="item in myAllcase">
+                    <td ng-click="myfunc(item.latitude,item.longitude)">{{ item.id }}</td>
+                  </tr>
+                  </tbody>	        
+              </table>
+             
+	              </div>
+              <!-- <p class="help-block"></p>
+              <div id="area-chart-spline" style="width: 100%; height:300px" 
+              ng-areachartspline=""></div>
+              <flot remote="dashboard.spline1.remote" type="stack" dataset="dataset"  height="250px"></flot>
+               -->
             </div>
           </div>
         </div>
@@ -183,6 +230,8 @@
   <div class="row mbl">
   </div>
 </div>
+
+
 <style>
 .page-content {
 	min-height:0px;

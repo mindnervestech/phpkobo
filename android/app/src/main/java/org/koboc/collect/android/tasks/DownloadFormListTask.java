@@ -14,6 +14,7 @@
 
 package org.koboc.collect.android.tasks;
 
+import org.koboc.collect.android.database.AuthUser;
 import org.opendatakit.httpclientandroidlib.client.HttpClient;
 import org.opendatakit.httpclientandroidlib.protocol.HttpContext;
 import org.javarosa.xform.parse.XFormParser;
@@ -78,7 +79,8 @@ public class DownloadFormListTask extends AsyncTask<Void, String, HashMap<String
 
         // get shared HttpContext so that authentication and cookies are retained.
         HttpContext localContext = Collect.getInstance().getHttpContext();
-        HttpClient httpclient = WebUtils.createHttpClient(WebUtils.CONNECTION_TIMEOUT);
+
+        HttpClient httpclient = WebUtils.createHttpClient(WebUtils.CONNECTION_TIMEOUT,AuthUser.findLoggedInUser().getFormListUser());
 
         DocumentFetchResult result =
             WebUtils.getXmlDocument(downloadListUrl, localContext, httpclient);
@@ -127,14 +129,12 @@ public class DownloadFormListTask extends AsyncTask<Void, String, HashMap<String
                     continue;
                 }
                 String name = xformElement.getName();
-                System.out.println(" form name :: "+name);
                 if (!name.equalsIgnoreCase("xform")) {
                     // someone else's extension?
                     continue;
                 }
 
                 // this is something we know how to interpret
-
                 String formId = null;
                 String formName = null;
                 String version = null;
@@ -146,7 +146,6 @@ public class DownloadFormListTask extends AsyncTask<Void, String, HashMap<String
                 // don't process descriptionUrl
                 int fieldCount = xformElement.getChildCount();
                 for (int j = 0; j < fieldCount; ++j) {
-                    System.out.println(i+"FOR LOODP :: "+j);
                     if (xformElement.getType(j) != Element.ELEMENT) {
                         // whitespace
                         continue;
@@ -164,14 +163,6 @@ public class DownloadFormListTask extends AsyncTask<Void, String, HashMap<String
                         }
                     } else if (tag.equals("name")) {
                         formName = XFormParser.getXMLText(child, true);
-
-                        System.out.println(" before :: ");
-
-                        if(!formName.contains(settings.getString("role", null))){
-                            isFiltered = true;
-                            break;
-                        }
-                        System.out.println(" after :: ");
                         if (formName != null && formName.length() == 0) {
                             formName = null;
                         }
@@ -201,20 +192,11 @@ public class DownloadFormListTask extends AsyncTask<Void, String, HashMap<String
                             manifestUrl = null;
                         }
                     }
-                    System.out.println("Form Name ::: "+formName);
-                    System.out.println("Form Id ::: "+formId);
-                    System.out.println("Role ::: "+settings.getString("role", null));
                 }
-                if (formId == null || downloadUrl == null || formName == null || isFiltered) {
-                    System.out.println(" :: GOT IT :: ");
+                if (formId == null || downloadUrl == null || formName == null) {
                     String error =
-                            "Forms list entry " + Integer.toString(i)
-                                    + " is missing one or more tags: formId, name, or downloadUrl";
-
-                    if(isFiltered){
-                        error ="Forms list entry "
-                                        + ": No form to synch ";
-                    }
+                        "Forms list entry " + Integer.toString(i)
+                                + " is missing one or more tags: formId, name, or downloadUrl";
                     Log.e(t, "Parsing OpenRosa reply -- " + error);
                     formList.clear();
                     formList.put(

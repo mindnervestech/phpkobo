@@ -34,6 +34,7 @@ import android.widget.TextView;
 
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.preferences.AdminPreferencesActivity;
 import org.koboc.collect.android.preferences.PreferencesActivity;
 
@@ -80,7 +81,7 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
                         startActivity(intent);
                         break;
                     case "Logout":
-                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().clear().commit();
+                        AuthUser.deleteAll(AuthUser.class);
                         intent = new Intent(getApplicationContext(), LoginActivity.class);
                         startActivity(intent);
                         break;
@@ -179,7 +180,6 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
     }
 
     public void onTabChanged(String tabId) {
-        // TODO Auto-generated method stub
         for(int i=0;i<tabHost.getTabWidget().getChildCount();i++)
         {
             ((TextView) tabHost.getTabWidget().getChildAt(i)).setTextColor(Color.BLACK);

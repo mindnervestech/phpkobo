@@ -423,7 +423,8 @@ public class FormDownloadList extends ListActivity implements FormListDownloader
                     settings.getString(PreferencesActivity.KEY_SERVER_URL,
                         getString(R.string.default_server_url));
 
-                final String url =
+                //TODO: Add possibly formType, Not needed 15-Aug-15
+				final String url =
                     server + settings.getString(PreferencesActivity.KEY_FORMLIST_URL, "/kobo/formList");
                 Log.i(t, "Trying to get formList from: " + url);
 
@@ -570,9 +571,9 @@ public class FormDownloadList extends ListActivity implements FormListDownloader
         }
 
         if (result.containsKey(DownloadFormListTask.DL_AUTH_REQUIRED)) {
-            // need authorization
-            //showDialog(AUTH_DIALOG);
-            authinticationLogin();
+            //TODO: This can be regression.Checkit need authorization
+            showDialog(AUTH_DIALOG);
+            //authinticationLogin();
         } else if (result.containsKey(DownloadFormListTask.DL_ERROR_MSG)) {
             // Download failed
             String dialogMessage =

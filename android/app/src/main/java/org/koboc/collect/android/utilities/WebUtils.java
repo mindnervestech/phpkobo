@@ -65,6 +65,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
+import android.util.Base64;
 import android.util.Log;
 
 /**
@@ -229,6 +230,9 @@ public final class WebUtils {
 		return req;
 	}
 
+    public static final synchronized HttpClient createHttpClient(int timeout) {
+        return createHttpClient(timeout,null);
+    }
 	/**
 	 * Create an httpClient with connection timeouts and other parameters set.
 	 * Save and reuse the connection manager across invocations (this is what
@@ -237,7 +241,7 @@ public final class WebUtils {
 	 * @param timeout
 	 * @return HttpClient properly configured.
 	 */
-	public static final synchronized HttpClient createHttpClient(int timeout) {
+	public static final synchronized HttpClient createHttpClient(int timeout,String basicAuth) {
 		// configure connection
 		HttpParams params = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(params, timeout);
@@ -246,6 +250,7 @@ public final class WebUtils {
 		HttpClientParams.setRedirecting(params, true);
 		// support authenticating
 		HttpClientParams.setAuthenticating(params, true);
+
 		HttpClientParams.setCookiePolicy(params,
 				CookiePolicy.BROWSER_COMPATIBILITY);
 		// if possible, bias toward digest auth (may not be in 4.0 beta 2)
@@ -256,7 +261,8 @@ public final class WebUtils {
 		params.setParameter(AuthPNames.TARGET_AUTH_PREF, authPref);
 		params.setParameter(ClientPNames.MAX_REDIRECTS, 1);
 		params.setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
-
+        if(basicAuth != null)
+          params.setParameter("Authorization", basicAuth);
 		// setup client
 		DefaultHttpClient httpclient;
 
@@ -336,6 +342,7 @@ public final class WebUtils {
 
 		HttpResponse response = null;
 		try {
+
 			response = httpclient.execute(req, localContext);
 			int statusCode = response.getStatusLine().getStatusCode();
 

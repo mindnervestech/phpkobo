@@ -50,14 +50,21 @@ public class MyCaseActivity extends Activity{
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ?","complete");
         System.out.println("size:::::::::::"+caseRecords.size());
 
+        System.out.println("caseId::::");
+        System.out.print("long::::");
+        System.out.print("latt::::");
+        System.out.print("addrress::::");
+        System.out.print("status::::");
+        System.out.print("date cre::::");
+        System.out.print("date mod::::");
         for (CaseRecord item:caseRecords){
-            System.out.println("caseId::::"+item.caseId);
-            System.out.println("long::::"+item.longitude);
-            System.out.println("latt::::"+item.latitude);
-            System.out.println("addrress::::"+item.address);
-            System.out.println("status::::"+item.status);
-            System.out.println("date cre::::"+item.dateCreated);
-            System.out.println("date mod::::"+item.dateModified);
+            System.out.println(item.caseId);
+            System.out.print(item.longitude);
+            System.out.print(item.latitude);
+            System.out.print(item.address);
+            System.out.print(item.status);
+            System.out.print(item.dateCreated);
+            System.out.print(item.dateModified);
 
         }
 
@@ -72,9 +79,9 @@ public class MyCaseActivity extends Activity{
                 Collect.getInstance().setCaseId(caseRecords.get(i).caseId+"");
 
                 InstanceProvider instanceProvider=new InstanceProvider();
-                instanceProvider.checkInstance(caseRecords.get(i).caseId);
+                int count = instanceProvider.checkInstance(caseRecords.get(i).caseId);
 
-                if(instanceProvider.checkInstance(caseRecords.get(i).caseId) == 0){
+                if(count == 0){
                     Intent intent = new Intent(getApplicationContext(), FormChooserList.class);
                     startActivity(intent);
                 }else {
@@ -83,8 +90,6 @@ public class MyCaseActivity extends Activity{
                 }
 
                 System.out.println("total cases::"+caseRecords.size());
-
-
 
             }
         });

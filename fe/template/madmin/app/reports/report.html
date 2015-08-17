@@ -1,165 +1,74 @@
-<head>
-
-<style type="text/css">
-.input-sm-cust, .strapselect-multiple button {
-  height: 23px;
-  padding: 0px 5px;
-  width:105px;
-  font-size: 11px;
-  line-height: 1.5;
-  border-radius: 3px;
-}
-
-.labelHtmlClass {
-	font-size: 11px;
-}
-.schema-form-checkboxes, .strapselect-multiple {
-	margin-right: -25px;
-}
-
-.schema-form-checkboxes >.radio, .schema-form-checkboxes >.checkbox {
-  position: relative;
-  display: block;
-  min-height: 20px;
-  margin-top: -4px;
-  margin-bottom: 0px;
-  padding-right: 5px;
-  font-size: 12px;
-}
-
-.col-xs-1-5 {
-  width: 11.66666667%;
-  float: left;
-  position: relative;
-  min-height: 1px;
-  padding-right: 15px;
-  padding-left: 15px;
-}
-.table-condensed>thead>tr>th, .table-condensed>tbody>tr>th, .table-condensed>tfoot>tr>th, .table-condensed>thead>tr>td, .table-condensed>tbody>tr>td, .table-condensed>tfoot>tr>td {
-  padding: 2px;
-  font-size: 12px;
-}
-
-li.active>a {
-	color: #F0AD4E !important;
-}
-
-#rpt_table_wrapper {
-	font-size: 12px !important;
-}
-
-</style>
-</head>
-
-
-
-<!-- Tab Panel 1 Start -->
-
-<div ng-hide="expanded" role="tabpanel">
- <ul  ng-tab=""  class="nav nav-tabs" role="tablist">
-    <li role="presentation" id="saved-report-tab" ng-click="currenttab = 'report'" ><a href="#saved-report" aria-controls="saved-search" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-list-alt"></span> Reports</a></li>
-    <li role="presentation" id="custom-search-tab" ng-click="currenttab = 'search'"><a href="#custom-search" aria-controls="custom-search" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-search"></span> Search</a></li>
-  	  
-  </ul>
-
-  <!--   -->
-  <div  class="tab-content">
-    <div role="tabpanel" class="tab-pane active" id="custom-search">
-		   <form >
-		    <div style="margin-bottom: -13px;" sf-schema="reportTemplate.jsonSchema" sf-form="reportTemplate.jsonForm" 
-		         sf-model="reportTemplate.model">
-		     </div>
-		    
-		    <button ng-show="showExcButton" class="btn btn-warning btn-xs" type="button"  ng-click="runReport()">
-		    	Execute
-		    </button>
-		  </form>
-    </div>
-    <!--  -->
-    <div role="tabpanel" class="tab-pane" id="saved-report">
-    	<table id="rpt_save-search"
-		class="table table-condensed table-hover table-striped table-bordered" 
-	 	>
-        <thead style="background-color: #f0ad4e;color: antiquewhite;">
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-        	<tr data-ng-repeat="rpt in reportMDs" >
-                <td>{{rpt.name}}</td>
-                <td>{{rpt.description}}</td>
-                <td>
-                  <a href="#" data-ng-click="showReport(rpt,$event)">Show</a> &nbsp;
-                </td>
-            </tr>
-            
-        </tbody>
- 
-        
-    </table>		
-    </div>
-    <!--  -->
-    <div role="tabpanel" class="tab-pane" id="ad-hoc-search">
-    			Need to develop
-    </div>
-    
-  </div>
-</div><!-- Tab Panel 1 End -->
-
-
-<!-- Tab Panel 2 start -->
-<div  ng-show="isAnyActiveReport && currenttab == 'search'"  role="tabpanel">
-	<!-- Nav tabs -->
-  <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active"><a href="#table-view" ng-click="changeTab($event)" aria-controls="table-view" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-th-list"></span> Table View</a></li>
-    <li role="presentation"><a href="#pivot-view" ng-click="changeTab($event)" aria-controls="pivot-view" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-stats"></span> Pivot View</a></li>
-    <a href="#" ng-click="$event.preventDefault();expanded =! expanded;" style="
-    margin-top: 10px;
-    margin-left: 10px;
-    position: absolute;"><span class="glyphicon" ng-class="expanded ? 'glyphicon-resize-small' : 'glyphicon-resize-full'"></span></a>
-    
-  </ul>
-  <div class="tab-content" style="padding: 10px;">
-    <div role="tabpanel" class="tab-pane active" id="table-view">
-			
-		<div class="btn-group pull-right">
-			<button class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown">
-			<i class="fa fa-bars"></i> Export</button>
-			<ul class="dropdown-menu " role="menu">
-				<li><a href="#" onclick="$('#rpt_table').tableExport({type:'excel',escape:'false'});"> <img src="/template/reports/vendor/export/icons/xls.png" width="24px"> XLS</a></li>
-				<li><a href="#" onclick="$('#rpt_table').tableExport({type:'doc',escape:'false'});"> <img src="/template/reports/vendor/export/icons/word.png" width="24px"> Word</a></li>
-				<li><a href="#" onclick="$('#rpt_table').tableExport({type:'pdf',pdfFontSize:'7',escape:'false'});"> <img src="/template/reports/vendor/export/icons/pdf.png" width="24px"> PDF</a></li>
-				<li><a href="#" onclick="$('#rpt_table').tableExport({type:'csv',escape:'false'});"> <img src="/template/reports/vendor/export/icons/csv.png" width="24px"> CSV</a></li>
-				<li><a href="#" onclick="$('#rpt_table').tableExport({type:'xml',escape:'false'});"> <img src="/template/reports/vendor/export/icons/xml.png" width="24px"> XML</a></li>
-				<li class="divider"></li>
-			</ul>
-		</div>
-	
-		<!-- DataTable Container -->
-		<table id="rpt_table"
-		class="table-condensed table table-hover table-striped table-bordered" 
-		 my-datatable aa-data="reportData" aa-columns="dtColumns" >
-	        
-	    </table>    
-    </div><!-- table-view end here -->
-    
-    <div role="tabpanel" class="tab-pane" id="pivot-view">
-    	<div id="pivot-table-output" style="margin: 10px;"></div>
-    </div>
-    
-    </div>
+  <div  class="tab-content" style="  height: 60px;  padding: 7px 15px;">
   
+<div class="btn btn-blue reportrange1" style="float: right;  margin-top: 7px;"><i class="fa fa-calendar"></i>&nbsp;<span>May 7, 2015 - June 5, 2015</span>&nbsp;report&nbsp;<i class="fa fa-angle-down"></i><input type="hidden" name="datestart"><input type="hidden" name="endstart"></div>
+<div class="col-md-2" style = "padding: 7px; float: right;">
+  <div class="">
+    <select data-ng-model="sang" class="form-control btn-blue"  data-ng-change="getAllSearchCases(sang,consult,status)"  required>
+    	<option value="0">All Sanginis</option>
+      <option data-ng-repeat="sang in Allsanginis" value="{{sang.id}}" >{{sang.name}}</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-2" style = "padding: 7px; float: right;">
+  <div class="">
+    <select data-ng-model="consult" class="form-control btn-blue"  data-ng-change="getAllSearchCases(sang,consult,status)"  required>
+    	<option value="0">All Consultant</option>
+      <option data-ng-repeat="consult in AllAreaconsultant" value="{{consult.id}}" >{{consult.username}}</option>
+    </select>
+  </div>
 </div>
 
-			<table ng-show="1 == 2" id="tableHeaderTmp">
-				<thead>
-	            <tr>
-	                <th generate-datatable ng-repeat="col in dtColumns" ng-bind="col.name"></th>
-	            </tr>
-	            </thead>
-	        </table>
-<!-- Tab Panel 2 End -->
+<div class="col-md-2" style = "padding: 7px; float: right;">
+  <div class="">
+    <select data-ng-model="status" class="form-control btn-blue"  data-ng-change="getAllSearchCases(sang,consult,status)"  required>
+    	<option value="0">All Status</option>
+      <option data-ng-repeat="status in ALLStatus" value="{{status.name}}" >{{status.name}}</option>
+    </select>
+  </div>
+</div>
 
+  </div>
+  
+    
+<div id="table-advanced" class="row">
+  <div class="col-lg-12">
+    <ul id="manageUserTab" ng-tab="" class="nav nav-tabs" >
+      <li class="active"><a href="#user-details" data-toggle="tab" ng-click="hideUserTab()" id="userDetailsTab"><i class="fa fa-table"></i> Case Grid</a></li>
+      <li><a href="#create-user" data-toggle="tab" ng-click="showMap()"><i class="fa fa-file-text-o"></i> Map</a></li>
+     
+    </ul>
+    <div id="manageUserTabContent" class="tab-content" style="  height: 560px;">
+      <div id="user-details" class="tab-pane fade in active">
+        <div class="col-lg-12" style="height: 500px;">
+	               <table id="my_leads"  
+              class="table table-hover table-striped table-bordered table-advanced tablesorter display tb-sticky-header">
+              	<thead>
+                  <tr>
+                    <th style="background-color: #dc6767;color:white;"">Case Id</th>
+                    <th style="background-color: #dc6767;color:white;">Sangini</th>
+                    <th style="background-color: #dc6767;color:white;">Consultant</th>
+                    <th style="background-color: #dc6767;color:white;">Status</th>
+                  </tr>
+                  </thead>
+                  
+          		  <tbody>
+                  <tr data-ng-repeat="item in AllSearchcase">
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.owner.firstName }}</td>
+                    <td>{{ item.consultant.firstName }}</td>
+                    <td>{{ item.status }}</td>
+                  </tr>
+                  </tbody>	        
+              </table>
+             
+	              </div>
+      </div>
+      <div id="create-user" class="tab-pane fade">
+        <div class="col-lg-8" id="googleMap" name="googleMap" style="height: 500px;width: 100%;">
+	              </div>
+	             
+      </div>
+    </div>
+  </div>
+</div>
+  

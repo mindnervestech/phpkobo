@@ -9,6 +9,7 @@ import java.util.List;
 
 import retrofit.Callback;
 import retrofit.http.Body;
+import retrofit.http.GET;
 import retrofit.http.Header;
 import retrofit.http.POST;
 import retrofit.http.Path;
@@ -24,10 +25,13 @@ public interface MyApi {
    // public void submit(@Query("Long")String longtitude,@Query("Latt")String latitude,@Query("Address")String address,@Query("Id")String userId, Callback<UserVM> callback);
 
     @POST("/webapp/case")
-    public void getCase(@Header("Authorization") String authorization,@Body CaseVM caseVM, Callback<CaseResponseVM> callback);
+    public void postCase(@Header("Authorization") String authorization,@Body CaseVM caseVM, Callback<CaseResponseVM> callback);
+
+    @GET("/webapp/case")
+    public void getCase(@Header("Authorization") String authorization,Callback<List<CaseResponseVM>> callback);
 
     @POST("/webapp/getClusterOfSectors/{SID}")
-    public void getClusters(@Path("SID")int id,Callback<List<SectorVM>> callback);
+    public void getClusters(@Path("SID")long id,Callback<List<SectorVM>> callback);
 
 
 
