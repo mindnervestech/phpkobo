@@ -221,8 +221,10 @@ def create_instance(username, xml_file, media_files,
 
         xml = xml_file.read()
         xform = get_xform_from_submission(xml, username, uuid)
-        check_submission_permissions(request, xform)
-
+        print(xform)
+        # TODO: commented by jagbir
+        # check_submission_permissions(request, xform)
+        print(request.user)
         existing_instance_count = Instance.objects.filter(
             xml=xml, xform__user=xform.user).count()
 

@@ -17,6 +17,8 @@ from onadata.apps.main.models.meta_data import MetaData
 from onadata.apps.main.models.user_profile import UserProfile
 from onadata.libs import filters
 from onadata.libs.authentication import (DigestAuthentication,BaseAuthentication)
+from rest_framework.authentication import BasicAuthentication ,TokenAuthentication
+
 from rest_framework.authentication import TokenAuthentication
 from onadata.libs.renderers.renderers import MediaFileContentNegotiation
 from onadata.libs.renderers.renderers import XFormListRenderer
@@ -30,7 +32,7 @@ DEFAULT_CONTENT_LENGTH = getattr(settings, 'DEFAULT_CONTENT_LENGTH', 10000000)
 
 
 class XFormListApi(viewsets.ReadOnlyModelViewSet):
-    authentication_classes = (DigestAuthentication,TokenAuthentication)
+    authentication_classes = (DigestAuthentication,TokenAuthentication,BasicAuthentication)
     content_negotiation_class = MediaFileContentNegotiation
     filter_backends = (filters.XFormListObjectPermissionFilter,)
     queryset = XForm.objects.filter(downloadable=True)
