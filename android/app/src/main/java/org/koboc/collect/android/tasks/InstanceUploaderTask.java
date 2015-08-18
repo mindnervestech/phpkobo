@@ -425,7 +425,7 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
             try {
                 Log.i(t, "Issuing POST request for " + id + " to: " + u.toString());
 
-                AuthUser user = new AuthUser();
+                AuthUser user = AuthUser.findLoggedInUser();
 
                 httppost.setHeader("Authorization", "Basic " + Base64.encodeToString(String.format("%s:%s", user.getUsername(),
                         user.getPassword()).getBytes(), Base64.NO_WRAP));

@@ -21,6 +21,7 @@ import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
@@ -40,9 +41,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
 import org.koboc.collect.android.R;
+import org.koboc.collect.android.adapters.InstanceListAdapter;
 import org.koboc.collect.android.application.Collect;
 import org.koboc.collect.android.database.CaseRecord;
-import org.koboc.collect.android.provider.InstanceProviderAPI;
+import org.koboc.collect.android.model.InstanceVM;
+import org.koboc.collect.android.provider.FormsProvider;
+import org.koboc.collect.android.provider.FormsProviderAPI;
+import org.koboc.collect.android.provider.InstanceProvider;
 import org.koboc.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 
 import java.io.BufferedReader;
@@ -51,6 +56,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -68,6 +74,9 @@ public class InstanceChooserList extends ListActivity implements LocationListene
     private GoogleMap myMap;
     private MapFragment myMapFragment;
     private FragmentManager myFragmentManager;
+
+    private static final String DATABASE_NAME = "instances.db";
+    private static final String DATABASE_NAME1 = "forms.db";
 
     double mLatitude = 0;
     double mLongitude = 0;
@@ -101,8 +110,57 @@ public class InstanceChooserList extends ListActivity implements LocationListene
         String sortOrder = InstanceColumns.STATUS + " DESC, " + InstanceColumns.DISPLAY_NAME + " ASC";
         Cursor c = managedQuery(InstanceColumns.CONTENT_URI, null, selection, selectionArgs, sortOrder);
 
+        //Database helper instance
+        InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
+        FormsProvider.DatabaseHelper databaseHelper1 = new FormsProvider.DatabaseHelper("forms.db");
 
-        String[] data = new String[] {
+
+        //Instance Table Query
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " +Collect.getInstance().getCaseId(), null);
+
+        List<InstanceVM> vms = new ArrayList<InstanceVM>();
+
+        while (cursor.moveToNext()){
+            InstanceVM instanceVM = new InstanceVM();
+
+            instanceVM.setForm_id(cursor.getString(5));
+            instanceVM.setForm_name(cursor.getString(1));
+            instanceVM.setInstance_id(cursor.getString(0));
+            instanceVM.setCase_id(cursor.getString(9));
+            instanceVM.setInstance_save_date(cursor.getString(8));
+            instanceVM.setSubTitle(cursor.getString(10));
+            instanceVM.setIsTemplate(false);
+
+            vms.add(instanceVM);
+        }
+
+        //Form Table Query
+        SQLiteDatabase database = databaseHelper1.getWritableDatabase();
+        Cursor cursor1 = database.rawQuery("SELECT * FROM forms" , null);
+
+        while (cursor1.moveToNext()){
+            String id = cursor1.getString(4);
+            String templateId = cursor1.getString(0);
+            String subTitle  = cursor1.getString(2);
+            boolean flag = true;
+            for(InstanceVM instanceVM : vms) {
+                if (id.equals(instanceVM.getForm_id())){
+                    flag = false;
+                    break;
+                }
+            }
+            if(flag) {
+                InstanceVM vm = new InstanceVM();
+                vm.setForm_id(id);
+                vm.setInstance_id(templateId);
+                vm.setIsTemplate(true);
+                vm.setSubTitle(subTitle);
+                vms.add(vm);
+            }
+        }
+
+         String[] data = new String[] {
                 InstanceColumns.DISPLAY_NAME, InstanceColumns.DISPLAY_SUBTEXT
         };
         int[] view = new int[] {
@@ -112,16 +170,15 @@ public class InstanceChooserList extends ListActivity implements LocationListene
         // render total instance view
         SimpleCursorAdapter instances =
             new SimpleCursorAdapter(this, R.layout.two_item, c, data, view);
-        System.out.println("save form size::"+c.getCount());
-        setListAdapter(instances);
+
+        ///setListAdapter(instances);
+
+        InstanceListAdapter adapter = new InstanceListAdapter(this,vms);
+        setListAdapter(adapter);
 
         final CaseRecord caseRecord=new CaseRecord();
         List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where case_Id = ?",Collect.getInstance().getCaseId());
-        System.out.println("total cases::"+caseRecords.size());
 
-        if(Collect.getInstance().getCaseId()==null){
-
-        }
         for(CaseRecord c1:caseRecords){
             mLongitude=c1.longitude;
             mLatitude=c1.latitude;
@@ -158,10 +215,7 @@ public class InstanceChooserList extends ListActivity implements LocationListene
         // Invokes the "doInBackground()" method of the class PlaceTask
         placesTask.execute(sb.toString());
 
-
-
-
-    }
+}
 
     private void drawMarker(LatLng point){
         // Creating an instance of MarkerOptions
@@ -186,13 +240,27 @@ public class InstanceChooserList extends ListActivity implements LocationListene
      */
     @Override
     protected void onListItemClick(ListView listView, View view, int position, long id) {
+/*
         Cursor c = (Cursor) getListAdapter().getItem(position);
         startManagingCursor(c);
         Uri instanceUri =
             ContentUris.withAppendedId(InstanceColumns.CONTENT_URI,
                 c.getLong(c.getColumnIndex(InstanceColumns._ID)));
+*/
+
+        InstanceVM instanceVM = (InstanceVM) getListAdapter().getItem(position);
+        Uri instanceUri;
+
+        if(!instanceVM.getIsTemplate()) {
+             instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI,
+                    Long.parseLong(instanceVM.getInstance_id()));
+        }else {
+             instanceUri =ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, Long.parseLong(instanceVM.getInstance_id()));
+        }
+
 
         Collect.getInstance().getActivityLogger().logAction(this, "onListItemClick", instanceUri.toString());
+
 
         String action = getIntent().getAction();
         if (Intent.ACTION_PICK.equals(action)) {
@@ -202,7 +270,7 @@ public class InstanceChooserList extends ListActivity implements LocationListene
             // the form can be edited if it is incomplete or if, when it was
             // marked as complete, it was determined that it could be edited
             // later.
-            String status = c.getString(c.getColumnIndex(InstanceColumns.STATUS));
+            /*String status = c.getString(c.getColumnIndex(InstanceColumns.STATUS));
             String strCanEditWhenComplete = 
                 c.getString(c.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE));
 
@@ -212,7 +280,7 @@ public class InstanceChooserList extends ListActivity implements LocationListene
             	createErrorDialog(getString(R.string.cannot_edit_completed_form),
                     	          DO_NOT_EXIT);
             	return;
-            }
+            }*/
             // caller wants to view/edit a form, so launch formentryactivity
             startActivity(new Intent(Intent.ACTION_EDIT, instanceUri));
         }
@@ -418,7 +486,6 @@ public class InstanceChooserList extends ListActivity implements LocationListene
             iStream.close();
             urlConnection.disconnect();
         }
-
         return data;
     }
 }

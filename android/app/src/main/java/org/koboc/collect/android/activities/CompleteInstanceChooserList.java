@@ -17,15 +17,18 @@ package org.koboc.collect.android.activities;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.ListActivity;
+import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
@@ -39,6 +42,7 @@ import org.json.JSONObject;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.application.Collect;
 import org.koboc.collect.android.database.CaseRecord;
+import org.koboc.collect.android.provider.InstanceProviderAPI;
 import org.koboc.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 
 import java.io.BufferedReader;
@@ -177,17 +181,17 @@ public class CompleteInstanceChooserList extends ListActivity implements Locatio
     }
 
 
-    /**
-     * Stores the path of selected instance in the parent class and finishes.
-     */
 
-   /* @Override
+     // Stores the path of selected instance in the parent class and finishes.
+
+
+    @Override
     protected void onListItemClick(ListView listView, View view, int position, long id) {
         Cursor c = (Cursor) getListAdapter().getItem(position);
         startManagingCursor(c);
         Uri instanceUri =
             ContentUris.withAppendedId(InstanceColumns.CONTENT_URI,
-                c.getLong(c.getColumnIndex(InstanceColumns._ID)));
+                    c.getLong(c.getColumnIndex(InstanceColumns._ID)));
 
         Collect.getInstance().getActivityLogger().logAction(this, "onListItemClick", instanceUri.toString());
 
@@ -214,8 +218,7 @@ public class CompleteInstanceChooserList extends ListActivity implements Locatio
             startActivity(new Intent(Intent.ACTION_EDIT, instanceUri));
         }
         finish();
-    }*/
-	
+    }
     @Override
     protected void onStart() {
     	super.onStart();

@@ -14,19 +14,6 @@
 
 package org.koboc.collect.android.provider;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-
-import org.koboc.collect.android.R;
-import org.koboc.collect.android.application.Collect;
-import org.koboc.collect.android.database.ODKSQLiteOpenHelper;
-import org.koboc.collect.android.provider.FormsProviderAPI.FormsColumns;
-import org.koboc.collect.android.utilities.FileUtils;
-import org.koboc.collect.android.utilities.MediaUtils;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -38,6 +25,19 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
+
+import org.koboc.collect.android.R;
+import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.database.ODKSQLiteOpenHelper;
+import org.koboc.collect.android.provider.FormsProviderAPI.FormsColumns;
+import org.koboc.collect.android.utilities.FileUtils;
+import org.koboc.collect.android.utilities.MediaUtils;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
 
 /**
  *
@@ -60,12 +60,12 @@ public class FormsProvider extends ContentProvider {
     /**
      * This class helps open, create, and upgrade the database file.
      */
-    private static class DatabaseHelper extends ODKSQLiteOpenHelper {
+    public static class DatabaseHelper extends ODKSQLiteOpenHelper {
         // These exist in database versions 2 and 3, but not in 4...
         private static final String TEMP_FORMS_TABLE_NAME = "forms_v4";
         private static final String MODEL_VERSION = "modelVersion";
 
-        DatabaseHelper(String databaseName) {
+        public DatabaseHelper(String databaseName) {
             super(Collect.METADATA_PATH, databaseName, null, DATABASE_VERSION);
         }
 

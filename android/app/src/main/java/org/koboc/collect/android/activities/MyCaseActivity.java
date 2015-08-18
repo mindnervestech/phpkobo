@@ -16,6 +16,8 @@ package org.koboc.collect.android.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,6 +27,7 @@ import org.koboc.collect.android.R;
 import org.koboc.collect.android.adapters.CaseListAdapter;
 import org.koboc.collect.android.application.Collect;
 import org.koboc.collect.android.database.CaseRecord;
+import org.koboc.collect.android.provider.FormsProvider;
 import org.koboc.collect.android.provider.InstanceProvider;
 
 import java.util.List;
@@ -33,6 +36,10 @@ public class MyCaseActivity extends Activity{
     private ListView listView;
     private CaseListAdapter adapter;
     private  CaseRecord caseRecord;
+    private static final String DATABASE_NAME = "instances.db";
+    private static final String DATABASE_NAME1 = "forms.db";
+    SQLiteDatabase db;
+
     private List<CaseRecord> caseRecords;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +48,18 @@ public class MyCaseActivity extends Activity{
 
         listView= (ListView) findViewById(R.id.caseList);
 
+        //Database helper instance
+        InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
+        FormsProvider.DatabaseHelper databaseHelper1 = new FormsProvider.DatabaseHelper("forms.db");
+        db = databaseHelper.getWritableDatabase();
+
+
+
+        //Form Table Query
+        SQLiteDatabase database = databaseHelper1.getWritableDatabase();
+        Cursor cursor1 = database.rawQuery("SELECT * FROM forms" , null);
+
+
         long cnt=CaseRecord.count(CaseRecord.class,null,null);
         System.out.println("count:::"+cnt);
 
@@ -48,29 +67,46 @@ public class MyCaseActivity extends Activity{
 
         caseRecord=new CaseRecord();
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ?","complete");
-        System.out.println("size:::::::::::"+caseRecords.size());
+        System.out.println("total records ::::"+caseRecords.size());
 
-        System.out.println("caseId::::");
-        System.out.print("long::::");
-        System.out.print("latt::::");
-        System.out.print("addrress::::");
-        System.out.print("status::::");
-        System.out.print("date cre::::");
-        System.out.print("date mod::::");
-        for (CaseRecord item:caseRecords){
-            System.out.println(item.caseId);
-            System.out.print(item.longitude);
-            System.out.print(item.latitude);
-            System.out.print(item.address);
-            System.out.print(item.status);
-            System.out.print(item.dateCreated);
-            System.out.print(item.dateModified);
 
+        for(CaseRecord item : caseRecords){
+            //Instance Table Query
+            Boolean flag = true;
+            Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " +item.caseId, null);
+
+            System.out.println("total instance::::::::"+cursor.getCount());
+
+            if(cursor.getCount() == 0){
+                List<CaseRecord> list=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where Case_Id = ?",item.caseId+"");
+                CaseRecord record = new CaseRecord();
+                record = list.get(0);
+                record.status = "new";
+                record.save();
+            }
+
+            while(cursor.moveToNext()){
+                System.out.println("cursor:::::::::"+cursor.getString(7));
+                if(cursor.getString(7).equals("complete")){
+                    flag = false;
+                }
+            }
+
+            if(!flag){
+                System.out.println("flag:::::::::::::::");
+                List<CaseRecord> list=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where Case_Id = ?",item.caseId+"");
+                CaseRecord record = new CaseRecord();
+                record = list.get(0);
+                record.status = "complete";
+                record.save();
+            }
         }
+
+
+        System.out.println("total records ::::"+caseRecords.size());
 
         adapter=new CaseListAdapter(getApplicationContext(),caseRecords);
         listView.setAdapter(adapter);
-
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -81,15 +117,15 @@ public class MyCaseActivity extends Activity{
                 InstanceProvider instanceProvider=new InstanceProvider();
                 int count = instanceProvider.checkInstance(caseRecords.get(i).caseId);
 
-                if(count == 0){
+                /*if(count == 0){
                     Intent intent = new Intent(getApplicationContext(), FormChooserList.class);
-                    startActivity(intent);
-                }else {
+                    startActivity(intent);      // commented by Akshay to mix instance and forms
+                }else {*/
                     Intent intent = new Intent(getApplicationContext(), InstanceChooserList.class);
                     startActivity(intent);
-                }
-
+            //    }
                 System.out.println("total cases::"+caseRecords.size());
+                System.out.println("status cases::"+caseRecords.get(i).status);
 
             }
         });
@@ -99,17 +135,20 @@ public class MyCaseActivity extends Activity{
     @Override
     public void onStart() {
         super.onStart();
+        System.out.println("onStart :::");
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ?","complete");
         adapter=new CaseListAdapter(getApplicationContext(),caseRecords);
         listView.setAdapter(adapter);
+        System.out.println("total records ::::"+caseRecords.size());
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        System.out.println("onResume :::");
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ?","complete");
         adapter=new CaseListAdapter(getApplicationContext(),caseRecords);
         listView.setAdapter(adapter);
-
+        System.out.println("total records ::::"+caseRecords.size());
     }
 }

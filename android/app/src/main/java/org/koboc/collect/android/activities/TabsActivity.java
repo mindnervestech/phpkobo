@@ -21,7 +21,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.View;
@@ -171,7 +170,6 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
         tv.setBackgroundColor(Color.parseColor("#ffffff"));
         tv.setTextColor(Color.BLACK);
         tv.setTextSize(15);
-
 
         tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT, (float) 1.0));

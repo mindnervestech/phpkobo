@@ -62,9 +62,9 @@ public class InstanceProvider extends ContentProvider {
     /**
      * This class helps open, create, and upgrade the database file.
      */
-    private static class DatabaseHelper extends ODKSQLiteOpenHelper {
+    public static class DatabaseHelper extends ODKSQLiteOpenHelper {
 
-        DatabaseHelper(String databaseName) {
+        public DatabaseHelper(String databaseName) {
             super(Collect.METADATA_PATH, databaseName, null, DATABASE_VERSION);
         }
 
@@ -386,7 +386,7 @@ public class InstanceProvider extends ContentProvider {
         return count;
     }
     private void updateCaseToFormBinding(String status) {
-        System.out.println("update status:::");
+        System.out.println("update status:::"+status);
         CaseRecord caseRecord = new CaseRecord();
         final List<CaseRecord> caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where case_id = ?", Collect.getInstance().getCaseId());
         System.out.println("size:::" + caseRecords.size());

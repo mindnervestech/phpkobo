@@ -22,7 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import org.koboc.collect.android.R;
-import org.koboc.collect.android.adapters.CaseListAdapter;
+import org.koboc.collect.android.adapters.UploadCaseListAdapter;
 import org.koboc.collect.android.application.Collect;
 import org.koboc.collect.android.database.CaseRecord;
 
@@ -30,7 +30,7 @@ import java.util.List;
 
 public class SubmittedCaseActivity extends Activity{
     private ListView listView;
-    private CaseListAdapter adapter;
+    private UploadCaseListAdapter adapter;
     private  CaseRecord caseRecord;
     private List<CaseRecord> caseRecords;
     @Override
@@ -47,7 +47,7 @@ public class SubmittedCaseActivity extends Activity{
 
         caseRecord=new CaseRecord();
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ?","complete");
-        System.out.println("size:::::::::::"+caseRecords.size());
+        System.out.println("total records ::::"+caseRecords.size());
 
         for (CaseRecord item:caseRecords){
             System.out.println("caseId::::"+item.caseId);
@@ -60,17 +60,16 @@ public class SubmittedCaseActivity extends Activity{
 
         }
 
-        adapter=new CaseListAdapter(getApplicationContext(),caseRecords);
+        adapter=new UploadCaseListAdapter(getApplicationContext(),caseRecords);
         listView.setAdapter(adapter);
 
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                System.out.println("submit list item click:::::::::::");
                 Collect.getInstance().getActivityLogger().logAction(this, "fillBlankForm", "click");
                 Collect.getInstance().setCaseId(caseRecords.get(i).caseId+"");
-
-
                     Intent intent = new Intent(getApplicationContext(), CompleteInstanceChooserList.class);
                     startActivity(intent);
                 }
@@ -82,17 +81,21 @@ public class SubmittedCaseActivity extends Activity{
     @Override
     public void onStart() {
         super.onStart();
+        System.out.println("onStart ::::");
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ?","complete");
-        adapter=new CaseListAdapter(getApplicationContext(),caseRecords);
+        adapter=new UploadCaseListAdapter(getApplicationContext(),caseRecords);
+        System.out.println("total records ::::"+caseRecords.size());
         listView.setAdapter(adapter);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        System.out.println("onResume ::::");
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ?","complete");
-        adapter=new CaseListAdapter(getApplicationContext(),caseRecords);
+        adapter=new UploadCaseListAdapter(getApplicationContext(),caseRecords);
         listView.setAdapter(adapter);
+        System.out.println("total records ::::"+caseRecords.size());
 
     }
 }

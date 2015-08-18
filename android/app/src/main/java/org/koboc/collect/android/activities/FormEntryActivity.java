@@ -857,6 +857,9 @@ public class FormEntryActivity extends Activity implements AnimationListener,
 
                 return startView;
             case FormEntryController.EVENT_END_OF_FORM:
+
+                System.out.println("upLoad and exit clicked:::::::::::::::::::");
+
                 View endView = View.inflate(this, R.layout.form_entry_end, null);
                 ((TextView) endView.findViewById(R.id.description)).setText(getString(
                         R.string.save_enter_data_description, formController.getFormTitle()));
@@ -959,6 +962,20 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                             }
                         });
 
+                ((Button) endView.findViewById(R.id.exit_button)).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        System.out.println("exit clicked:::::::::");
+
+                        Collect.getInstance()
+                                .getActivityLogger()
+                                .logInstanceAction(this, "createQuitDialog",
+                                        "discardAndExit");
+                        removeTempInstance();
+                        finishReturnInstance();
+                    }
+                });
                 //created By Akshay
 
                 ((Button) endView.findViewById(R.id.upload_exit_button)).setOnClickListener(new View.OnClickListener() {
@@ -967,25 +984,25 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                         boolean mobileDataEnabled = false; // Assume disabled
                         ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-                        WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+                        WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
                         try {
                             Class cmClass = Class.forName(cm.getClass().getName());
                             Method method = cmClass.getDeclaredMethod("getMobileDataEnabled");
                             method.setAccessible(true); // Make the method callable
                             // get the setting for "mobile data"
-                            mobileDataEnabled = (Boolean)method.invoke(cm);
+                            mobileDataEnabled = (Boolean) method.invoke(cm);
                         } catch (Exception e) {
                             // Some problem accessible private API
                             // TODO do whatever error handling you want here
                         }
 
-                        long[] instanceId=new long[1];
-                        instanceId[0]=Long.parseLong(getIntent().getData().getPathSegments().get(1));
+                        long[] instanceId = new long[1];
+                        instanceId[0] = Long.parseLong(getIntent().getData().getPathSegments().get(1));
 
-                        if(!mobileDataEnabled && !wifi.isWifiEnabled()){
+                        if (!mobileDataEnabled && !wifi.isWifiEnabled()) {
                             buildAlertMessageNoInternet();
-                        }else{
+                        } else {
 
                             Intent i = new Intent(FormEntryActivity.this, InstanceUploaderActivity.class);
                             i.putExtra(FormEntryActivity.KEY_INSTANCES, instanceId);
@@ -997,6 +1014,8 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                     }
                 });
                 return endView;
+
+
 
             case FormEntryController.EVENT_QUESTION:
             case FormEntryController.EVENT_GROUP:

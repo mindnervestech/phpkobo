@@ -74,7 +74,7 @@ public class CaseListAdapter extends BaseAdapter {
         relativeLayout= (RelativeLayout) convertView.findViewById(R.id.mainlayout1);
         TextView textView1= (TextView) convertView.findViewById(R.id.dateText);
         TextView textView2= (TextView) convertView.findViewById(R.id.addressText);
-        CaseRecord item=mItems.get(position);
+        final CaseRecord item=mItems.get(position);
 
         System.out.println("adapter::::::::::"+mItems.size());
 
@@ -94,6 +94,7 @@ public class CaseListAdapter extends BaseAdapter {
 
         textView2.setText(item.address);
 
+        System.out.println("status::::::::::"+item.status);
 
         if(item.status.equals("incomplete")){
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_yellow);
