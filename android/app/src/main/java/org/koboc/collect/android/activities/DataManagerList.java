@@ -197,6 +197,11 @@ public class DataManagerList extends ListActivity implements
 			mDeleteInstancesTask = new DeleteInstancesTask();
 			mDeleteInstancesTask.setContentResolver(getContentResolver());
 			mDeleteInstancesTask.setDeleteListener(this);
+
+            System.out.println("mSelected execute = "+mSelected.toArray(new Long[mSelected.size()]));
+            System.out.println("mSelected toArray = "+new Long[mSelected.size()]);
+            System.out.println("mSelected size = "+mSelected.size());
+
 			mDeleteInstancesTask.execute(mSelected.toArray(new Long[mSelected
 					.size()]));
 		} else {

@@ -230,11 +230,9 @@ public class FormManagerList extends ListActivity implements DiskSyncListener,
 		// only start if no other task is running
 		if (mBackgroundTasks.mDeleteFormsTask == null) {
 			mBackgroundTasks.mDeleteFormsTask = new DeleteFormsTask();
-			mBackgroundTasks.mDeleteFormsTask
-					.setContentResolver(getContentResolver());
+			mBackgroundTasks.mDeleteFormsTask.setContentResolver(getContentResolver());
 			mBackgroundTasks.mDeleteFormsTask.setDeleteListener(this);
-			mBackgroundTasks.mDeleteFormsTask.execute(mSelected
-					.toArray(new Long[mSelected.size()]));
+			mBackgroundTasks.mDeleteFormsTask.execute(mSelected.toArray(new Long[mSelected.size()]));
 		} else {
 			Toast.makeText(this, getString(R.string.file_delete_in_progress),
 					Toast.LENGTH_LONG).show();

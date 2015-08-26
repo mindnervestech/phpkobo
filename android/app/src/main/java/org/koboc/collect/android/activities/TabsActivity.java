@@ -80,7 +80,10 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
                         startActivity(intent);
                         break;
                     case "Logout":
-                        AuthUser.deleteAll(AuthUser.class);
+                        //AuthUser.deleteAll(AuthUser.class);
+                        AuthUser authUser = AuthUser.findLoggedInUser();
+                        authUser.setLogged("false");
+                        authUser.save();
                         intent = new Intent(getApplicationContext(), LoginActivity.class);
                         startActivity(intent);
                         break;
@@ -120,8 +123,17 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
             }
         });
 
+        AuthUser checkUser = AuthUser.findLoggedInUser();
+        String getUserRole = checkUser.getRole();
 
-        TabHost.TabSpec tab1 = tabHost.newTabSpec("First Tab");
+        if(!getUserRole.contains("consultant")){
+            TabHost.TabSpec tab1 = tabHost.newTabSpec("First Tab");
+            tab1.setIndicator(getIndicator("Alert"));
+            tab1.setContent(new Intent(this, AlertActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            tabHost.addTab(tab1);
+            //tabHost.setCurrentTab(1);
+        }
+
         TabHost.TabSpec tab2 = tabHost.newTabSpec("Second Tab");
         TabHost.TabSpec tab3 = tabHost.newTabSpec("Third tab");
         TabHost.TabSpec tab4 = tabHost.newTabSpec("Fourth tab");
@@ -129,21 +141,17 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
 
         // Set the Tab name and Activity
         // that will be opened when particular Tab will be selected
-        tab1.setIndicator(getIndicator("Alert"));
+
         tab2.setIndicator(getIndicator("Map"));
         tab3.setIndicator(getIndicator("My Forms"));
         tab4.setIndicator(getIndicator("Open Cases"));
         tab5.setIndicator(getIndicator("Completed"));
 
-
         //tab1.setIndicator("My Loc");
         //tab2.setIndicator("Alert");
         //tab3.setIndicator("My Forms");
-        tab1.setContent(new Intent(this, AlertActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-
 
         tab2.setContent(new Intent(this, NearstLocation.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-
 
         tab3.setContent(new Intent(this, MainMenuActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
 
@@ -152,7 +160,7 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
         tab5.setContent(new Intent(this, SubmittedCaseActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
 
         /** Add the tabs  to the TabHost to display. */
-        tabHost.addTab(tab1);
+
         tabHost.addTab(tab2);
         //tabHost.addTab(tab3);
         tabHost.addTab(tab4);
@@ -161,6 +169,9 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
 
         tabHost.setOnTabChangedListener(this);
 
+        if(getUserRole.contains("consultant")){
+            tabHost.setCurrentTab(1);
+        }
     }
 
     private TextView getIndicator(String tabName){

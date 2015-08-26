@@ -53,8 +53,6 @@ public class MyCaseActivity extends Activity{
         FormsProvider.DatabaseHelper databaseHelper1 = new FormsProvider.DatabaseHelper("forms.db");
         db = databaseHelper.getWritableDatabase();
 
-
-
         //Form Table Query
         SQLiteDatabase database = databaseHelper1.getWritableDatabase();
         Cursor cursor1 = database.rawQuery("SELECT * FROM forms" , null);
@@ -62,8 +60,6 @@ public class MyCaseActivity extends Activity{
 
         long cnt=CaseRecord.count(CaseRecord.class,null,null);
         System.out.println("count:::"+cnt);
-
-
 
         caseRecord=new CaseRecord();
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ?","complete");

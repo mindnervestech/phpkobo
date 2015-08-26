@@ -43,20 +43,21 @@ import retrofit.client.OkClient;
 import retrofit.client.Response;
 
 public class AlertActivity extends Activity {
-	
-	Button btnShowLocation;
+
+    private Button btnShowLocation;
 	
 	// GPSTracker class
-	GPSTracker gps;
+    private GPSTracker gps;
     private MyApi myApi;
     private String BASE_URL,addressText,caseId;
     private double latitude;
     private double longitude;
     private TextView successText;
     private Long id;
-    RelativeLayout relativeLayout;
+    private RelativeLayout relativeLayout;
     private Spinner clusterSpinner;
     private List<ClustersVM> clustersVMs;
+    private String defaultSting;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +69,14 @@ public class AlertActivity extends Activity {
 
         BASE_URL = getApplicationContext().getString(R.string.default_java_server_url); //"http://192.168.2.60:8080";//
 
+        /*AuthUser checkUser = AuthUser.findLoggedInUser();
+        String getUserRole = checkUser.getRole();
+
+        if(getUserRole.contains("consultant")){
+            btnShowLocation.setVisibility(View.GONE);
+        }else{
+            btnShowLocation.setVisibility(View.VISIBLE);
+        }*/
 
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(BASE_URL)
@@ -130,26 +139,32 @@ public class AlertActivity extends Activity {
 
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                         final String createdDate = sdf.format(new Date());
-                        CaseVM caseVM = new CaseVM(id, createdDate, createdDate, addressText, longitude, latitude);
+                        CaseVM caseVM = new CaseVM(caseId, createdDate, createdDate, addressText, longitude, latitude);
 
-                        myApi.postCase(basicAuth, caseVM, new Callback<CaseResponseVM>() {
-                            @Override
-                            public void success(CaseResponseVM caseVM1, Response response) {
-                                if(caseVM1 == null) {
+                        System.out.println("Choose your Location ::"+defaultSting);
 
-                                    Toast.makeText(getApplicationContext(),"Not able to log case",Toast.LENGTH_SHORT);
-                                } else {
-                                    CaseRecord caseRecord = new CaseRecord(longitude, latitude, addressText, caseVM1.id, "new", createdDate, createdDate);
-                                    caseRecord.save();
+                        if(!defaultSting.equals("Choose your Location ")) {
+                            myApi.postCase(basicAuth, caseVM, new Callback<CaseResponseVM>() {
+                                @Override
+                                public void success(CaseResponseVM caseVM1, Response response) {
+                                    if (caseVM1 == null) {
+
+                                        Toast.makeText(getApplicationContext(), "Not able to log case", Toast.LENGTH_SHORT);
+                                    } else {
+                                        CaseRecord caseRecord = new CaseRecord(longitude, latitude, addressText, caseVM1.id, "new", createdDate, createdDate);
+                                        caseRecord.save();
+                                    }
                                 }
-                            }
 
-                            @Override
-                            public void failure(RetrofitError error) {
-                                Toast.makeText(getApplicationContext(),"Not able to log case",Toast.LENGTH_SHORT);
-                                error.printStackTrace();
-                            }
-                        });
+                                @Override
+                                public void failure(RetrofitError error) {
+                                    Toast.makeText(getApplicationContext(), "Not able to log case", Toast.LENGTH_SHORT);
+                                    error.printStackTrace();
+                                }
+                            });
+                        }else{
+                            Toast.makeText(getApplicationContext(),"Choose your Location ",Toast.LENGTH_LONG).show();
+                        }
 
 
                     } catch (IOException e) {
@@ -190,6 +205,8 @@ public class AlertActivity extends Activity {
                     }
                 }
 
+                System.out.println("logged in user.."+AuthUser.findLoggedInUser().getUsername());
+
                 final ClusterAdapter clusterAdapter=new ClusterAdapter(getApplicationContext(),clustersVMs);
                 clusterSpinner.setAdapter(clusterAdapter);
 
@@ -199,10 +216,11 @@ public class AlertActivity extends Activity {
 
                         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMMM-yy");
                         final String createdDate = sdf.format(new Date());
+                        defaultSting = clusterAdapter.getItem(i).getName();
 
                         ClustersVM clustersVM1=clusterAdapter.getItem(i);
                         //TODO: kobo need to be actual username
-                        caseId="kobo" + "-" + createdDate+ "-" + clustersVM1.getSector_name() + "-" + clustersVM1.getName() ;
+                        caseId=AuthUser.findLoggedInUser().getUsername() + "-" + createdDate+ "-" + clustersVM1.getSector_name() + "-" + clustersVM1.getName() ;
 
                     }
 

@@ -402,9 +402,6 @@ public class InstanceProvider extends ContentProvider {
         }
     }
 
-
-
-
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(InstanceProviderAPI.AUTHORITY, "instances", INSTANCES);
