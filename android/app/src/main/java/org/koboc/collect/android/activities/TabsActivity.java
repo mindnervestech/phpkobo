@@ -14,7 +14,6 @@
  */
 
 package org.koboc.collect.android.activities;
-
 import android.app.AlertDialog;
 import android.app.TabActivity;
 import android.content.DialogInterface;
@@ -54,7 +53,6 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
     private ListView mDrawerList;
     private DrawerLayout mDrawerLayout;
     private String mActivityTitle;
-    String[] data = { "My Forms", "General Setting", "Admin Setting", "Logout" };
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +64,13 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mActivityTitle = getTitle().toString();
 
+/*
+        final String[] data = { getApplicationContext().getString(R.string.my_forms), "General Setting", "Admin Setting", getApplicationContext().getString(R.string.logout) };
+*/
+
+        final String[] data = { getApplicationContext().getString(R.string.my_forms), getApplicationContext().getString(R.string.emergencynumber),getApplicationContext().getString(R.string.logout) };
+
+
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data);
 
         final DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
@@ -74,11 +79,29 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
         navList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int pos,long id){
+
                 switch (data[pos]){
+
+                    case "इमरजेंसी कॉन्टेक्ट्स":
+                        Intent intent2 = new Intent(TabsActivity.this, ContactActivity.class);
+                        startActivity(intent2);
+                        break;
+
+                    case "Emergency Contacts":
+                        Intent intent3 = new Intent(TabsActivity.this, ContactActivity.class);
+                        startActivity(intent3);
+                        break;
+
                     case "My Forms":
                         Intent intent = new Intent(TabsActivity.this, MainMenuActivity.class);
                         startActivity(intent);
                         break;
+
+                    case "माय फॉर्म्स":
+                        Intent intent1 = new Intent(TabsActivity.this, MainMenuActivity.class);
+                        startActivity(intent1);
+                        break;
+
                     case "Logout":
                         //AuthUser.deleteAll(AuthUser.class);
                         AuthUser authUser = AuthUser.findLoggedInUser();
@@ -86,7 +109,19 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
                         authUser.save();
                         intent = new Intent(getApplicationContext(), LoginActivity.class);
                         startActivity(intent);
+                        finish();
                         break;
+
+                    case "लॉगआउट":
+                        //AuthUser.deleteAll(AuthUser.class);
+                        AuthUser authUser1 = AuthUser.findLoggedInUser();
+                        authUser1.setLogged("false");
+                        authUser1.save();
+                        intent = new Intent(getApplicationContext(), LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+
                     case "General Setting":
                         Collect.getInstance()
                                 .getActivityLogger()
@@ -128,7 +163,7 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
 
         if(!getUserRole.contains("consultant")){
             TabHost.TabSpec tab1 = tabHost.newTabSpec("First Tab");
-            tab1.setIndicator(getIndicator("Alert"));
+            tab1.setIndicator(getIndicator(getApplicationContext().getString(R.string.alert)));
             tab1.setContent(new Intent(this, AlertActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             tabHost.addTab(tab1);
             //tabHost.setCurrentTab(1);
@@ -142,10 +177,10 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
         // Set the Tab name and Activity
         // that will be opened when particular Tab will be selected
 
-        tab2.setIndicator(getIndicator("Map"));
-        tab3.setIndicator(getIndicator("My Forms"));
-        tab4.setIndicator(getIndicator("Open Cases"));
-        tab5.setIndicator(getIndicator("Completed"));
+        tab2.setIndicator(getIndicator(getApplicationContext().getString(R.string.map)));
+        tab3.setIndicator(getIndicator(getApplicationContext().getString(R.string.map)));
+        tab4.setIndicator(getIndicator(getApplicationContext().getString(R.string.open_cases)));
+        tab5.setIndicator(getIndicator(getApplicationContext().getString(R.string.complete_cases)));
 
         //tab1.setIndicator("My Loc");
         //tab2.setIndicator("Alert");

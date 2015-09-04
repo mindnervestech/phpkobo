@@ -123,6 +123,7 @@ public class CompleteInstanceChooserList extends ListActivity implements Locatio
 
         }
         for(CaseRecord c1:caseRecords){
+            System.out.println("total cases status::"+c1.status);
             mLongitude=c1.longitude;
             mLatitude=c1.latitude;
         }
@@ -135,11 +136,9 @@ public class CompleteInstanceChooserList extends ListActivity implements Locatio
 
         myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-       // mLatitude = 19.040208; // gps.getLatitude(); //29.9272;//gps.getLatitude();
-       // mLongitude = 72.85085; //gps.getLongitude(); //31.2153;//gps.getLongitude();
         LatLng latLng = new LatLng(mLatitude, mLongitude);
 
-        drawMarker(new LatLng(mLongitude, mLongitude));
+        drawMarker(latLng);
 
         myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         myMap.animateCamera(CameraUpdateFactory.zoomTo(18));

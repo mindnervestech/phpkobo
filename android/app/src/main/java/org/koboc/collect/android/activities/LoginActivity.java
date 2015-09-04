@@ -5,16 +5,18 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TabHost;
 import android.widget.Toast;
 
-import org.apache.http.auth.AUTH;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.application.MyApi;
 import org.koboc.collect.android.database.AuthUser;
@@ -25,10 +27,11 @@ import org.koboc.collect.android.preferences.PreferencesActivity;
 import org.koboc.collect.android.provider.FormsProviderAPI;
 import org.koboc.collect.android.tasks.DeleteFormsTask;
 
-import java.text.ParseException;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -43,6 +46,9 @@ public class LoginActivity extends Activity {
     private MyApi myApi;
     private String BASE_URL;
     private SharedPreferences preferences;
+    private Button languageButton;
+    private SharedPreferences prefs;
+    private SharedPreferences.Editor editor;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +56,7 @@ public class LoginActivity extends Activity {
         userEditText= (EditText) findViewById(R.id.userEditText);
         passwordEditText= (EditText) findViewById(R.id.passwordEditText);
         submit= (Button) findViewById(R.id.submitButton);
+        languageButton = (Button) findViewById(R.id.langButton);
 
         BASE_URL = getApplicationContext().getString(R.string.default_phython_server_url);
 
@@ -57,6 +64,33 @@ public class LoginActivity extends Activity {
                 .setEndpoint(BASE_URL).setLogLevel(RestAdapter.LogLevel.FULL)
                 .setClient(new OkClient()).build();
         myApi = restAdapter.create(MyApi.class);
+
+        prefs = getSharedPreferences("prefs", Activity.MODE_PRIVATE);
+        editor = prefs.edit();
+
+        SharedPreferences shared = getSharedPreferences("prefs", MODE_PRIVATE);
+        final Boolean channel = shared.getBoolean("hindi",false);
+
+
+        if(channel){
+            System.out.println("hindi..");
+            Locale myLocale = new Locale("hn");
+            Resources res = getResources();
+            DisplayMetrics dm = res.getDisplayMetrics();
+            Configuration conf = res.getConfiguration();
+            conf.locale = myLocale;
+            res.updateConfiguration(conf, dm);
+            languageButton.setText("English");
+        }else {
+            Locale myLocale = new Locale("en");
+            Resources res = getResources();
+            DisplayMetrics dm = res.getDisplayMetrics();
+            Configuration conf = res.getConfiguration();
+            conf.locale = myLocale;
+            res.updateConfiguration(conf, dm);
+            System.out.println("english..");
+            languageButton.setText("हिंदी");
+        }
         
         //AuthUser.deleteAll(AuthUser.class);
         AuthUser authUser = AuthUser.findLoggedInUser();
@@ -65,6 +99,19 @@ public class LoginActivity extends Activity {
             startActivity(intent);
             finish();
         }
+
+        languageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(channel){
+                    languageButton.setText("हिंदी");
+                    setLocale("en");
+                }else{
+                    languageButton.setText("English");
+                    setLocale("hn");
+                }
+            }
+        });
 
         //TODO: Logout need to be implemented
         //TODO: What will happen if you internet connection
@@ -95,8 +142,16 @@ public class LoginActivity extends Activity {
                                 // form and case from DB on current device.
                                 //TODO : implement above , refer to delete form section in OOB
 
-                                Toast.makeText(LoginActivity.this, " in CaseRecord.deleteAll ", Toast.LENGTH_SHORT).show();
+                               // Toast.makeText(LoginActivity.this, " in CaseRecord.deleteAll ", Toast.LENGTH_SHORT).show();
                                 CaseRecord.deleteAll(CaseRecord.class);
+
+                                //delete ODK folder from SDcards
+                                File folder = Environment.getExternalStorageDirectory();
+                                String fileName = folder.getPath() + "/odk";
+                                System.out.println("folder path::::"+fileName);
+                                File myFile = new File(fileName);
+                                deleteDirectory(myFile);
+
 
                                 //delete all Form from db and sdcard
                                 DeleteFormsTask mDeleteFormsTask = new DeleteFormsTask();
@@ -115,6 +170,12 @@ public class LoginActivity extends Activity {
                                     }
                                 });*/
                             }
+                        }else {
+                            if(user.getRole().contains("consultant")){
+                                //CaseRecord.deleteAll(CaseRecord.class);
+                                System.out.println("consultant called::::"+user.getRole());
+                                getConsultantCase();
+                            }
                         }
                         AuthUser.deleteAll(AuthUser.class);
 
@@ -127,6 +188,7 @@ public class LoginActivity extends Activity {
 
                         if(user.getRole().contains("consultant")){
                             //CaseRecord.deleteAll(CaseRecord.class);
+                            System.out.println("consultant called::::"+user.getRole());
                             getConsultantCase();
                         }
 
@@ -140,9 +202,15 @@ public class LoginActivity extends Activity {
                     @Override
                     public void failure(RetrofitError error) {
                         //TODO : Handle null pointer here
-                        System.out.println("url:::"+error.getResponse().getUrl());
-                            error.printStackTrace();
+
+                        if(error.getResponse().getStatus() == 401){
+                            Toast.makeText(getApplicationContext(),"Incorrect User Or Password ... ",Toast.LENGTH_LONG).show();
+                        }else{
+                            Toast.makeText(getApplicationContext(),"Unable to connect server ... ",Toast.LENGTH_LONG).show();
+                        }
+                        error.printStackTrace();
                     }
+
                 });
             }
         });
@@ -162,6 +230,7 @@ public class LoginActivity extends Activity {
         AuthUser authUser = AuthUser.findLoggedInUser();
         String token = authUser.getApi_token();
         String username = authUser.getUsername();
+        System.out.println("authUser::" + authUser.getUsername());
         System.out.println("token::" + token);
         String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", username, token).getBytes(), Base64.NO_WRAP);
 
@@ -197,7 +266,7 @@ public class LoginActivity extends Activity {
             @Override
             public void failure(RetrofitError error) {
                 //TODO : Handle null pointer here
-                System.out.println("url:::" + error.getResponse().getUrl());
+                Toast.makeText(getApplicationContext(),"Unable to connect server ... ",Toast.LENGTH_LONG).show();
                 error.printStackTrace();
             }
         });
@@ -225,4 +294,48 @@ public class LoginActivity extends Activity {
             super.onBackPressed();
         }
     }
-  }
+
+    public static boolean deleteDirectory(File path) {
+        if( path.exists() ) {
+            File[] files = path.listFiles();
+            if (files == null) {
+                return true;
+            }
+            for(int i=0; i<files.length; i++) {
+                if(files[i].isDirectory()) {
+                    deleteDirectory(files[i]);
+                }
+                else {
+                    files[i].delete();
+                }
+            }
+        }
+        return( path.delete() );
+    }
+
+
+    public void setLocale(String lang) {
+
+        Locale myLocale = new Locale(lang);
+        Resources res = getResources();
+        DisplayMetrics dm = res.getDisplayMetrics();
+        Configuration conf = res.getConfiguration();
+        conf.locale = myLocale;
+        res.updateConfiguration(conf, dm);
+        Intent refresh = new Intent(this, LoginActivity.class);
+        startActivity(refresh);
+        finish();
+
+        SharedPreferences prefs = getSharedPreferences("prefs", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        if(lang.equals("hn")){
+            editor.putBoolean("hindi", true);
+        }else{
+            editor.putBoolean("hindi", false);
+        }
+        editor.commit();
+
+    }
+
+
+}

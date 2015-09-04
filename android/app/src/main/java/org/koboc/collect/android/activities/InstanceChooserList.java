@@ -182,6 +182,7 @@ public class InstanceChooserList extends ListActivity implements LocationListene
         for(CaseRecord c1:caseRecords){
             mLongitude=c1.longitude;
             mLatitude=c1.latitude;
+
         }
          myFragmentManager = getFragmentManager();
          myMapFragment
@@ -196,7 +197,9 @@ public class InstanceChooserList extends ListActivity implements LocationListene
        // mLongitude = 72.85085; //gps.getLongitude(); //31.2153;//gps.getLongitude();
         LatLng latLng = new LatLng(mLatitude, mLongitude);
 
-        drawMarker(new LatLng(mLongitude, mLongitude));
+        System.out.println("long:::"+mLongitude+" latt:::"+mLatitude);
+        drawMarker(latLng);
+
 
         myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         myMap.animateCamera(CameraUpdateFactory.zoomTo(18));
@@ -412,7 +415,7 @@ public class InstanceChooserList extends ListActivity implements LocationListene
             // Clears all the existing markers
      //       myMap.clear();
 
-            /*for (int i = 0; i < list.size(); i++) {
+           /* for (int i = 0; i < list.size(); i++) {
 
                 // Creating a marker
                 MarkerOptions markerOptions = new MarkerOptions();
@@ -442,9 +445,9 @@ public class InstanceChooserList extends ListActivity implements LocationListene
                 markerOptions.title(name + " : " + vicinity);
 
                 // Placing a marker on the touched position
-                mGoogleMap.addMarker(markerOptions);
+                myMap.addMarker(markerOptions);*/
 
-            }*/
+            //}
 
         }
 
@@ -456,8 +459,6 @@ public class InstanceChooserList extends ListActivity implements LocationListene
         HttpURLConnection urlConnection = null;
         try {
             URL url = new URL(strUrl);
-
-
             // Creating an http connection to communicate with url
             urlConnection = (HttpURLConnection) url.openConnection();
 

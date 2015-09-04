@@ -54,8 +54,6 @@
             android:inputType="text"
             android:textSize="21sp" />
 
-
-
         <Button
             android:id="@+id/save_exit_button"
             android:layout_width="fill_parent"

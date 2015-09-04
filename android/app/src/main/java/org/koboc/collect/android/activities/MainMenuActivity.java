@@ -135,7 +135,7 @@ public class MainMenuActivity extends Activity {
 
         // manage forms button. no result expected.
         mGetFormsButton = (Button) findViewById(R.id.get_forms);
-        mGetFormsButton.setText(getString(R.string.get_forms));
+        mGetFormsButton.setText(getString(R.string.get_blank_forms));
         mGetFormsButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,7 +149,7 @@ public class MainMenuActivity extends Activity {
 
         // manage forms button. no result expected.
         mManageFilesButton = (Button) findViewById(R.id.manage_forms);
-        mManageFilesButton.setText(getString(R.string.manage_files));
+        mManageFilesButton.setText(getString(R.string.delete_saved_form));
         mManageFilesButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -172,8 +172,8 @@ public class MainMenuActivity extends Activity {
             mReviewDataButton.setVisibility(View.GONE);
             mReviewSpacer.setVisibility(View.GONE);
         } else {
-            mReviewDataButton.setVisibility(View.VISIBLE);
-            mReviewSpacer.setVisibility(View.VISIBLE);
+         //   mReviewDataButton.setVisibility(View.VISIBLE);
+           // mReviewSpacer.setVisibility(View.VISIBLE);  commented by Akshay
         }
 
         boolean send = sharedPreferences.getBoolean(AdminPreferencesActivity.KEY_SEND_FINALIZED,
@@ -181,7 +181,7 @@ public class MainMenuActivity extends Activity {
         if (!send) {
             mSendDataButton.setVisibility(View.GONE);
         } else {
-            mSendDataButton.setVisibility(View.VISIBLE);
+           // mSendDataButton.setVisibility(View.VISIBLE);  commented by Akshay
         }
 
         boolean get_blank = sharedPreferences.getBoolean(

@@ -9,7 +9,9 @@ public class SectorVM {
 
     public long id;
     public String name;
+
     public List<ClustersVM> clustervm;
+    public List<EmergencyContactVM> inc;
 
     public long getId() {
         return id;
@@ -33,5 +35,13 @@ public class SectorVM {
 
     public void setClustervm(List<ClustersVM> clustervm) {
         this.clustervm = clustervm;
+    }
+
+    public List<EmergencyContactVM> getInc() {
+        return inc;
+    }
+
+    public void setInc(List<EmergencyContactVM> inc) {
+        this.inc = inc;
     }
 }

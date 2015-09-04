@@ -14,6 +14,7 @@
 
 package org.koboc.collect.android.adapters;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -47,13 +48,12 @@ import java.util.List;
 public class UploadCaseListAdapter extends BaseAdapter {
 
     private LayoutInflater inflater;
-    private Context mContext;
+    private Activity mContext;
     private List<CaseRecord> mItems = new ArrayList<CaseRecord>();
     private RelativeLayout relativeLayout;
     private SQLiteDatabase db;
 
-
-    public UploadCaseListAdapter(Context context, List<CaseRecord> items) {
+    public UploadCaseListAdapter(Activity context, List<CaseRecord> items) {
         mContext = context;
         mItems=items;
     }
@@ -93,7 +93,7 @@ public class UploadCaseListAdapter extends BaseAdapter {
 
         System.out.println("adapter::::::::::"+mItems.size());
 
-        textView.setText(item.caseId+"");
+        textView.setText(item.displayId);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         SimpleDateFormat output = new SimpleDateFormat("'Created on' EEE, MMM dd, yyyy 'at' HH:mm");
@@ -121,6 +121,11 @@ public class UploadCaseListAdapter extends BaseAdapter {
 
         if(item.status.equals("new")){
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_blue);
+        }
+
+        System.out.println("isSent Adapter::"+item.isSent);
+        if(item.isSent){
+            uploadButton.setVisibility(View.GONE);
         }
 
         InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper("instances.db");

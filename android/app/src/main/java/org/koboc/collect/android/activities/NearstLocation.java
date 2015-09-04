@@ -96,7 +96,7 @@ public class NearstLocation extends FragmentActivity implements LocationListener
 
 
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+            mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(13));
 
             StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
             sb.append("location=" + mLatitude + "," + mLongitude);
@@ -281,46 +281,9 @@ public class NearstLocation extends FragmentActivity implements LocationListener
             return places;
         }
 
-        // Executed after the complete execution of doInBackground() method
         @Override
         protected void onPostExecute(List<HashMap<String, String>> list) {
 
-            // Clears all the existing markers
-          //  mGoogleMap.clear();  // commented by Akshay to show markers
-
-            /*for (int i = 0; i < list.size(); i++) {
-
-                // Creating a marker
-                MarkerOptions markerOptions = new MarkerOptions();
-
-                // Getting a place from the places list
-                HashMap<String, String> hmPlace = list.get(i);
-
-                // Getting latitude of the place
-                double lat = Double.parseDouble(hmPlace.get("lat"));
-
-                // Getting longitude of the place
-                double lng = Double.parseDouble(hmPlace.get("lng"));
-
-                // Getting name
-                String name = hmPlace.get("place_name");
-
-                // Getting vicinity
-                String vicinity = hmPlace.get("vicinity");
-
-                LatLng latLng = new LatLng(lat, lng);
-
-                // Setting the position for the marker
-                markerOptions.position(latLng);
-
-                // Setting the title for the marker.
-                //This will be displayed on taping the marker
-                markerOptions.title(name + " : " + vicinity);
-
-                // Placing a marker on the touched position
-                mGoogleMap.addMarker(markerOptions);
-
-            }*/
 
         }
 

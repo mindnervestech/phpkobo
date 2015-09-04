@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class CaseListAdapter extends BaseAdapter {
 
@@ -78,7 +79,7 @@ public class CaseListAdapter extends BaseAdapter {
 
         System.out.println("adapter::::::::::"+mItems.size());
 
-        textView.setText(item.caseId+"");
+        textView.setText(item.displayId);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         SimpleDateFormat output = new SimpleDateFormat("'Created on' EEE, MMM dd, yyyy 'at' HH:mm");
@@ -107,7 +108,21 @@ public class CaseListAdapter extends BaseAdapter {
         if(item.status.equals("new")){
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_blue);
         }
-
+        Date date1 = new Date();
+        System.out.println("date::::::::"+item.dateCreated);
+        SimpleDateFormat myFormat = new SimpleDateFormat("yyyy/mm/dd");
+        try {
+            System.out.println("date 1::::::::"+item.dateCreated);
+            date1 = sdf.parse(item.dateCreated);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Date date2 = new Date();
+        long diff = date2.getTime() - date1.getTime();
+        System.out.println("day difference::::::::::"+TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
+        if(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) == 1) {
+            relativeLayout.setBackgroundResource(R.drawable.rect_border_community_red);
+        }
         return convertView;
     }
 }

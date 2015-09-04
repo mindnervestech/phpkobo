@@ -16,6 +16,8 @@ package org.koboc.collect.android.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,14 +27,16 @@ import org.koboc.collect.android.R;
 import org.koboc.collect.android.adapters.UploadCaseListAdapter;
 import org.koboc.collect.android.application.Collect;
 import org.koboc.collect.android.database.CaseRecord;
+import org.koboc.collect.android.provider.InstanceProvider;
 
 import java.util.List;
 
 public class SubmittedCaseActivity extends Activity{
     private ListView listView;
     private UploadCaseListAdapter adapter;
-    private  CaseRecord caseRecord;
+    private CaseRecord caseRecord;
     private List<CaseRecord> caseRecords;
+    private static final String DATABASE_NAME = "instances.db";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,31 +47,34 @@ public class SubmittedCaseActivity extends Activity{
         long cnt=CaseRecord.count(CaseRecord.class,null,null);
         System.out.println("count:::"+cnt);
 
-
-
         caseRecord=new CaseRecord();
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ?","complete");
         System.out.println("total records ::::"+caseRecords.size());
 
-        for (CaseRecord item:caseRecords){
-            System.out.println("caseId::::"+item.caseId);
-            System.out.println("long::::"+item.longitude);
-            System.out.println("latt::::"+item.latitude);
-            System.out.println("addrress::::"+item.address);
-            System.out.println("status::::"+item.status);
-            System.out.println("date cre::::"+item.dateCreated);
-            System.out.println("date mod::::"+item.dateModified);
+        //Database helper instance
+        InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
 
+        SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
+
+        while(cursor1.moveToNext()){
+            if(cursor1.getString(7).equals("submitted")){
+                for (CaseRecord item:caseRecords){
+                    if(cursor1.getLong(9) == item.caseId) {
+                        item.isSent = true;
+                        item.save();
+                    }
+
+                }
+            }
         }
 
-        adapter=new UploadCaseListAdapter(getApplicationContext(),caseRecords);
+        adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         listView.setAdapter(adapter);
-
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                System.out.println("submit list item click:::::::::::");
                 Collect.getInstance().getActivityLogger().logAction(this, "fillBlankForm", "click");
                 Collect.getInstance().setCaseId(caseRecords.get(i).caseId+"");
                     Intent intent = new Intent(getApplicationContext(), CompleteInstanceChooserList.class);
@@ -75,7 +82,6 @@ public class SubmittedCaseActivity extends Activity{
                 }
 
         });
-
     }
 
     @Override
@@ -83,7 +89,7 @@ public class SubmittedCaseActivity extends Activity{
         super.onStart();
         System.out.println("onStart ::::");
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ?","complete");
-        adapter=new UploadCaseListAdapter(getApplicationContext(),caseRecords);
+        adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         System.out.println("total records ::::"+caseRecords.size());
         listView.setAdapter(adapter);
     }
@@ -93,7 +99,7 @@ public class SubmittedCaseActivity extends Activity{
         super.onResume();
         System.out.println("onResume ::::");
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ?","complete");
-        adapter=new UploadCaseListAdapter(getApplicationContext(),caseRecords);
+        adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         listView.setAdapter(adapter);
         System.out.println("total records ::::"+caseRecords.size());
 

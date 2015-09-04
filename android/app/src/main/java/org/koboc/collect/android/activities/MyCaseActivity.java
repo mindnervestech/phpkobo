@@ -68,10 +68,11 @@ public class MyCaseActivity extends Activity{
 
         for(CaseRecord item : caseRecords){
             //Instance Table Query
-            Boolean flag = true;
+            Boolean isComplete = false;
             Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " +item.caseId, null);
 
             System.out.println("total instance::::::::"+cursor.getCount());
+            System.out.println("total forms::::::::"+cursor1.getCount());
 
             if(cursor.getCount() == 0){
                 List<CaseRecord> list=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where Case_Id = ?",item.caseId+"");
@@ -81,18 +82,21 @@ public class MyCaseActivity extends Activity{
                 record.save();
             }
 
-            while(cursor.moveToNext()){
-                System.out.println("cursor:::::::::"+cursor.getString(7));
-                if(cursor.getString(7).equals("complete")){
-                    flag = false;
+            if(cursor.getCount() == cursor1.getCount()) {
+                while (cursor.moveToNext()) {
+                    System.out.println("cursor:::::::::" + cursor.getString(7));
+                    if (cursor.getString(7).equals("complete")) {
+                        isComplete = true;
+                    }
                 }
             }
 
-            if(!flag){
+            if(isComplete){
                 System.out.println("flag:::::::::::::::");
                 List<CaseRecord> list=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where Case_Id = ?",item.caseId+"");
                 CaseRecord record = new CaseRecord();
                 record = list.get(0);
+                System.out.println("flag id:::::::::::::::"+record.caseId);
                 record.status = "complete";
                 record.save();
             }
@@ -112,6 +116,8 @@ public class MyCaseActivity extends Activity{
 
                 InstanceProvider instanceProvider=new InstanceProvider();
                 int count = instanceProvider.checkInstance(caseRecords.get(i).caseId);
+
+                System.out.println("count instance:::::::"+count);
 
                 /*if(count == 0){
                     Intent intent = new Intent(getApplicationContext(), FormChooserList.class);
