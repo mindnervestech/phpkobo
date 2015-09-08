@@ -88,7 +88,26 @@ public class SubmittedCaseActivity extends Activity{
     public void onStart() {
         super.onStart();
         System.out.println("onStart ::::");
-        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ?","complete");
+
+        //Database helper instance
+        InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
+
+        SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
+
+        while(cursor1.moveToNext()){
+            if(cursor1.getString(7).equals("submitted")){
+                for (CaseRecord item:caseRecords){
+                    if(cursor1.getLong(9) == item.caseId) {
+                        item.isSent = true;
+                        item.save();
+                    }
+
+                }
+            }
+        }
+
+        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ? or status = ? ","complete","submitted");
         adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         System.out.println("total records ::::"+caseRecords.size());
         listView.setAdapter(adapter);
@@ -97,8 +116,25 @@ public class SubmittedCaseActivity extends Activity{
     @Override
     public void onResume() {
         super.onResume();
+        //Database helper instance
+        InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
+
+        SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
+
+        while(cursor1.moveToNext()){
+            if(cursor1.getString(7).equals("submitted")){
+                for (CaseRecord item:caseRecords){
+                    if(cursor1.getLong(9) == item.caseId) {
+                        item.isSent = true;
+                        item.save();
+                    }
+
+                }
+            }
+        }
         System.out.println("onResume ::::");
-        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ?","complete");
+        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ? or status = ? ","complete","submitted");
         adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         listView.setAdapter(adapter);
         System.out.println("total records ::::"+caseRecords.size());

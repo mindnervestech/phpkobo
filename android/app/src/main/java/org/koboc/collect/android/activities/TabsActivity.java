@@ -68,7 +68,18 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
         final String[] data = { getApplicationContext().getString(R.string.my_forms), "General Setting", "Admin Setting", getApplicationContext().getString(R.string.logout) };
 */
 
-        final String[] data = { getApplicationContext().getString(R.string.my_forms), getApplicationContext().getString(R.string.emergencynumber),getApplicationContext().getString(R.string.logout) };
+
+        AuthUser checkUser = AuthUser.findLoggedInUser();
+        String getUserRole = checkUser.getRole();
+        final String[] data;
+
+        System.out.println("user role:::::"+getUserRole);
+
+        if(getUserRole.contains("sangani")) {
+           data  = new String[]{getApplicationContext().getString(R.string.my_forms), getApplicationContext().getString(R.string.emergencynumber), getApplicationContext().getString(R.string.logout)};
+        }else {
+           data  = new String[]{ getApplicationContext().getString(R.string.my_forms),getApplicationContext().getString(R.string.logout) };
+        }
 
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data);
@@ -158,8 +169,6 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
             }
         });
 
-        AuthUser checkUser = AuthUser.findLoggedInUser();
-        String getUserRole = checkUser.getRole();
 
         if(!getUserRole.contains("consultant")){
             TabHost.TabSpec tab1 = tabHost.newTabSpec("First Tab");

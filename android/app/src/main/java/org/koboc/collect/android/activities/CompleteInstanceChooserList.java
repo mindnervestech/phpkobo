@@ -214,6 +214,7 @@ public class CompleteInstanceChooserList extends ListActivity implements Locatio
             	return;
             }
             // caller wants to view/edit a form, so launch formentryactivity
+            System.out.println("instanceUri::::"+instanceUri);
             startActivity(new Intent(Intent.ACTION_EDIT, instanceUri));
         }
         finish();

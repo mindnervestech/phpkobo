@@ -41,7 +41,7 @@
 <string name="add_repeat_no">Do Not Add</string>
 <string name="advance">forward to\nnext\nprompt</string>
 <string name="altitude">Altitude</string>
-<string name="app_name">KoBoCollect</string>
+<string name="app_name">Little Sister\'s</string>
 <string name="base_url">http://192.168.1.9:8080</string>
 <string name="audio_file_error">No audio file was specified.</string>
 <string name="audio_file_invalid">File: %s is not a valid audio file.</string>
@@ -177,7 +177,7 @@
 <string name="use_odk_default">Use Default Image</string>
 <string name="change_splash_path">Change Image</string>
 <string name="show_location">Show Location</string>
-<string name="app_url">http://kobotoolbox.org</string>
+<string name="app_url">http://www.snehamumbai.org</string>
 <string name="keep_changes">Save Changes</string>
 <string name="go_to_location">Go to Location</string>
 <string name="change_formlist_url">Form List Path (appended to Server URL)</string>

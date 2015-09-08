@@ -56,8 +56,6 @@ public class SplashScreenActivity extends Activity {
 
         System.out.println("in splash:::::::::::::::");
 
-
-
         // must be at the beginning of any activity that can be called from an external intent
         try {
             Collect.createODKDirs();

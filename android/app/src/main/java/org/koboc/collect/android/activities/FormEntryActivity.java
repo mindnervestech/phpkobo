@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -81,6 +82,7 @@ import org.koboc.collect.android.logic.PropertyManager;
 import org.koboc.collect.android.preferences.AdminPreferencesActivity;
 import org.koboc.collect.android.preferences.PreferencesActivity;
 import org.koboc.collect.android.provider.FormsProviderAPI.FormsColumns;
+import org.koboc.collect.android.provider.InstanceProvider;
 import org.koboc.collect.android.provider.InstanceProviderAPI;
 import org.koboc.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 import org.koboc.collect.android.tasks.FormLoaderTask;
@@ -939,35 +941,42 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                 }
 
                 // Create 'save' button
-                ((Button) endView.findViewById(R.id.save_exit_button))
-                        .setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                //add upload or save code here
-                                Collect.getInstance()
-                                        .getActivityLogger()
-                                        .logInstanceAction(
-                                                this,
-                                                "createView.saveAndExit",
-                                                instanceComplete.isChecked() ? "saveAsComplete"
-                                                        : "saveIncomplete");
-                                // Form is marked as 'saved' here.
-                                if (saveAs.getText().length() < 1) {
-                                    Toast.makeText(FormEntryActivity.this, R.string.save_as_error,
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    saveDataToDisk(EXIT, instanceComplete.isChecked(), saveAs
-                                            .getText().toString());
+
+                if(!checkCaseStatus()) {
+                    ((Button) endView.findViewById(R.id.save_exit_button))
+                            .setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    //add upload or save code here
+                                    Collect.getInstance()
+                                            .getActivityLogger()
+                                            .logInstanceAction(
+                                                    this,
+                                                    "createView.saveAndExit",
+                                                    instanceComplete.isChecked() ? "saveAsComplete"
+                                                            : "saveIncomplete");
+                                    // Form is marked as 'saved' here.
+                                    if (saveAs.getText().length() < 1) {
+                                        Toast.makeText(FormEntryActivity.this, R.string.save_as_error,
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        saveDataToDisk(EXIT, instanceComplete.isChecked(), saveAs
+                                                .getText().toString());
+                                    }
                                 }
-                            }
-                        });
+                            });
+                }else{
+                    Button button = (Button) endView.findViewById(R.id.save_exit_button);
+                    button.setVisibility(View.GONE);
+                    CheckBox checkBox = (CheckBox) endView.findViewById(R.id.mark_finished);
+                    checkBox.setVisibility(View.GONE);
+                    EditText editText = (EditText) endView.findViewById(R.id.save_name);
+                    editText.setEnabled(false);
+                }
 
                 ((Button) endView.findViewById(R.id.exit_button)).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
-                        System.out.println("exit clicked:::::::::");
-
                         Collect.getInstance()
                                 .getActivityLogger()
                                 .logInstanceAction(this, "createQuitDialog",
@@ -1457,9 +1466,12 @@ public class FormEntryActivity extends Activity implements AnimationListener,
      * Create a dialog with options to save and exit, save, or quit without saving
      */
     private void createQuitDialog() {
+
+        boolean flag = checkCaseStatus();
+
         FormController formController = Collect.getInstance().getFormController();
         String[] items;
-        if (mAdminPreferences.getBoolean(AdminPreferencesActivity.KEY_SAVE_MID, true)) {
+        if (mAdminPreferences.getBoolean(AdminPreferencesActivity.KEY_SAVE_MID, true) && !flag) {
             String[] two = {
                     getString(R.string.keep_changes),
                     getString(R.string.do_not_save)
@@ -1495,44 +1507,60 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                 .setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
 
-                            case 0: // save and exit
-                                // this is slightly complicated because if the option is disabled in
-                                // the admin menu, then case 0 actually becomes 'discard and exit'
-                                // whereas if it's enabled it's 'save and exit'
-                                if (mAdminPreferences.getBoolean(
-                                        AdminPreferencesActivity.KEY_SAVE_MID, true)) {
-                                    Collect.getInstance()
-                                            .getActivityLogger()
-                                            .logInstanceAction(this, "createQuitDialog",
-                                                    "saveAndExit");
-                                    saveDataToDisk(EXIT, isInstanceComplete(false), null);
-                                } else {
+                        System.out.println("which::::::" + which);
+                        if (!checkCaseStatus()) {
+                            switch (which) {
+
+                                case 0: // save and exit
+                                    // this is slightly complicated because if the option is disabled in
+                                    // the admin menu, then case 0 actually becomes 'discard and exit'
+                                    // whereas if it's enabled it's 'save and exit'
+                                    System.out.println("case 0::::::");
+                                    if (mAdminPreferences.getBoolean(
+                                            AdminPreferencesActivity.KEY_SAVE_MID, true)) {
+                                        System.out.println("case 0 1::::::");
+                                        Collect.getInstance()
+                                                .getActivityLogger()
+                                                .logInstanceAction(this, "createQuitDialog",
+                                                        "saveAndExit");
+                                        saveDataToDisk(EXIT, isInstanceComplete(false), null);
+                                    } else {
+                                        System.out.println("case 0 2::::::");
+                                        Collect.getInstance()
+                                                .getActivityLogger()
+                                                .logInstanceAction(this, "createQuitDialog",
+                                                        "discardAndExit");
+                                        removeTempInstance();
+                                        finishReturnInstance();
+                                    }
+                                    break;
+
+                                case 1: // discard changes and exit
+                                    System.out.println("case 1::::::");
                                     Collect.getInstance()
                                             .getActivityLogger()
                                             .logInstanceAction(this, "createQuitDialog",
                                                     "discardAndExit");
                                     removeTempInstance();
                                     finishReturnInstance();
-                                }
-                                break;
+                                    break;
 
-                            case 1: // discard changes and exit
-                                Collect.getInstance()
-                                        .getActivityLogger()
-                                        .logInstanceAction(this, "createQuitDialog",
-                                                "discardAndExit");
-                                removeTempInstance();
-                                finishReturnInstance();
-                                break;
-
-                            case 2:// do nothing
-                                Collect.getInstance()
-                                        .getActivityLogger()
-                                        .logInstanceAction(this,
-                                                "createQuitDialog", "cancel");
-                                break;
+                                case 2:// do nothing
+                                    System.out.println("case 2::::::");
+                                    Collect.getInstance()
+                                            .getActivityLogger()
+                                            .logInstanceAction(this,
+                                                    "createQuitDialog", "cancel");
+                                    break;
+                            }
+                        } else {
+                            Collect.getInstance()
+                                    .getActivityLogger()
+                                    .logInstanceAction(this, "createQuitDialog",
+                                            "discardAndExit");
+                            removeTempInstance();
+                            finishReturnInstance();
                         }
                     }
                 }).create();
@@ -2352,4 +2380,18 @@ public class FormEntryActivity extends Activity implements AnimationListener,
         alert.show();
     }
 
+    private boolean checkCaseStatus(){
+        InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper("instances.db");
+        SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        Cursor cursor1 = database.rawQuery("SELECT * FROM instances where caseId = "+Collect.getInstance().getCaseId() , null);
+
+        while(cursor1.moveToNext()) {
+            System.out.println("status check:::" + cursor1.getString(7));
+            if (cursor1.getString(7).equals("submitted")) {
+                System.out.println("status check:::");
+                return true;
+            }
+        }
+        return false;
+    }
 }

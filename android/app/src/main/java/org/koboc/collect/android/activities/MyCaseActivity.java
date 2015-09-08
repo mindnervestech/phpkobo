@@ -39,6 +39,7 @@ public class MyCaseActivity extends Activity{
     private static final String DATABASE_NAME = "instances.db";
     private static final String DATABASE_NAME1 = "forms.db";
     SQLiteDatabase db;
+    Cursor cursor1;
 
     private List<CaseRecord> caseRecords;
     @Override
@@ -55,7 +56,7 @@ public class MyCaseActivity extends Activity{
 
         //Form Table Query
         SQLiteDatabase database = databaseHelper1.getWritableDatabase();
-        Cursor cursor1 = database.rawQuery("SELECT * FROM forms" , null);
+         cursor1 = database.rawQuery("SELECT * FROM forms" , null);
 
 
         long cnt=CaseRecord.count(CaseRecord.class,null,null);
@@ -147,6 +148,44 @@ public class MyCaseActivity extends Activity{
     @Override
     public void onResume() {
         super.onResume();
+
+        for(CaseRecord item : caseRecords){
+            //Instance Table Query
+            Boolean isComplete = false;
+            Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " +item.caseId, null);
+
+            System.out.println("total instance::::::::"+cursor.getCount());
+            System.out.println("total forms::::::::"+cursor1.getCount());
+
+            if(cursor.getCount() == 0){
+                List<CaseRecord> list=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where Case_Id = ?",item.caseId+"");
+                CaseRecord record = new CaseRecord();
+                record = list.get(0);
+                record.status = "new";
+                record.save();
+            }
+
+            if(cursor.getCount() == cursor1.getCount()) {
+                while (cursor.moveToNext()) {
+                    System.out.println("cursor:::::::::" + cursor.getString(7));
+                    if (cursor.getString(7).equals("complete")) {
+                        isComplete = true;
+                    }
+                }
+            }
+
+            if(isComplete){
+                System.out.println("flag:::::::::::::::");
+                List<CaseRecord> list=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where Case_Id = ?",item.caseId+"");
+                CaseRecord record = new CaseRecord();
+                record = list.get(0);
+                System.out.println("flag id:::::::::::::::"+record.caseId);
+                record.status = "complete";
+                record.save();
+            }
+        }
+
+
         System.out.println("onResume :::");
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ?","complete");
         adapter=new CaseListAdapter(getApplicationContext(),caseRecords);
