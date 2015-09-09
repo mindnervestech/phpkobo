@@ -130,6 +130,7 @@ public class InstanceChooserList extends ListActivity implements LocationListene
             instanceVM.setCase_id(cursor.getString(9));
             instanceVM.setInstance_save_date(cursor.getString(8));
             instanceVM.setSubTitle(cursor.getString(10));
+            instanceVM.setStatus(cursor.getString(7));
             instanceVM.setIsTemplate(false);
 
             vms.add(instanceVM);

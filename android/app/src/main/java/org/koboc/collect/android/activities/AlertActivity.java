@@ -56,7 +56,7 @@ public class AlertActivity extends Activity {
     private String BASE_URL,addressText,caseId;
     private double latitude;
     private double longitude;
-    private TextView successText;
+    private TextView successText,message;
     private Long id;
     private RelativeLayout relativeLayout;
     private Spinner clusterSpinner;
@@ -90,98 +90,23 @@ public class AlertActivity extends Activity {
         contactVMs=new ArrayList<EmergencyContactVM>();
         id = System.currentTimeMillis() / 1000;  //Sangini Code+Date+Sector No.+Cluster No
         // show location button click event
+
+        // create class object
+        relativeLayout = (RelativeLayout) findViewById(R.id.messageLayout);
+        message = (TextView) findViewById(R.id.message);
+
+        successText = (TextView) findViewById(R.id.successText);
+
         btnShowLocation.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-                // create class object
-
                 gps = new GPSTracker(AlertActivity.this);
-
-                // Setting click event lister for the find button
-
-                // check if GPS enabled
-                if (gps.canGetLocation()) {
-
-                    latitude = gps.getLatitude();
-                    longitude = gps.getLongitude();
-                    relativeLayout = (RelativeLayout) findViewById(R.id.messageLayout);
-                    final TextView message = (TextView) findViewById(R.id.message);
-
-                    successText = (TextView) findViewById(R.id.successText);
-
-                    // \n is for new line
-                    Geocoder geocoder = new Geocoder(AlertActivity.this, Locale.getDefault());
-
-                    List<Address> addresses = null;
-                    try {
-                        addresses = geocoder.getFromLocation(lat, lon, 1);
-                        Address returnedAddress = addresses.get(0);
-                        final StringBuilder strReturnedAddress = new StringBuilder("Address:\n");
-                        for (int i = 0; i < returnedAddress.getMaxAddressLineIndex(); i++) {
-                            strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
-                        }
-                        addressText = strReturnedAddress.toString();
-
-                        AuthUser authUser = AuthUser.findLoggedInUser();
-                        String token = authUser.getApi_token();
-                        String username = authUser.getUsername();
-                        System.out.println("token::" + token);
-                        String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", username, token).getBytes(), Base64.NO_WRAP);
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                        final String createdDate = sdf.format(new Date());
-                        CaseVM caseVM = new CaseVM(id,caseId, createdDate, createdDate, addressText, lon, lat);
-
-                        System.out.println("Choose your Location ::"+defaultSting);
-
-                        if(!defaultSting.equals(getApplicationContext().getString(R.string.choose_location))) {
-                            myApi.postCase(basicAuth, caseVM, new Callback<CaseResponseVM>() {
-                                @Override
-                                public void success(CaseResponseVM caseVM1, Response response) {
-                                    successText.setVisibility(View.VISIBLE);
-                                    relativeLayout.setVisibility(View.VISIBLE);
-                                    message.setText(addressText); //"Your Location "+address+", "+city+", "+zip+ " has been captured");
-                                    successText.setText("Your Case is successfully posted for  ");
-                                    successText.postDelayed(new Runnable() {
-                                        public void run() {
-                                            successText.setVisibility(View.INVISIBLE);
-                                            relativeLayout.setVisibility(View.INVISIBLE);
-                                        }
-                                    }, 3000);
-
-
-                                    if (caseVM1 == null) {
-
-                                        Toast.makeText(getApplicationContext(), "Not able to log case", Toast.LENGTH_SHORT);
-                                    } else {
-                                        CaseRecord caseRecord = new CaseRecord(caseId,lon, lat, addressText, caseVM1.id, "new", createdDate, createdDate,false);
-                                        caseRecord.save();
-                                    }
-                                }
-
-                                @Override
-                                public void failure(RetrofitError error) {
-                                    Toast.makeText(getApplicationContext(), "Not able to log case", Toast.LENGTH_SHORT);
-                                    error.printStackTrace();
-                                }
-                            });
-                        }else{
-                            Toast.makeText(getApplicationContext(),getApplicationContext().getString(R.string.choose_location),Toast.LENGTH_LONG).show();
-                        }
-
-                    }
-                    catch (IOException e) {
-                        message.setText("Your Location latitude: " + latitude + " and longitude: " + longitude + " has been captured");
-                        e.printStackTrace();
-                    }
-
-                } else {
-                    // can't get location
-                    // GPS or Network is not enabled
-                    // Ask user to enable GPS/network in settings
-                    buildAlertMessageNoGps();
-                }
+               if(defaultSting.equals(getApplicationContext().getString(R.string.choose_location))){
+                   getLocationByGPS();
+               }else{
+                   registerCase();
+               }
             }
         });
 
@@ -216,11 +141,6 @@ public class AlertActivity extends Activity {
                     }
                 }
 
-                System.out.println("contact size::::::::"+contactVMs.size());
-
-
-                System.out.println("logged in user.."+AuthUser.findLoggedInUser().getUsername());
-
                 final ClusterAdapter clusterAdapter=new ClusterAdapter(getApplicationContext(),clustersVMs);
                 clusterSpinner.setAdapter(clusterAdapter);
 
@@ -233,12 +153,9 @@ public class AlertActivity extends Activity {
                         defaultSting = clusterAdapter.getItem(i).getName();
 
                         ClustersVM clustersVM1=clusterAdapter.getItem(i);
-                        lon = clustersVM1.getLongtitude();
-                        lat = clustersVM1.getLatitude();
+                        longitude = clustersVM1.getLongtitude();
+                        latitude = clustersVM1.getLatitude();
                         addressText = clustersVM1.getName();
-
-                        System.out.println("long:::::::"+clustersVM1.getLongtitude());
-                        System.out.println("latt:::::::"+clustersVM1.getLatitude());
 
                         if(contactVMs.size() > 0)
                             fillTable();
@@ -288,23 +205,23 @@ public class AlertActivity extends Activity {
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
 
-        TextView label_date1 = new TextView(this);
+        TextView contact_title1 = new TextView(this);
         // label_date.setId(20);
-        label_date1.setText("Contact Name");
-        label_date1.setTextSize(15);
-        label_date1.setTextColor(Color.BLACK);
-        label_date1.setBackgroundResource(R.drawable.table_cells_border);
-        label_date1.setPadding(10, 10, 10, 10);
-        tr_head1.addView(label_date1);// add the column to the table row here
+        contact_title1.setText("Contact Name");
+        contact_title1.setTextSize(15);
+        contact_title1.setTextColor(Color.BLACK);
+        contact_title1.setBackgroundResource(R.drawable.table_cells_border);
+        contact_title1.setPadding(10, 10, 10, 10);
+        tr_head1.addView(contact_title1);// add the column to the table row here
 
-        TextView label_weight_kg1 = new TextView(this);
+        TextView number_title1 = new TextView(this);
         // label_weight_kg.setId(21);// define id that must be unique
-        label_weight_kg1.setText("Phone Number"); // set the text for the header
-        label_weight_kg1.setBackgroundResource(R.drawable.table_cells_border);
-        label_weight_kg1.setTextColor(Color.BLACK); // set the color
-        label_weight_kg1.setTextSize(15);
-        label_weight_kg1.setPadding(10, 10, 10, 10); // set the padding (if required)
-        tr_head1.addView(label_weight_kg1); // add the column to the table row here
+        number_title1.setText("Phone Number"); // set the text for the header
+        number_title1.setBackgroundResource(R.drawable.table_cells_border);
+        number_title1.setTextColor(Color.BLACK); // set the color
+        number_title1.setTextSize(15);
+        number_title1.setPadding(10, 10, 10, 10); // set the padding (if required)
+        tr_head1.addView(number_title1); // add the column to the table row here
 
         RelativeLayout imageLayout = new RelativeLayout(this);
         imageLayout.setLayoutParams(r1);
@@ -323,23 +240,23 @@ public class AlertActivity extends Activity {
                     ViewGroup.LayoutParams.WRAP_CONTENT));
 
 
-            TextView label_date = new TextView(this);
+            TextView contact_name = new TextView(this);
             // label_date.setId(20);
-            label_date.setText(contactVM.getName());
-            label_date.setTextColor(Color.BLACK);
-            label_date.setTextSize(15);
-            label_date.setPadding(10, 10, 10, 10);
-            label_date.setBackgroundResource(R.drawable.table_cells_border);
-            tr_head.addView(label_date);// add the column to the table row here
+            contact_name.setText(contactVM.getName());
+            contact_name.setTextColor(Color.BLACK);
+            contact_name.setTextSize(15);
+            contact_name.setPadding(10, 10, 10, 10);
+            contact_name.setBackgroundResource(R.drawable.table_cells_border);
+            tr_head.addView(contact_name);// add the column to the table row here
 
-            final TextView label_weight_kg = new TextView(this);
+            final TextView phone_number = new TextView(this);
             // label_weight_kg.setId(21);// define id that must be unique
-            label_weight_kg.setText(contactVM.getContact()); // set the text for the header
-            label_weight_kg.setTextSize(15);
-            label_weight_kg.setTextColor(Color.BLACK); // set the color
-            label_weight_kg.setBackgroundResource(R.drawable.table_cells_border);
-            label_weight_kg.setPadding(10, 10, 10, 10); // set the padding (if required)
-            tr_head.addView(label_weight_kg); // add the column to the table row here
+            phone_number.setText(contactVM.getContact()); // set the text for the header
+            phone_number.setTextSize(15);
+            phone_number.setTextColor(Color.BLACK); // set the color
+            phone_number.setBackgroundResource(R.drawable.table_cells_border);
+            phone_number.setPadding(10, 10, 10, 10); // set the padding (if required)
+            tr_head.addView(phone_number); // add the column to the table row here
 
             RelativeLayout imageLayout1 = new RelativeLayout(this);
             imageLayout1.setLayoutParams(r1);
@@ -354,8 +271,7 @@ public class AlertActivity extends Activity {
             imageLayout1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    System.out.println("Number::::"+label_weight_kg.getText().toString());
-                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + label_weight_kg.getText().toString()));
+                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone_number.getText().toString()));
                     startActivity(intent);
 
                 }
@@ -367,6 +283,83 @@ public class AlertActivity extends Activity {
         }
 
         contactVMs.clear();
+
+    }
+
+    private void getLocationByGPS() {
+        if (gps.canGetLocation()) {
+            latitude = gps.getLatitude();
+            longitude = gps.getLongitude();
+
+           registerCase();
+
+        }else{
+            buildAlertMessageNoGps();
+        }
+    }
+
+    private void registerCase(){
+
+
+        Geocoder geocoder = new Geocoder(AlertActivity.this, Locale.getDefault());
+
+        List<Address> addresses = null;
+        System.out.println("longitude::::::"+longitude);
+        System.out.println("latitude::::::"+latitude);
+        try {
+            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            Address returnedAddress = addresses.get(0);
+            final StringBuilder strReturnedAddress = new StringBuilder("Address:\n");
+            for (int i = 0; i < returnedAddress.getMaxAddressLineIndex(); i++) {
+                strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+            }
+            addressText = strReturnedAddress.toString();
+        } catch (IOException e) {
+            message.setText("Your Location latitude: " + latitude + " and longitude: " + longitude + " has been captured");
+            e.printStackTrace();
+        }
+
+
+        AuthUser authUser = AuthUser.findLoggedInUser();
+        String token = authUser.getApi_token();
+        String username = authUser.getUsername();
+        String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", username, token).getBytes(), Base64.NO_WRAP);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        final String createdDate = sdf.format(new Date());
+        CaseVM caseVM = new CaseVM(id,caseId, createdDate, createdDate, addressText, longitude, latitude);
+
+        myApi.postCase(basicAuth, caseVM, new Callback<CaseResponseVM>() {
+            @Override
+            public void success(CaseResponseVM caseVM1, Response response) {
+                successText.setVisibility(View.VISIBLE);
+                relativeLayout.setVisibility(View.VISIBLE);
+                message.setText(addressText); //"Your Location "+address+", "+city+", "+zip+ " has been captured");
+                successText.setText("Your Case is successfully posted for  ");
+                successText.postDelayed(new Runnable() {
+                    public void run() {
+                successText.setVisibility(View.INVISIBLE);
+                relativeLayout.setVisibility(View.INVISIBLE);
+                    }
+                }, 3000);
+
+
+                if (caseVM1 == null) {
+
+                    Toast.makeText(getApplicationContext(), "Not able to log case", Toast.LENGTH_SHORT);
+                } else {
+                    CaseRecord caseRecord = new CaseRecord(caseId,longitude, latitude, addressText, caseVM1.id, "new", createdDate, createdDate,false);
+                    caseRecord.save();
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Toast.makeText(getApplicationContext(), "Not able to log case", Toast.LENGTH_SHORT);
+                error.printStackTrace();
+            }
+        });
+
 
     }
 

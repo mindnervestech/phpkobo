@@ -69,13 +69,30 @@ public class InstanceListAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.two_item, null);
         TextView title = (TextView) convertView.findViewById(R.id.text1);
         TextView subTitle = (TextView) convertView.findViewById(R.id.text2);
+        RelativeLayout rootLayout = (RelativeLayout) convertView.findViewById(R.id.rootLayout);
 
         InstanceVM vm = mItems.get(position);
 
         title.setText(vm.getForm_id());
         subTitle.setText(vm.getSubTitle());
 
+        if(vm.getStatus() == null){
+            /*title.setTextColor(Color.parseColor("#fff9ff6a"));
+            subTitle.setTextColor(Color.parseColor("#fff9ff6a"));*/
+            rootLayout.setBackgroundResource(R.drawable.rect_border_community_blue);
+        }else if(vm.getStatus().equals("incomplete")){
+            /*title.setTextColor(Color.parseColor("#ff5433ff"));
+            subTitle.setTextColor(Color.parseColor("#ff5433ff"));*/
+            rootLayout.setBackgroundResource(R.drawable.rect_border_community_yellow);
+        }else if(vm.getStatus().equals("complete")){
+            /*title.setTextColor(Color.parseColor("#ff26ff7a"));
+            subTitle.setTextColor(Color.parseColor("#ff26ff7a"));*/
+            rootLayout.setBackgroundResource(R.drawable.rect_border_community_green);
+        }
+
         System.out.println("adapter::::::::::"+mItems.size());
+        System.out.println("status::::::::::"+vm.getStatus());
+        System.out.println("subtitle::::::::::"+vm.getSubTitle());
 
         return convertView;
     }

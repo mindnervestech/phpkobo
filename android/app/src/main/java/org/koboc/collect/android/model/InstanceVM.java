@@ -12,6 +12,7 @@ public class InstanceVM {
     String instance_save_date;
     Boolean isTemplate;
     String subTitle;
+    String status;
 
     public String getForm_id() {
         return form_id;
@@ -75,5 +76,13 @@ public class InstanceVM {
 
     public void setSubTitle(String subTitle) {
         this.subTitle = subTitle;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
