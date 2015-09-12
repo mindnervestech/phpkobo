@@ -65,9 +65,9 @@
             <th></th>
         </tr>
         <tr ng:repeat="item in invoice">
-            <td><input type="text" ng:model="item.name"class="input-small"></td>           
-            <td><input type="text" ng:model="item.address" ng:required class="input-small"></td>
-            <td><input type="text" ng:model="item.contact" ng:required class="input-small"></td>
+            <td><input type="text" ng:model="item.name"class="form-control" style="width: 80%;"></td>           
+            <td><textarea  type="text" ng:model="item.address" ng:required class="form-control" style="width: 80%;"></textarea></td>
+            <td><input type="text" ng:model="item.contact" ng:required class="form-control" style="width: 80%;"></td>
             <td>
                 [<a href ng:click="removeItem($index)">X</a>]
             </td>

@@ -1251,10 +1251,21 @@ App.run(function($rootScope, $state, $location, Auth) {
 						if(k == "_xform_id_string"){
 							loggerCaseQuestionAnswers.formName = v.replace(/_/g,' ');							
 						}
-						if(k != "meta/instanceID" && k != "formhub/uuid" && k != "_xform_id_string"){
-							var temp = {
-									question : k.replace(/_/g,' '),
-									answer : v
+						if(k != "meta/instanceID" && k != "formhub/uuid" && k != "_xform_id_string" && k != "start" && k != "end" ){
+							var temp;
+							if(k == "_submission_time"){
+								console.log(v);
+								console.log(new Date(v).toString());
+								var date = new Date(v);
+								temp = {
+										question : "Submission date",
+										answer : date.getFullYear() +"-"+ date.getMonth() + "-" + date.getDate() 
+								}
+							}else{
+								temp = {
+										question : k.replace(/_/g,' '),
+										answer : v.replace(/_/g,' ')
+								}
 							}
 							loggerCaseQuestionAnswers.json.push(temp);
 						}

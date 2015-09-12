@@ -1,9 +1,14 @@
 
 <nav id="topbar" role="navigation" style="margin-bottom: 0;" data-step="1" data-intro="&lt;b&gt;Topbar&lt;/b&gt; has other styles with live demo. Go to &lt;b&gt;Layouts-&gt;Header&amp;Topbar&lt;/b&gt; and check it out." class="navbar navbar-default navbar-static-top">
-  <div class="navbar-header">
-    <button type="button" data-toggle="collapse" data-target=".sidebar-collapse" class="navbar-toggle"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a id="logo" href="/#/" class="navbar-brand"><span class="fa fa-rocket"></span><span class="logo-text">SNEHA</span><span style="display: none" class="logo-text-icon"></span></a>
+  <div class="navbar-header" style="height: 160% !important;background: #f0f2f5 !important;border-right: 2px solid #37455f !important;">
+<!--     <button type="button" data-toggle="collapse" data-target=".sidebar-collapse" class="navbar-toggle"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a id="logo" href="/#/" class="navbar-brand"><span class="fa fa-rocket"></span><span class="logo-text">SNEHA</span><span style="display: none" class="logo-text-icon"></span></a> -->
+        <button type="button" data-toggle="collapse" data-target=".sidebar-collapse" class="navbar-toggle"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        <span class="logo-text">     		  		
+        	<img src="../app/images/gallery/logo.png" border="0" style="height: 95%;width: 150px;">
+        </span>
+    
   </div>
-  <div class="topbar-main"><a id="menu-toggle" href="javascript:void(0);" ng-click="header.collapse('k')" class="hidden-xs"><i class="fa fa-bars"></i></a>
+  <div class="topbar-main"><a id="menu-toggle" href="javascript:void(0);" ng-click="header.collapse('k')" class="hidden-xs"><i class="fa fa-bars"></i></a>		<label style="font-size: 30px;font-weight: bold;color: #ffffff;">Little Sister's</label>
     <ul ng-class="header.layout_horizontal_menu" class="nav navbar-nav">
       <li class="active"><a href="/#/">Dashboard</a></li>
       <li><a href="javascript:;" data-toggle="dropdown" class="dropdown-toggle">
@@ -144,7 +149,7 @@
       </div> -->
     </form>
     <ul class="nav navbar navbar-top-links navbar-right mbn">
-      <li class="dropdown"><a data-hover="dropdown" href="javascript:void(0);" class="dropdown-toggle"><i class="fa fa-bell fa-fw"></i><span class="badge badge-green">{{userInfo.followUpCount}}</span></a>
+      <li class="dropdown"><a data-hover="dropdown" href="javascript:void(0);" class="dropdown-toggle"><!-- <i class="fa fa-bell fa-fw"></i> --><span class="badge badge-green">{{userInfo.followUpCount}}</span></a>
         <ul class="dropdown-menu dropdown-alerts">
           <li>
             <p>You have 14 new notifications</p>
