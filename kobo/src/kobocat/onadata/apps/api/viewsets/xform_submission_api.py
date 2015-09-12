@@ -178,8 +178,11 @@ Here is some example JSON, it would replace `[the JSON]` above:
 
         context = self.get_serializer_context()
         serializer = SubmissionSerializer(instance, context=context)
+        # case = Case.objects.create(instance=instance, case_id=request.GET.get("caseID"))
         case = get_object_or_404(Case, pk=request.GET.get("caseID"))
-        case.instance = instance
+        case.instances.add(instance)
+        # case.case_id = request.GET.get("caseID")
+        case.status = request.GET.get("status")
         case.save()
         return Response(serializer.data,
                         headers=self.get_openrosa_headers(request),
