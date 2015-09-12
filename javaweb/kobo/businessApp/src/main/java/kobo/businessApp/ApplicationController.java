@@ -61,8 +61,8 @@ public class ApplicationController {
 	@Autowired
     private SessionFactory sessionFactory;
 	
-	//public static String KOBOCAT_URL = "http://li855-46.members.linode.com:8001";
-	public static String KOBOCAT_URL = "http://192.168.2.11:8001";
+	public static String KOBOCAT_URL = "http://li855-46.members.linode.com:8001";
+	//public static String KOBOCAT_URL = "http://192.168.2.11:8001";
 	
 	@RequestMapping(value="case",method=RequestMethod.POST)
 	@ResponseBody
