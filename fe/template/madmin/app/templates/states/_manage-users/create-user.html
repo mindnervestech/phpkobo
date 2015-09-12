@@ -11,31 +11,17 @@
                         <div class="form-group has-success">
                           <label for="inputFirstName" class="control-label">Name <span class='require'>*</span></label>
                           <div class="input-icon"><i class="fa fa-user"></i>
-                            <input id="inputFirstName" type="text" placeholder="Name" ng-model="userData.name" class="form-control" required/>
+                            <input id="inputFirstName" type="text" placeholder="Sector name" ng-model="userData.name" class="form-control" required/>
                           </div>
                         </div>
                       </div>
                     </div>
-                   <!--  <div class="row">
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label for="inputEmail" class="control-label">Area Coordinator <span class='require'>*</span></label>
-                          <div class="input-icon"><i class="fa fa-user"></i>
-                            <input type="email" placeholder="Email Address" ng-model="userData.email" class="form-control" required/>
-                          <select class="form-control" data-ng-model="userData.item" ng-selected="mySector(item)">
-							<option data-ng-repeat="item in AllAreaconsultant" value="{{item.id}}">{{item.firstName}}</option>
-						</select>
-                          </div>
-                        </div>
-                      </div>
-                      
-                    </div> -->
                     
                      <div class="row">
                       <div class="col-md-12">
                         <div class="form-group">
                           <label for="inputPinCodes" class="control-label">Area coordinator <span class='require'>*</span></label>
-                          <tags-input ng-model="userData.coordinators" display-property="name" add-from-autocomplete-only="true" min-tags="1">
+                          <tags-input ng-model="userData.coordinators" display-property="name" placeholder="Search by Coordinator" add-from-autocomplete-only="true" min-tags="1" >
 						      <auto-complete source="loadCoordinator($query)"></auto-complete>
 						  </tags-input>
                         </div>
@@ -46,8 +32,8 @@
                      <div class="row">
                       <div class="col-md-12">
                         <div class="form-group">
-                          <label for="inputPinCodes" class="control-label">Sanghani <span class='require'>*</span></label>
-                          <tags-input ng-model="userData.sanghni" display-property="name" add-from-autocomplete-only="true" min-tags="1">
+                          <label for="inputPinCodes" class="control-label">Sangini <span class='require'>*</span></label>
+                          <tags-input ng-model="userData.sanghni" display-property="name" placeholder="Search by Sangini" add-from-autocomplete-only="true" min-tags="1">
 						      <auto-complete source="loadSanghnis($query)"></auto-complete>
 						  </tags-input>
 						  <p style="color: red;" ng-show="isPin"><b>*Please enter pins</b></p>

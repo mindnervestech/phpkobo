@@ -36,9 +36,9 @@ public class LoggerInstance implements Serializable {
 	@Transient
 	private Object geom;
 
-	@Transient
+	//@Transient
 	@Column(nullable=false)
-	private Object json;
+	private String json;
 
 	@Column(nullable=false, length=20)
 	private String status;
@@ -84,6 +84,10 @@ public class LoggerInstance implements Serializable {
 	@OneToMany(mappedBy="loggerInstance")
 	private List<ViewerParsedinstance> viewerParsedinstances;
 
+	//bi-directional many-to-one association to LoggerCaseInstance
+	@OneToMany(mappedBy="loggerInstance" , fetch = FetchType.EAGER)
+	private List<LoggerCaseInstance> loggerCaseInstances;
+	
 	public LoggerInstance() {
 	}
 
@@ -127,11 +131,11 @@ public class LoggerInstance implements Serializable {
 		this.geom = geom;
 	}
 
-	public Object getJson() {
+	public String getJson() {
 		return this.json;
 	}
 
-	public void setJson(Object json) {
+	public void setJson(String json) {
 		this.json = json;
 	}
 

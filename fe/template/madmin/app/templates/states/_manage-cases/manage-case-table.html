@@ -1,75 +1,145 @@
 <div class="row">
-  
-  <div class="col-lg-12">
-     <div class="portlet-body">
-        <div class="row mbm">
-          <div class="col-lg-12">
-            <div class="table-responsive" >
-              <table id="my_leads" datatable="ng" data-dt-options="myAllcase" data-dt-column-defs="showCase.dtColumnDefs" 
-              class="table table-hover table-striped table-bordered table-advanced tablesorter display tb-sticky-header">
-              	<thead>
-                  <tr>
-                    <th style="background-color: #dc6767;color:white;" width="6%">Case Id</th>
-                    <th style="background-color: #dc6767;color:white;" width="14%">Note</th>
-                    <th style="background-color: #dc6767;color:white;" width="14%">Created Date</th>
-                    <th style="background-color: #dc6767;color:white;" width="8%">Opened By</th>
-                    <th style="background-color: #dc6767;color:white;" width="8%">Consultant</th>
-                    <th data-ng-if="userRole == 9 || userRole == 5"style="background-color: #dc6767;color:white;" width="4%">Actions</th>
-                    <th data-ng-if="userRole != 9 && userRole != 5"style="background-color: #dc6767;color:white;" width="4%">Status</th>
-                    <th style="background-color: #dc6767;color:white;" width="8%">Assigned</th>
-                  </tr>
-                  </thead>
-                  
-          		  <tbody>
-                  <tr data-ng-repeat="item in myAllcase">
-                    <td>{{ item.id }}</td>
-                    <td>{{ item.note }}</td>
-                    <td>{{ item.dateCreated | date:'MM/dd/yyyy' }}</td>
-                    <td>{{ item.owner.firstName}} {{ item.owner.lastName}}</td>
-                    <td>{{ item.consultant.username }}</td>
-                    <td>{{ item.status}}</td>
-                    <td><a id="gotoManage" data-ng-click="editCaseTab(item)"
-          	 	data-target="#reassign-case-modal" data-toggle="modal" 
-				class="btn btn-primary" style="float: right; margin: 0px;">
-				Assign </a></td>
-                    <!-- <td data-ng-if="userRole == 9 || userRole == 5">
+
+	<div class="col-lg-12">
+		<div class="portlet-body">
+			<div class="row mbm">
+				<div class="col-lg-12">
+					<div class="table-responsive">
+						<table id="my_leads" datatable="ng" data-dt-options="allCase.dtOptionsAllcases"
+							class="table table-hover table-striped table-bordered table-advanced tablesorter display tb-sticky-header">
+							<thead>
+								<tr>
+									<th style="background-color: #dc6767; color: white;"
+										width="15%">Case Id</th>
+									<th style="background-color: #dc6767; color: white;"
+										width="14%">Address</th>
+									<th style="background-color: #dc6767; color: white;"
+										width="14%">Created Date</th>
+									<th style="background-color: #dc6767; color: white;" width="8%">Opened
+										By</th>
+									<th style="background-color: #dc6767; color: white;" width="8%">Consultant</th>
+									<th data-ng-if="userRole == 9 || userRole == 5"
+										style="background-color: #dc6767; color: white;" width="4%">Actions</th>
+									<th data-ng-if="userRole != 9 && userRole != 5"
+										style="background-color: #dc6767; color: white;" width="4%">Status</th>
+									<th style="background-color: #dc6767; color: white;" width="14%">Assigned</th>
+								</tr>
+							</thead>
+
+							<tbody>
+								<tr data-ng-repeat="item in myAllcase">
+									<td><a href="#/getCaseDetailsInfo/{{ item.id }}">{{
+											item.caseId}} </a></td>
+									<td>{{ item.note }}</td>
+									<td>{{ item.dateCreated | date:'MM/dd/yyyy HH:mm' }}</td>
+									<td>{{ item.owner.firstName}} {{ item.owner.lastName}}</td>
+									<td>{{ item.consultant.firstName }}</td>
+									<td>{{ item.status == null ? "New" :
+										item.status}}</td>
+									<td><a id="gotoManage" data-ng-click="deleteCaseIdTab(item, $index)"
+										data-target="#delete-case-modal" data-toggle="modal"
+										class="btn btn-dark" style="float: right; margin: 0px;">
+										Delete </a>
+										
+										<a ng-hide="item.status == null" id="gotoManage" data-ng-click="editCaseTab(item)"
+										data-target="#reassign-case-modal" data-toggle="modal"
+										class="btn btn-primary" style="float: right; margin: 0px;">
+											Assign </a>	
+									</td>
+									<!-- <td data-ng-if="userRole == 9 || userRole == 5">
                       <a class="btn btn-xs btn-default"  data-ng-click="editCaseTab(item.id,item.status)" ><i class="fa fa-eye"></i> Edit</a>
                     </td> -->
-                  </tr>
-                  </tbody>	        
-              </table>
-            </div>
-           </div>
-          </div>
-      </div>      
-  </div>        
-</div>
-
-<div id="reassign-case-modal" tabindex="-1" role="dialog" aria-labelledby="modal-default-label" aria-hidden="true" class="modal fade">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&times;</button>
-            <h4 id="modal-default-label" class="modal-title">Consultant</h4>
-          </div>
-			<div class="modal-body" style="  float: left; width: 100%; height: 160px;">
-				<div class="col-md-12">
-					<div class="form-group">
-						<div class="col-md-4"><label for="inputPinCodes" class="control-label">Select Consultant </label></div>
-						<div class="col-md-8 myselect-container"><select class="form-control" data-ng-model="item.id">
-							<option data-ng-repeat="item in Allconsultant" value="{{item.id}}">{{item.firstName}}</option>
-						</select></div>
+								</tr>
+							</tbody>
+						</table>
 					</div>
 				</div>
 			</div>
-		  <div class="modal-footer">
-            <button type="button" data-dismiss="modal" class="btn btn-default">Close</button>
-            <button type="button" data-ng-click="assignConsutlt(item.id)" class="btn btn-primary">Save changes</button>
-          </div>
-        </div>
-      </div>
-    </div>
+		</div>
+	</div>
+</div>
 
+<div id="reassign-case-modal" tabindex="-1" role="dialog"
+	aria-labelledby="modal-default-label" aria-hidden="true"
+	class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true"
+					class="close">&times;</button>
+				<h4 id="modal-default-label" class="modal-title">Consultant</h4>
+			</div>
+			<div class="modal-body"
+				style="float: left; width: 100%; height: 160px;">
+				<div class="col-md-12">
+					<div class="form-group">
+						<div class="col-md-4">
+							<label for="inputPinCodes" class="control-label">Select
+								Consultant <span class="require">*</span></label>
+						</div>
+						<div class="col-md-8 myselect-container">
+							<select class="form-control" data-ng-model="assignConsultantId">
+								<option value="">Select Consultant</option>
+								<option data-ng-repeat="item in Allconsultant"
+									value="{{item.id}}">{{item.firstName}}</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" data-dismiss="modal" class="btn btn-default">Close</button>
+				<button type="button" data-ng-click="assignConsutlt(assignConsultantId)"
+					class="btn btn-primary">Save changes</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div id="assign-case-modal-completed" tabindex="-1" role="dialog"
+	aria-labelledby="modal-default-label" aria-hidden="true"
+	class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">		
+			<div class="modal-body"
+				style="float: left; width: 100%; height: 60px;">
+				<div class="col-md-12">
+			        <h4>Consultant Assigned Successfully.</h4>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" data-dismiss="modal" class="btn btn-primary">Ok</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="delete-case-modal" tabindex="-1" role="dialog"
+	aria-labelledby="modal-default-label" aria-hidden="true"
+	class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" data-dismiss="modal" aria-hidden="true"
+					class="close">&times;</button>
+				<h4 id="modal-default-label" class="modal-title">Delete Case</h4>
+			</div>
+			<div class="modal-body"
+				style="float: left; width: 100%; height: 90px;">
+				<div class="col-md-12">
+							<label for="inputPinCodes" class="control-label">
+								Are you sure you want delete this case? </label>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" data-dismiss="modal" class="btn btn-default">Close</button>
+				<button type="button" data-ng-click="confirmDeleteCase()"
+					class="btn btn-primary">Delete</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 <style>
 #myselect-container {

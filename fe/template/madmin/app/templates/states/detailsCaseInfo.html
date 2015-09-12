@@ -1,0 +1,75 @@
+
+<div>
+	<div class="form-body pal">
+		<div class="row">
+			<label class="col-md-3 control-label">Case Id </label>
+
+			<div class="col-md-9">
+				<label>{{caseInformation.id}}</label>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-3 control-label">Notes </label>
+
+			<div class="col-md-9">
+				<label>{{caseInformation.note}}</label>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-3 control-label">Created Date </label>
+
+			<div class="col-md-9">
+				<label>{{caseInformation.dateCreated | date:'MM/dd/yyyy' }}</label>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-3 control-label">Opened By </label>
+
+			<div class="col-md-9">
+				<label>{{caseInformation.owner.firstName}} {{
+					caseInformation.owner.lastName}}</label>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-3 control-label">Consultant </label>
+
+			<div class="col-md-9">
+				<label>{{caseInformation.consultant.username }}</label>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-3 control-label">Status </label>
+
+			<div class="col-md-9">
+				<label>{{caseInformation.status}}</label>
+			</div>
+		</div>
+
+		<div class="row">
+
+			<div class="col-md-9" style="margin-top: 3%;">
+			<div data-ng-repeat="loggerInformation in loggerInstanceInformation" ng-show="loggerInstanceInformation != null">
+			<label><b>{{loggerInformation.formName}}</b></label>
+			<table class="table table-hover table-bordered">
+				<thead>
+					<tr>
+						<th style="width:10%">Question No</th>
+						<th style="width:45%">Question</th>
+						<th style="width:45%">Answer</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr data-ng-repeat="val in loggerInformation.json">
+						<td>{{$index + 1}}</td>
+						<td>{{val.question}}</td>
+						<td>{{val.answer}}</td>
+					</tr>
+				</tbody>
+			</table>
+			</div>
+			</div>
+		</div>
+	</div>
+
+
+</div>

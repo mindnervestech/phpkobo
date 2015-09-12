@@ -1,6 +1,7 @@
 package kobo.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import javax.persistence.*;
 
@@ -23,6 +24,10 @@ public class Cluster implements Serializable {
 
 	private String name;
 
+	private Double longtitude;
+	
+	private Double latitude;
+	
 	public Integer getId() {
 		return id;
 	}
@@ -39,4 +44,19 @@ public class Cluster implements Serializable {
 		this.name = name;
 	}
 	
+	public Double getLongtitude() {
+		return longtitude;
+	}
+
+	public void setLongtitude(Double longtitude) {
+		this.longtitude = longtitude;
+	}
+
+	public Double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
+	}
 }

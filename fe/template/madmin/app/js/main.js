@@ -105,14 +105,15 @@ App.factory("Auth", ["$http", "$q", "$window","$rootScope","$state" ,
         
         //$http.post("/webapp/api/login", { j_username: email, j_password: password })
             .then(function (result) {
-            	
+            	console.log("Login result");
+            	console.log(result);
                 if(result.data.api_token && result.data.api_token !== '') {
                 	$rootScope.api_token = result.data.api_token;
                     //$cookieStore.put('sessionId', login.sessionId);
                     userInfo = {
                         accessToken: result.data.api_token,
                         isLoggedIn: true,
-                        group: result.data.group,
+                        group: result.data.groups,
                         name: result.data.first_name + ' ' + result.data.last_name
                     };
                     $window.sessionStorage["userInfo"] = JSON.stringify(userInfo);
@@ -218,25 +219,43 @@ App.config(['$stateProvider', '$urlRouterProvider',
                 }]
             }
         })
+        
+        .state('getCaseDetailsInfo',{
+        	url: "/getCaseDetailsInfo/:caseId",
+        	templateUrl: 'templates/states/detailsCaseInfo.html',
+            controller: 'CaseInformationByIdController',
+            data: {requireLogin:false},
+            
+        })
+        
         .state('logout', {
         	url: "/login", 
             templateUrl: 'templates/states/login.html',
-            controller: 'LoginController',
+            controller: 'ReportingController',
             data: {requireLogin:false},
+            resolve: { 
+                loadMyCtrl: ['$ocLazyLoad', function($ocLazyLoad) {
+                     return $ocLazyLoad.load({
+                        files: [
+                                'vendors/bootstrap-daterangepicker/daterangepicker-bs3.css',
+                                'vendors/bootstrap-datepicker/js/bootstrap-datepicker.js',
+                                'vendors/bootstrap-daterangepicker/daterangepicker.js'                                ]
+                     });
+                }]
+            }
             
         })
         .state('reporting',{
         	url: "/reporting",
         	templateUrl: 'reports/report.html',
-            controller: 'ReportingController',
+            controller: 'ReportingController as allCase',
             resolve: { 
                 loadMyCtrl: ['$ocLazyLoad', function($ocLazyLoad) {
                      return $ocLazyLoad.load({
                         files: [
-								/*"reports/vendor/pivottable/dist/pivot.js",
-								"reports/vendor/pivottable/dist/gchart_renderers.js",
-								"reports/vendor/pivottable/dist/d3_renderers.js",
-								"reports/vendor/pivottable/dist/c3_renderers.js"*/
+                                'vendors/bootstrap-daterangepicker/daterangepicker-bs3.css',
+                                'vendors/bootstrap-datepicker/js/bootstrap-datepicker.js',
+                                'vendors/bootstrap-daterangepicker/daterangepicker.js'
 
                                 ]
                      });
@@ -246,7 +265,7 @@ App.config(['$stateProvider', '$urlRouterProvider',
          .state('allcases',{
         	url: "/allcases",
         	templateUrl: 'templates/states/_manage-cases/manage-case-table.html',
-            controller: 'AllCasesController',
+            controller: 'AllCasesController as allCase',
             resolve: { 
                 loadMyCtrl: ['$ocLazyLoad', function($ocLazyLoad) {
                      return $ocLazyLoad.load({
@@ -264,7 +283,7 @@ App.config(['$stateProvider', '$urlRouterProvider',
          .state('MySectors',{
         	url: "/Sectors",
         	templateUrl: 'templates/states/manage-users.html',
-            controller: 'AllMySectorsController',
+            controller: 'AllMySectorsController as showSectors',
             resolve: { 
                 loadMyCtrl: ['$ocLazyLoad', function($ocLazyLoad) {
                      return $ocLazyLoad.load({
@@ -1213,7 +1232,70 @@ App.run(function($rootScope, $state, $location, Auth) {
 });
 	
 	
-	App.controller('ReportingController', function ($scope, $http) {
+	
+	App.controller('CaseInformationByIdController', function ($scope, $http, $stateParams) {
+		$http.get('/webapp/caseInformationById/' + $stateParams.caseId).success(function(resp){
+			console.log(resp);
+			console.log(resp.loggerCaseInstances);
+			$scope.caseInformation = resp;
+			if(resp.loggerCaseInstances.length != 0 ){
+				var loggerCaseJson = [];
+				for(i = 0; i < resp.loggerCaseInstances.length; i++){
+					
+					tempJson = JSON.parse(resp.loggerCaseInstances[i].loggerInstance.json);
+					
+					var loggerCaseQuestionAnswers = {};
+					loggerCaseQuestionAnswers.json = [];
+					
+					$.each(tempJson, function(k, v) {
+						if(k == "_xform_id_string"){
+							loggerCaseQuestionAnswers.formName = v.replace(/_/g,' ');							
+						}
+						if(k != "meta/instanceID" && k != "formhub/uuid" && k != "_xform_id_string"){
+							var temp = {
+									question : k.replace(/_/g,' '),
+									answer : v
+							}
+							loggerCaseQuestionAnswers.json.push(temp);
+						}
+					});
+					loggerCaseJson.push(loggerCaseQuestionAnswers);
+				}
+				console.log(loggerCaseJson);
+				$scope.loggerInstanceInformation = loggerCaseJson;
+			}else{
+				$scope.loggerInstanceInformation = null;
+			}
+		});
+		console.log("Cases Controller"+$stateParams.caseId);
+	
+	});
+	
+	
+	
+	
+	
+	App.controller('ReportingController', function ($scope, $http, DTOptionsBuilder) {
+		var vm = this;
+	    vm.dtOptionsReporting = DTOptionsBuilder.newOptions()
+	      .withBootstrap()
+	      .withOption('order', [[0, 'asc']])
+	      .withTableTools('/template/madmin/app/vendors/DataTables/extensions/TableTools/swf/copy_csv_xls_pdf.swf')
+	      .withTableToolsButtons([])
+	      .withPaginationType('input')
+	      .withLanguage({
+		        "sLengthMenu": 'View _MENU_ records',
+		        "sInfo":  'Found _TOTAL_ records',
+		        "oPaginate": {
+		          "sPage":    "Page",
+		          "sPageOf":  "of"
+		        }
+		      })	      
+	      //.withScroller()
+	      //.withOption("sScrollY", false)
+	      //.withOption("sScrollX")
+	      .withColumnFilter();
+		
 		$scope.sang = 0; 
 		$scope.consult = 0;
 		$scope.status = 0;
@@ -1278,7 +1360,7 @@ App.run(function($rootScope, $state, $location, Auth) {
 			});
 		}
 		
-		$scope.loadReportsMd();
+		//$scope.loadReportsMd();
 		
 		$scope.reportTemplate = {
 				jsonForm:{},
@@ -1349,7 +1431,8 @@ App.run(function($rootScope, $state, $location, Auth) {
 	                	$scope.startDate =  moment(start).format("MMDDYYYY");
 	                	$scope.endDate =  moment(end).format("MMDDYYYY");
 	                	$scope.$emit('reportDateChange', { startDate: startDate, endDate: endDate });
-	                    $('.reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+	                    $('.reportrange1 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+	        			$scope.getAllSearchCases($scope.sang, $scope.consult, $scope.status);
 	                }
 	            );
 	            $('.reportrange1 span').html(moment().subtract('days', 7).format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
@@ -1359,20 +1442,23 @@ App.run(function($rootScope, $state, $location, Auth) {
 	    //}, 3000);
 		
 		$scope.ALLStatus = [{
-			id:'',
-			name:'NEW'
-		},
-		{
-			id:'',
-			name:'assigned'
-		},
-		{
-			id:'',
-			name:'Closed'
-		}
-		                    ]
+			id:'open',
+		    name:'New'
+			},
+			{
+				id:'Submitted',
+				name:'Submitted'
+			},
+			{
+				id:'Complete',
+				name:'Complete'
+			},
+			{
+				id:'Closed',
+				name:'Closed'
+			}]
 		
-		$http.get('/webapp/getAreaConsultant').success(function(resp){
+		$http.get('/webapp/getConsultant').success(function(resp){
 			console.log("get Consultant");
 			console.log(resp);
 			$scope.AllAreaconsultant = resp;
@@ -1384,11 +1470,12 @@ App.run(function($rootScope, $state, $location, Auth) {
 			$scope.Allsanginis = resp;
 		});
 		
-		
 		$scope.getAllSearchCases = function(sangini,consult,status){
 			
 			console.log("search case");
-			
+			console.log(sangini);
+			console.log(consult);
+			console.log(status);
 				$scope.sang = sangini;
 				$scope.consult = consult;
 				$scope.status = status;
@@ -1399,8 +1486,8 @@ App.run(function($rootScope, $state, $location, Auth) {
 				$scope.AllSearchcase = resp;
 				
 
-					                 var map = new google.maps.Map(document.getElementById('googleMap'), {
-					                   zoom: 19,
+/*					                 var map = new google.maps.Map(document.getElementById('googleMap'), {
+					                   zoom: 23,
 					                   center: new google.maps.LatLng(19.044218, 72.865868),
 					                   mapTypeId: google.maps.MapTypeId.ROADMAP
 					                 });
@@ -1423,14 +1510,51 @@ App.run(function($rootScope, $state, $location, Auth) {
 					                       infowindow.open(map, marker);
 					                     }
 					                   })(marker, i));
-					                 }
+					                 }*/
+				
+				var locations = [];
+				for(i=0; i<resp.length; i++){
+					var temp1 = [ resp[i].latitude , resp[i].longitude ];
+					locations.push(temp1);
+				}
+				
+				console.log(locations);
+				if(locations.length != 0){
+					var circle ={
+						    path: google.maps.SymbolPath.CIRCLE,
+						    fillColor: 'red',
+						    fillOpacity: .4,
+						    scale: 4.5,
+						    strokeWeight: 1
+						};
+		               map = new google.maps.Map(document.getElementById('reportsGoogleMap'), {
+		                 zoom: 15,
+		                 center: new google.maps.LatLng(locations[0][0], locations[0][1]),
+		                 mapTypeId: google.maps.MapTypeId.ROADMAP
+		               });
+
+		               var infowindow = new google.maps.InfoWindow();
+
+		               var marker, i;
+
+		               for (i = 0; i < locations.length; i++) {  
+		                 marker = new google.maps.Marker({
+			               icon:circle,
+		                   position: new google.maps.LatLng(locations[i][0], locations[i][1]),
+		                   map: map
+		                 });
+		               }
+				}
+
 				
 			});
 			
 			
 		};	
 		
-		/*$scope.showMap = function(){
+		$scope.getAllSearchCases(0,0,0);
+		
+/*		$scope.showMap = function(){
 				
 			 var map = new google.maps.Map(document.getElementById('googleMap'), {
                  zoom: 15,
@@ -1452,9 +1576,7 @@ App.run(function($rootScope, $state, $location, Auth) {
                      infowindow.open(map, marker);
                    }
                  })(marker, i));
-               
-
-			
+	
 			
 		}*/
 		
@@ -1526,7 +1648,29 @@ App.run(function($rootScope, $state, $location, Auth) {
 		    }
 		  });
 	
-	App.controller('AllCasesController', function ($scope, $http) {
+	App.controller('AllCasesController', function ($scope, $http, DTOptionsBuilder) {
+		$scope.assignConsultantId = "";
+		var vm = this;
+	    vm.dtOptionsAllcases = DTOptionsBuilder.newOptions()
+	      .withBootstrap()
+	      .withOption('order', [[0, 'asc']])
+	      .withTableTools('/template/madmin/app/vendors/DataTables/extensions/TableTools/swf/copy_csv_xls_pdf.swf')
+	      .withTableToolsButtons([])
+	      .withPaginationType('input')
+	      .withLanguage({
+		        "sLengthMenu": 'View _MENU_ records',
+		        "sInfo":  'Found _TOTAL_ records',
+		        "oPaginate": {
+		          "sPage":    "Page",
+		          "sPageOf":  "of"
+		        }
+		      })	      
+	      //.withScroller()
+	      //.withOption("sScrollY", false)
+	      //.withOption("sScrollX")
+	      .withColumnFilter();
+
+
 		
 		console.log("All Cases Controller");
 	
@@ -1538,10 +1682,25 @@ App.run(function($rootScope, $state, $location, Auth) {
 				//$('#saved-report-tab a').click();
 			});
 			
+			$scope.editDetailsCase = function(data){
+				console.log("editDetailsCase = "+data);
+				/*console.log(data);
+				$scope.myAllcases = data;
+				$scope.mycase = data.id;
+				$scope.myStatus = data.status;
+				console.log($scope.myStatus);
+				$http.get('/webapp/getConsultant').success(function(resp){
+					console.log("get Consultant");
+					console.log(resp);
+					$scope.Allconsultant = resp;
+				});*/
+			};
+			
 			$scope.editCaseTab = function(data){
 				console.log("edit case");
 				console.log(data);
 				$scope.myAllcases = data;
+
 				$scope.mycase = data.id;
 				$scope.myStatus = data.status;
 				console.log($scope.myStatus);
@@ -1552,22 +1711,51 @@ App.run(function($rootScope, $state, $location, Auth) {
 				});
 			};
 			
+			$scope.deleteCaseIdTab = function(data, index){
+				console.log("Delete case");
+				console.log(data);
+				console.log($scope.myAllcase);
+				
+				console.log(index);
+				$scope.deleteCaseID = data.id;
+				$scope.deleteCaseIndex = index;
+				console.log($scope.deleteCaseID);
+			};
+			
+			
+			$scope.confirmDeleteCase = function(){
+				console.log($scope.deleteCaseID);
+				if($scope.deleteCaseID != "" && $scope.deleteCaseID != null){
+				$http.get('/webapp/delete/cases/'+$scope.deleteCaseID).success(function(resp){
+						console.log(resp);
+						$('#delete-case-modal').modal('hide');
+						$scope.myAllcase.splice($scope.deleteCaseIndex, 1);
+					});
+				}
+			};
 			$scope.assignConsutlt = function(consutlId){
 				console.log("assign Consultant");
 				console.log(consutlId);
 				$scope.caseId = $scope.mycase;
 				$scope.caseStatuss = $scope.myStatus;
 				//console.log($scope.counsaltId);
-				$http.get('/webapp/update/cases/'+$scope.caseId+'/'+$scope.caseStatuss+'/'+consutlId).success(function(resp){
-					console.log("assign Consultant");
-					console.log(resp);
-					//$scope.myAllcase = resp;
-					//$scope.myAllcases.status = $scope.caseStatuss;
-					$scope.myAllcases.consultant.username = resp.name;
-					$('#reassign-case-modal').modal('hide');
-					//$scope.Allconsultant = resp;
-				});
-				
+				if(consutlId != undefined && consutlId != ""){
+					$http.get('/webapp/update/cases/'+$scope.caseId+'/'+$scope.caseStatuss+'/'+consutlId).success(function(resp){
+						console.log("assign Consultant");
+						console.log(resp);
+						//$scope.myAllcase = resp;
+						//$scope.myAllcases.status = $scope.caseStatuss;
+						console.log($scope.myAllcases);
+						 var conslt = {
+								 firstName:resp.name
+						 };
+						$scope.myAllcases.consultant = conslt;
+						
+						$('#reassign-case-modal').modal('hide');
+						$('#assign-case-modal-completed').modal('show');
+						$scope.assignConsultantId = "";
+					});
+				}
 			};
 		
 		
@@ -1576,10 +1764,29 @@ App.run(function($rootScope, $state, $location, Auth) {
 	
 	
 
-App.controller('AllMySectorsController', function ($scope, $http) {
+App.controller('AllMySectorsController', function ($scope, $http, DTOptionsBuilder) {
+	
+	var vm = this;
+    vm.dtOptionsSectors = DTOptionsBuilder.newOptions()
+      .withBootstrap()
+      .withOption('order', [[0, 'asc']])
+      .withTableTools('/template/madmin/app/vendors/DataTables/extensions/TableTools/swf/copy_csv_xls_pdf.swf')
+      .withTableToolsButtons([])
+      .withPaginationType('input')
+      .withLanguage({
+	        "sLengthMenu": 'View _MENU_ records',
+	        "sInfo":  'Found _TOTAL_ records',
+	        "oPaginate": {
+	          "sPage":    "Page",
+	          "sPageOf":  "of"
+	        }
+	      })	      
+      .withColumnFilter();
+	
 	$scope.userData1 = {};
-	 $scope.invoice = [];    
+	$scope.invoice = [];    
 	$scope.hideUserTab = function() {
+		$scope.invoice = [];
     	console.log("view hide");
     	$('#userTab').hide();
     }
@@ -1604,7 +1811,14 @@ App.controller('AllMySectorsController', function ($scope, $http) {
 		$http({method:'POST',url:'/webapp/editSector',data:data}).success(function(data) {
 			console.log("add sector");
 			console.log(data);
-			
+			$http.get('/webapp/getSectors').success(function(resp){
+				console.log("sectorrr");
+				console.log(resp);
+				$scope.myAllsector = resp;
+		    	$('#userDetailsTab').click();
+		    	$scope.userData1 = {};
+		    	 $scope.invoice = [];
+			});
 		});
 		
 	}
@@ -1653,10 +1867,8 @@ App.controller('AllMySectorsController', function ($scope, $http) {
 			console.log(resp);
 			$scope.myAllsubsector = resp;
 		});
-		
+		$scope.userData = {};
 		$scope.addSector = function(data){
-			//$scope.userData = {};
-			
 			console.log("Add sector");
 			console.log(data);
 			console.log(data.name);
@@ -1675,17 +1887,13 @@ App.controller('AllMySectorsController', function ($scope, $http) {
 					console.log("sectorrr");
 					console.log(resp);
 					$scope.myAllsector = resp;
+			    	$('#userDetailsTab').click();
+			    	$scope.userData = {};
+			    	 $scope.invoice = [];
 				});
 			});
 			
 		}
-		
-		/*$scope.mySector = function(data){
-			console.log(" my sector");
-			console.log(data);
-			$scope.selectSector = data.id;
-			$scope.selectSectorName = data.pName;
-		}*/
 		
 		$scope.addSubSector = function(data){
 			console.log("Add sector");
@@ -9645,6 +9853,8 @@ App.controller('LayoutTitleBreadcrumbController', function ($scope, $routeParams
 });
 
 App.controller('MainController', function ($scope, $routeParams,$http){
+	$scope.startDate = moment().subtract('days', 7).format("MMDDYYYY");;
+	$scope.endDate = moment().add('days', 1).format("MMDDYYYY");
 	setTimeout(function(){
     	$('.reportrange').daterangepicker(
                 {
@@ -9660,9 +9870,10 @@ App.controller('MainController', function ($scope, $routeParams,$http){
                     endDate: moment()
                 },
                 function(start, end) {
-                	
                 	var startDate =  moment(start).format("MMDDYYYY");
                 	var endDate =  moment(end).format("MMDDYYYY");
+                	
+                	$scope.showCasesOnDashboard(startDate,endDate);
                 	$scope.$emit('reportDateChange', { startDate: startDate, endDate: endDate });
                     $('.reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
                 }
@@ -9672,13 +9883,57 @@ App.controller('MainController', function ($scope, $routeParams,$http){
         $.fn.Data.checkbox();
 
     }, 3000);
+	$scope.showCasesOnDashboard = function(startDate, endDate){
+		$http.get('/webapp/dashBoardcases?start='+startDate+'&end='+endDate).success(function(resp){
+			console.log(resp);
+			$scope.myAllcase = resp;
+			$scope.myAllcaseowner = resp.owner;
+			$scope.showAllCasesOnMap(resp);
+			//$('#saved-report-tab a').click();
+		});
+	}
 	
-	$http.get('/webapp/case').success(function(resp){
-		console.log(resp);
-		$scope.myAllcase = resp;
-		$scope.myAllcaseowner = resp.owner;
-		//$('#saved-report-tab a').click();
-	});
+	$scope.showCasesOnDashboard($scope.startDate, $scope.endDate)
+	var map 	
+	$scope.showAllCasesOnMap = function(response){
+		console.log("showAllCasesOnMap");
+		
+		var locations = [];
+					for(i=0; i<response.length; i++){
+						var temp1 = [ response[i].latitude , response[i].longitude ];
+						locations.push(temp1);
+					}
+					
+					console.log(locations);
+					if(locations.length != 0){
+						var circle ={
+							    path: google.maps.SymbolPath.CIRCLE,
+							    fillColor: 'red',
+							    fillOpacity: .4,
+							    scale: 4.5,
+							    strokeWeight: 1
+							};
+			               map = new google.maps.Map(document.getElementById('googleMap'), {
+			                 zoom: 15,
+			                 center: new google.maps.LatLng(locations[0][0], locations[0][1]),
+			                 mapTypeId: google.maps.MapTypeId.ROADMAP
+			               });
+
+			               var infowindow = new google.maps.InfoWindow();
+
+			               var marker, i;
+
+			               for (i = 0; i < locations.length; i++) {  
+			                 marker = new google.maps.Marker({
+				               icon:circle,
+			                   position: new google.maps.LatLng(locations[i][0], locations[i][1]),
+			                   map: map
+			                 });
+			               }
+					}else{
+						$('#googleMap').empty();
+					}
+	}
 	
 	$scope.myfunc = function(lat,longg){
 		console.log("layytty");
@@ -9690,11 +9945,11 @@ App.controller('MainController', function ($scope, $routeParams,$http){
 		
 		var mapProp = {
 		  center:myCenter,
-		  zoom:5,
+		  zoom:15,
 		  mapTypeId:google.maps.MapTypeId.ROADMAP
 		  };
 
-		var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+		//map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
 
 		var marker=new google.maps.Marker({
 		  position:myCenter,
@@ -9703,33 +9958,9 @@ App.controller('MainController', function ($scope, $routeParams,$http){
 		marker.setMap(map);
 		
 
-		google.maps.event.addDomListener(window, "load", initialize);
+		google.maps.event.addDomListener(window, "load");
 	}	
 
-		var myCenter=new google.maps.LatLng(36.0800,-115.1522);
-
-		function initialize()
-		{
-		var mapProp = {
-		  center:myCenter,
-		  zoom:5,
-		  mapTypeId:google.maps.MapTypeId.ROADMAP
-		  };
-
-		var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
-
-		var marker=new google.maps.Marker({
-		  position:myCenter,
-		  });
-
-		marker.setMap(map);
-		}
-
-		google.maps.event.addDomListener(window, "load", initialize);
-		
-		
-	
-	
 });
 
 

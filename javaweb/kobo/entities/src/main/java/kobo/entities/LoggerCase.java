@@ -1,8 +1,11 @@
 package kobo.entities;
 
 import java.io.Serializable;
+
 import javax.persistence.*;
+
 import java.sql.Timestamp;
+import java.util.List;
 
 
 /**
@@ -24,6 +27,9 @@ public class LoggerCase implements Serializable {
 	@Column(name="date_modified")
 	private Timestamp dateModified;
 
+	@Column(name="case_id")
+	private String caseId;
+	
 	private String note;
 
 	private String status;
@@ -43,9 +49,13 @@ public class LoggerCase implements Serializable {
 	private AuthUser owner;
 
 	//bi-directional many-to-one association to LoggerInstance
-	@ManyToOne
+	/*@ManyToOne
 	@JoinColumn(name="instance_id")
-	private LoggerInstance loggerInstance;
+	private LoggerInstance loggerInstance;*/
+	
+	//bi-directional many-to-one association to LoggerCaseInstance
+	@OneToMany(mappedBy="loggerCase", fetch = FetchType.EAGER)
+	private List<LoggerCaseInstance> loggerCaseInstances;
 
 	public LoggerCase() {
 	}
@@ -106,14 +116,22 @@ public class LoggerCase implements Serializable {
 		this.consultant = authUser2;
 	}
 
-	public LoggerInstance getLoggerInstance() {
+	/*public LoggerInstance getLoggerInstance() {
 		return this.loggerInstance;
 	}
 
 	public void setLoggerInstance(LoggerInstance loggerInstance) {
 		this.loggerInstance = loggerInstance;
+	}*/
+
+	public List<LoggerCaseInstance> getLoggerCaseInstances() {
+		return loggerCaseInstances;
 	}
 
+	public void setLoggerCaseInstances(List<LoggerCaseInstance> loggerCaseInstances) {
+		this.loggerCaseInstances = loggerCaseInstances;
+	}
+	
 	public double getLatitude() {
 		return latitude;
 	}
@@ -130,4 +148,11 @@ public class LoggerCase implements Serializable {
 		this.longitude = longitude;
 	}
 
+	public String getCaseId() {
+		return caseId;
+	}
+
+	public void setCaseId(String caseId) {
+		this.caseId = caseId;
+	}
 }

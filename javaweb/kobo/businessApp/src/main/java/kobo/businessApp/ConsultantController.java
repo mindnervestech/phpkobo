@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import kobo.entities.AuthUserGroup;
 import kobo.entities.Cluster;
 import kobo.entities.EmergencyContact;
 import kobo.entities.LoggerCase;
+import kobo.entities.LoggerCaseInstance;
 import kobo.entities.Sector;
 import kobo.vms.authVM;
 import kobo.vms.clusterVM;
@@ -57,7 +59,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 @Controller
 public class ConsultantController {
-	
+
 	@Autowired
     private JdbcTemplate jt;
 	
@@ -93,9 +95,9 @@ public class ConsultantController {
 	public HashMap<String, String> updateCaseStatus(HttpServletRequest httpRequest,@PathVariable ("caseId") Integer caseid,@PathVariable ("status") String status,@PathVariable ("conid") Integer conId) {
 		AuthUser user = ApplicationController.getUserFromRequest(httpRequest,sessionFactory);
 		
-		System.out.println("cass id =="+caseid);
-		System.out.println("status =="+status);
-		System.out.println("consult idd =="+conId);
+		//System.out.println("cass id =="+caseid);
+		//System.out.println("status =="+status);
+		//System.out.println("consult idd =="+conId);
 		AuthUser auth1 = (AuthUser) sessionFactory.getCurrentSession().createCriteria(AuthUser.class)
 				.add(Restrictions.eq("id", conId))
 				.uniqueResult();
@@ -103,6 +105,7 @@ public class ConsultantController {
 		LoggerCase cases = (LoggerCase) sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
 				.add(Restrictions.eq("id", caseid))
 				.uniqueResult();
+		
 		//Configuration cfg = new Configuration();
 		//cfg.configure("hibernate.cfg.xml"); 
  
@@ -110,25 +113,75 @@ public class ConsultantController {
 		Session session = sessionFactory.openSession();	
  
 		LoggerCase p=new LoggerCase();
+		
+		
+		
 		p.setId(caseid);  // 104 must be in the DB
 		p.setConsultant(auth1);	
-		p.setStatus("assigned");
+		p.setCaseId(cases.getCaseId());;	
+		p.setStatus(cases.getStatus());
 		p.setNote(cases.getNote());
 		p.setDateCreated(cases.getDateCreated());
 		p.setOwner(cases.getOwner());
+		p.setLatitude(cases.getLatitude());
+		p.setLongitude(cases.getLongitude());
+		p.setDateModified(cases.getDateModified());
 		Transaction tx = session.beginTransaction();
 			session.update(p);
 			
 		tx.commit();
  
-		System.out.println("Object Updated successfully.....!!");
+		//System.out.println("Object Updated successfully.....!!");
 		session.close();
 		//factory.close();
 	
 		HashMap<String, String> map = new HashMap<String, String>();
-		map.put("name", auth1.getUsername());
+		map.put("name", auth1.getFirstName());
 		
 		return map;
+	}
+	
+	@RequestMapping(value="delete/cases/{caseId}",method=RequestMethod.GET)
+	@ResponseBody
+	@Transactional(readOnly=true)
+	public Integer updateCaseStatus(HttpServletRequest httpRequest,@PathVariable ("caseId") Integer caseid) {
+		AuthUser user = ApplicationController.getUserFromRequest(httpRequest,sessionFactory);
+		
+		//System.out.println("cass id =="+caseid);
+		
+		LoggerCase cases = (LoggerCase) sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+				.add(Restrictions.eq("id", caseid)).uniqueResult();
+		
+		List<LoggerCaseInstance> instanceCases = (List<LoggerCaseInstance>) sessionFactory.getCurrentSession().createCriteria(LoggerCaseInstance.class)
+				.add(Restrictions.eq("loggerCase.id", caseid)).list();
+
+		//System.out.println("cass instncre++" + instanceCases.size());		
+		
+		if(cases != null){
+			Session session = sessionFactory.openSession();	
+			Transaction tx = session.beginTransaction();			 
+			if(!instanceCases.isEmpty()){
+				Iterator<LoggerCaseInstance> loggerCaseInstance = instanceCases.iterator();
+				while(loggerCaseInstance.hasNext()){
+					LoggerCaseInstance ci = loggerCaseInstance.next();
+					session.delete(ci);
+				}
+			}
+			LoggerCase p=new LoggerCase();
+			p.setId(caseid);  // 104 must be in the DB
+
+				session.delete(p);
+				
+			tx.commit();
+	 
+			//System.out.println("case Deleted Sucessfully.....!!");
+			session.close();
+			//factory.close();
+			return 1;
+		}else{
+			return 0;
+		}
+
 	}
 	
 	
@@ -137,7 +190,7 @@ public class ConsultantController {
 	@Transactional
 	public HashMap<String, String> addSector(HttpServletRequest httpRequest,@RequestBody sectorVM secvm) {
 		AuthUser user = ApplicationController.getUserFromRequest(httpRequest,sessionFactory);
-		System.out.println("vmmm==="+secvm);
+		//System.out.println("vmmm==="+secvm);
 		Session session = sessionFactory.getCurrentSession();
 		//session.beginTransaction();
 		
@@ -225,7 +278,7 @@ public class ConsultantController {
 		}
 		//session1.getTransaction().commit();
 		//session1.close();
-		System.out.println("cass id ==" + secvm);
+		//System.out.println("cass id ==" + secvm);
 
 		//Session session = sessionFactory.openSession();
 		//session.beginTransaction();
@@ -328,7 +381,7 @@ public class ConsultantController {
 		
 		
 		
-		System.out.println("getSectors --==="+sec.size());
+		//System.out.println("getSectors --==="+sec.size());
 		return secVM;
 		
 	}	
@@ -344,17 +397,18 @@ public class ConsultantController {
 				//.add(Restrictions.like("firstName", cordinateName,  MatchMode.START))
 				.uniqueResult();
 		
-		System.out.println("sanghi id===="+auth1);
+		//System.out.println("sanghi id===="+auth1);
 		
 		List<Sector> sec = sessionFactory.getCurrentSession().createCriteria(Sector.class)
 				.createCriteria("sanghani")
 				 .add(Restrictions.eq("id", auth1.getId()))
 				.list();
 		
-		System.out.println("sanghi id===="+sid);
+		//System.out.println("sanghi id===="+sid);
 		
 		for(Sector s : sec){
 			List<clusterVM> clus  = new ArrayList<clusterVM>();
+			List<emergencyContactVM> contact  = new ArrayList<emergencyContactVM>();
 			
 			Sector sec1 = (Sector) sessionFactory.getCurrentSession().createCriteria(Sector.class)
 					//.createCriteria("cluster")
@@ -365,17 +419,30 @@ public class ConsultantController {
 				clusterVM cvm = new clusterVM();
 				cvm.setName(c.getName());
 				cvm.setId(c.getId());
+				cvm.setLatitude(c.getLatitude());
+				cvm.setLongtitude(c.getLongtitude());
 				clus.add(cvm);
+			}
+			//System.out.println("Contact Count +++++" + sec1.getEmergencyContacts().size());
+			for(EmergencyContact ec : sec1.getEmergencyContacts()){
+				emergencyContactVM ecvm = new emergencyContactVM();
+				ecvm.setId(ec.getId());
+				ecvm.setName(ec.getName());
+				ecvm.setContact(ec.getContact());
+				ecvm.setAddress(ec.getAddress());
+				contact.add(ecvm);
 			}
 			sectorVM au = new sectorVM();
 			au.setName(s.getName());
 			au.setId(s.getId());
 			au.setClustervm(clus);
+			
+			au.setInc(contact);
 			secc.add(au);
 		}
 		
 		
-		//System.out.println("getSectors --==="+sec.size());
+		////System.out.println("getSectors --==="+sec.size());
 		return secc;
 		
 	}	
@@ -391,7 +458,7 @@ public class ConsultantController {
 				.list();
 		
 		
-		System.out.println("getSectors --==="+sec.size());
+		//System.out.println("getSectors --==="+sec.size());
 		return sec;
 		
 	}	*/
@@ -403,12 +470,12 @@ public class ConsultantController {
 		JsonNode node = (JsonNode)httpRequest.getSession().getAttribute("user");
 		node.getObject().getJSONArray("groups").get(0);
 		Integer idd = node.getObject().getInt("id");
-		System.out.println("my idd =="+idd);
+		//System.out.println("my idd =="+idd);
 		List<AuthUser> auth = new ArrayList<AuthUser>();
 		AuthGroup grpid = (AuthGroup) sessionFactory.getCurrentSession().createCriteria(AuthGroup.class)
 				.add(Restrictions.eq("name", "area consultant"))
 				.uniqueResult();
-		System.out.println("grp id==="+grpid.getId());
+		//System.out.println("grp id==="+grpid.getId());
 		List<AuthUserGroup> consulnt = sessionFactory.getCurrentSession().createCriteria(AuthUserGroup.class)
 					.add(Restrictions.eq("authGroup.id", grpid.getId()))
 					.list();
@@ -419,7 +486,7 @@ public class ConsultantController {
 			auth.add(auth1);
 		}
 		
-		System.out.println("cases --==="+auth.size());
+		//System.out.println("cases --==="+auth.size());
 		return auth;
 		
 	}
@@ -429,17 +496,17 @@ public class ConsultantController {
 	@Transactional(readOnly=true)
 	public List<authVM> AreaCoordinator(HttpServletRequest httpRequest,@PathVariable ("cordinate") String cordinateName) {
 		
-		System.out.println("coordinator==="+cordinateName);
+		//System.out.println("coordinator==="+cordinateName);
 		
 		JsonNode node = (JsonNode)httpRequest.getSession().getAttribute("user");
 		node.getObject().getJSONArray("groups").get(0);
 		Integer idd = node.getObject().getInt("id");
-		System.out.println("my idd =="+idd);
+		//System.out.println("my idd =="+idd);
 		List<AuthUser> auth = new ArrayList<AuthUser>();
 		AuthGroup grpid = (AuthGroup) sessionFactory.getCurrentSession().createCriteria(AuthGroup.class)
 				.add(Restrictions.eq("name", "area consultant"))
 				.uniqueResult();
-		System.out.println("grp id==="+grpid.getId());
+		//System.out.println("grp id==="+grpid.getId());
 		List<AuthUserGroup> consulnt = sessionFactory.getCurrentSession().createCriteria(AuthUserGroup.class)
 					.add(Restrictions.eq("authGroup.id", grpid.getId()))
 					.list();
@@ -455,12 +522,12 @@ public class ConsultantController {
 		List<authVM> aaa = new ArrayList<authVM>();
 		for(AuthUser a : auth){
 			authVM au = new authVM();
-			au.setName(a.getFirstName());
+			au.setName(a.getFirstName() + " " + a.getLastName());
 			au.setId(a.getId());
 			aaa.add(au);
 		}
 		
-		System.out.println("auth list =="+auth.size());
+		//System.out.println("auth list =="+auth.size());
 	
 		return aaa;
 		
@@ -471,38 +538,39 @@ public class ConsultantController {
 	@Transactional(readOnly=true)
 	public List<authVM> Sanghnis(HttpServletRequest httpRequest,@PathVariable ("query") String cordinateName) {
 		
-		System.out.println("coordinator==="+cordinateName);
+		//System.out.println("coordinator==="+cordinateName);
 		
 		JsonNode node = (JsonNode)httpRequest.getSession().getAttribute("user");
 		node.getObject().getJSONArray("groups").get(0);
 		Integer idd = node.getObject().getInt("id");
-		System.out.println("my idd =="+idd);
+		//System.out.println("my idd =="+idd);
 		List<AuthUser> auth = new ArrayList<AuthUser>();
 		AuthGroup grpid = (AuthGroup) sessionFactory.getCurrentSession().createCriteria(AuthGroup.class)
-				.add(Restrictions.eq("name", "Sangani"))
+				.add(Restrictions.eq("name", "sangini"))
 				.uniqueResult();
-		System.out.println("grp id==="+grpid.getId());
+		//System.out.println("grp id==="+grpid.getId());
 		List<AuthUserGroup> consulnt = sessionFactory.getCurrentSession().createCriteria(AuthUserGroup.class)
 					.add(Restrictions.eq("authGroup.id", grpid.getId()))
 					.list();
 		for(AuthUserGroup aa:consulnt){
 			 AuthUser auth1 = (AuthUser) sessionFactory.getCurrentSession().createCriteria(AuthUser.class)
 						.add(Restrictions.eq("id", aa.getAuthUser().getId()))
-						//.add(Restrictions.like("firstName", cordinateName,  MatchMode.START))
+						.add(Restrictions.ilike("firstName", cordinateName,  MatchMode.START))
 						.uniqueResult();
-				auth.add(auth1); 
-			 
-			
+			 	if(auth1 != null){
+					auth.add(auth1); 
+			 	}
 		}
+		//System.out.println("auth list =="+auth.size() +" " + cordinateName);
 		List<authVM> aaa = new ArrayList<authVM>();
 		for(AuthUser a : auth){
 			authVM au = new authVM();
-			au.setName(a.getFirstName());
+			au.setName(a.getFirstName() + " " + a.getLastName());
 			au.setId(a.getId());
 			aaa.add(au);
 		}
 		
-		System.out.println("auth list =="+auth.size());
+		//System.out.println("auth list =="+auth.size());
 	
 		return aaa;
 		
@@ -518,12 +586,12 @@ public class ConsultantController {
 		JsonNode node = (JsonNode)httpRequest.getSession().getAttribute("user");
 		node.getObject().getJSONArray("groups").get(0);
 		Integer idd = node.getObject().getInt("id");
-		System.out.println("my idd =="+idd);
+		//System.out.println("my idd =="+idd);
 		List<AuthUser> auth = new ArrayList<AuthUser>();
 		AuthGroup grpid = (AuthGroup) sessionFactory.getCurrentSession().createCriteria(AuthGroup.class)
-				.add(Restrictions.eq("name", "Sangani"))
+				.add(Restrictions.eq("name", "sangini"))
 				.uniqueResult();
-		System.out.println("grp id==="+grpid.getId());
+		////System.out.println("grp id==="+grpid.getId());
 		List<AuthUserGroup> consulnt = sessionFactory.getCurrentSession().createCriteria(AuthUserGroup.class)
 					.add(Restrictions.eq("authGroup.id", grpid.getId()))
 					.list();
@@ -544,7 +612,7 @@ public class ConsultantController {
 			aaa.add(au);
 		}
 		
-		System.out.println("auth list =="+auth.size());
+		//System.out.println("auth list =="+auth.size());
 	
 		return aaa;
 		
@@ -560,48 +628,73 @@ public class ConsultantController {
 	
 		List<loggerCaseVM> aaa = new ArrayList<loggerCaseVM>();
 		List cases = null;
-		System.out.println("start =="+start);
+		//System.out.println("start =="+start);
+		end.setHours(23);
+		end.setMinutes(59);
+		end.setSeconds(59);
+		//System.out.println("end =="+end);
 		
-		System.out.println("end =="+end);
+		//System.out.println("sabgini =="+sangini);
 		
-		System.out.println("sabgini =="+sangini);
+		//System.out.println("consult =="+consult);
 		
-		System.out.println("consult =="+consult);
-		
-		System.out.println("status =="+status);
+		//System.out.println("status =="+status);
 	
 		if(sangini != 0 && consult != 0 && !status.equals("0")){
-			cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
-					.add(Restrictions.or(Restrictions.eq("owner.id", sangini), Restrictions.or(Restrictions.eq("consultant.id", consult), Restrictions.eq("status", status))))
-					.add(Restrictions.between("dateCreated",start, end))
-					.list();
+			if(status.equals("open")){
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.isNull("status"))))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}else{
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.eq("status", status))))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}
 			return cases;
 		}
 		
 		if(sangini != 0 && consult != 0){
 			//allCases = " where user_id = '"+sangini+"' and consultant_id = '"+consult+"'";
 			cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
-					.add(Restrictions.or(Restrictions.eq("owner.id", sangini), Restrictions.eq("consultant.id", consult)))
-					.add(Restrictions.between("dateCreated",start, end))
+					.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.eq("consultant.id", consult)))
+					.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 					.list();
 			return cases;
 		} 
 			
 		if(sangini != 0 && !status.equals("0")){
 			//allCases = " where status = '"+status+"'";
-			cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
-					.add(Restrictions.or(Restrictions.eq("owner.id", sangini), Restrictions.eq("status", status)))
-					.add(Restrictions.between("dateCreated",start, end))
-					.list();
+			if(status.equals("open")){
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.isNull("status")))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}else{
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.eq("status", status)))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}
+
 			return cases;
 		}
 		
 		if(consult != 0 && !status.equals("0")){
 			//allCases = " where status = '"+status+"'";
-			cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
-					.add(Restrictions.or(Restrictions.eq("consultant.id", consult), Restrictions.eq("status", status)))
-					.add(Restrictions.between("dateCreated",start, end))
-					.list();
+			if(status.equals("open")){
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.isNull("status")))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}else{
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.eq("status", status)))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}
+
 			return cases;
 		}
 		
@@ -611,7 +704,7 @@ public class ConsultantController {
 			//allCases = " where user_id = '"+sangini+"'";
 			cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
 					.add(Restrictions.eq("owner.id", sangini))
-					.add(Restrictions.between("dateCreated",start, end))
+					.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 					.list();
 			
 			return cases;
@@ -620,24 +713,31 @@ public class ConsultantController {
 			//allCases = " where user_id = '"+sangini+"' and consultant_id = '"+consult+"'";
 			cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
 					.add(Restrictions.eq("consultant.id", consult))
-					.add(Restrictions.between("dateCreated",start, end))
+					.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 					.list();
 			return cases;
 		}
 		if(!status.equals("0")){
 			//allCases = " where status = '"+status+"'";
-			cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
-					.add(Restrictions.eq("status", status))
-					.add(Restrictions.between("dateCreated",start, end))
-					.list();
+			if(status.equals("open")){
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.isNull("status"))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}else{
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.eq("status", status))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}
 			return cases;
 		}
 		
 		cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
-				.add(Restrictions.between("dateCreated",start, end))
+				.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 				.list();
 		
-		System.out.println("cases --==="+cases.size());
+		//System.out.println("cases --==="+cases.size());
 		return cases;
 	}
 	

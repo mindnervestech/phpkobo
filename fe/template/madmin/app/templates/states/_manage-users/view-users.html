@@ -46,9 +46,9 @@
                      <div class="row">
                       <div class="col-md-12">
                         <div class="form-group">
-                          <label for="inputPinCodes" class="control-label">Sanghani <span class='require'>*</span></label>
+                          <label for="inputPinCodes" class="control-label">Sangini <span class='require'>*</span></label>
                           <tags-input ng-model="userData1.sanghni" display-property="name" add-from-autocomplete-only="true" min-tags="1">
-						      <auto-complete source="loadSanghnis($query)"></auto-complete>
+						      <auto-complete source="loadSanghnis($query)" max-results-to-show = "15"></auto-complete>
 						  </tags-input>
 						  <p style="color: red;" ng-show="isPin"><b>*Please enter pins</b></p>
                         </div>

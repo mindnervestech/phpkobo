@@ -7,6 +7,10 @@ public class clusterVM  {
 	
 	private String name;
 	
+	private Double longtitude;
+	
+	private Double latitude;
+	
 	public String getName() {
 		return name;
 	}
@@ -23,6 +27,20 @@ public class clusterVM  {
 		this.id = id;
 	}
 
+	public Double getLongtitude() {
+		return longtitude;
+	}
 
+	public void setLongtitude(Double longtitude) {
+		this.longtitude = longtitude;
+	}
+
+	public Double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
+	}
 	
 }

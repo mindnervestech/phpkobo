@@ -129,6 +129,12 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.7</version>
+		</dependency>
+		
+		<dependency>
 		  <groupId>org.apache.httpcomponents</groupId>
 		  <artifactId>httpclient</artifactId>
 		  <version>4.3.6</version>
@@ -148,8 +154,6 @@
 		  <artifactId>json</artifactId>
 		  <version>20140107</version>
 		</dependency>
-		
-		
 		
   </dependencies>
   <build>
