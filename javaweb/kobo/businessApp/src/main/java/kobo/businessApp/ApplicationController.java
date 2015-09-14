@@ -246,6 +246,26 @@ public class ApplicationController {
 							.list();
 				}
 			}
+		}else{
+			System.out.println("admin");
+			System.out.println(status);
+			if(status.equals("all")){
+				 cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						 .add(Restrictions.between("dateCreated",start, end))
+						 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						 //.add(Restrictions.eq("owner", idd))
+						.list();
+			}else if(status.equals("open")){
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						 .add(Restrictions.between("dateCreated",start, end)).add(Restrictions.isNull("status"))
+						 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}else{
+				 cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						 .add(Restrictions.between("dateCreated",start, end)).add(Restrictions.eq("status", status))
+						 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}
 		}
 		
 		if(user != null){
