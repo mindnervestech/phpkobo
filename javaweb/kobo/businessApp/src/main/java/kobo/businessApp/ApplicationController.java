@@ -200,7 +200,7 @@ public class ApplicationController {
 	@RequestMapping(value="dashBoardcases",method=RequestMethod.GET)
 	@ResponseBody
 	@Transactional(readOnly=true)
-	public List dashBoardcases(HttpServletRequest httpRequest, @RequestParam("start") @DateTimeFormat(pattern = "MMddyyyy") Date start , @RequestParam("end") @DateTimeFormat(pattern = "MMddyyyy") Date end) {
+	public List dashBoardcases(HttpServletRequest httpRequest, @RequestParam("start") @DateTimeFormat(pattern = "MMddyyyy") Date start , @RequestParam("end") @DateTimeFormat(pattern = "MMddyyyy") Date end, @RequestParam("status") String status) {
 		AuthUser user = getUserFromRequest(httpRequest,sessionFactory);
 		JsonNode node = (JsonNode)httpRequest.getSession().getAttribute("user");
 		//System.out.println(user);
@@ -222,12 +222,25 @@ public class ApplicationController {
 						.add(Restrictions.eq("consultant.id", idd)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.list();
 			}else{
-				//System.out.println("admin");
-				 cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
-						 .add(Restrictions.between("dateCreated",start, end))
-						 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-						 //.add(Restrictions.eq("owner", idd))
-						.list();
+				System.out.println("admin");
+				System.out.println(status);
+				if(status.equals("all")){
+					 cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+							 .add(Restrictions.between("dateCreated",start, end))
+							 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+							 //.add(Restrictions.eq("owner", idd))
+							.list();
+				}else if(status.equals("open")){
+					cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+							 .add(Restrictions.between("dateCreated",start, end)).add(Restrictions.isNull("status"))
+							 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+							.list();
+				}else{
+					 cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+							 .add(Restrictions.between("dateCreated",start, end)).add(Restrictions.eq("status", status))
+							 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+							.list();
+				}
 			}
 		}
 		
@@ -323,9 +336,8 @@ public class ApplicationController {
 		List<LoggerCase> cases = null;		
 		if(sangini != 0 && consult != 0 && !status.equals("0")){
 			if(status.equals("open")){
-				String[] s = new String[]{"assigned" , ""};
 				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
-						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.in("status", s))))
+						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.isNull("status"))))
 						.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.list();
 			}else{
@@ -343,9 +355,8 @@ public class ApplicationController {
 		}else if(sangini != 0 && !status.equals("0")){
 			//allCases = " where status = '"+status+"'";
 			if(status.equals("open")){
-				String[] s = new String[]{"assigned" , ""};
 				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
-						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.in("status", s)))
+						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.isNull("status")))
 						.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.list();
 			}else{
@@ -357,9 +368,8 @@ public class ApplicationController {
 		}else if(consult != 0 && !status.equals("0")){
 			//allCases = " where status = '"+status+"'";
 			if(status.equals("open")){
-				String[] s = new String[]{"assigned" , ""};
 				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
-						.add(Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.in("status", s)))
+						.add(Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.isNull("status")))
 						.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.list();
 			}else{
@@ -383,9 +393,8 @@ public class ApplicationController {
 		}else if(!status.equals("0")){
 			//allCases = " where status = '"+status+"'";
 			if(status.equals("open")){
-				String[] s = new String[]{"assigned" , null};
 				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
-						.add(Restrictions.in("status", s))
+						.add(Restrictions.isNull("status"))
 						.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.list();
 			}else{

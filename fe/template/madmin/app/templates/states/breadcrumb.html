@@ -5,3 +5,12 @@
 <ol class="breadcrumb page-breadcrumb pull-left">
 </ol>
 <div class="btn btn-blue reportrange" style="float: right;"><i class="fa fa-calendar"></i>&nbsp;<span>May 7, 2015 - June 5, 2015</span>&nbsp;report&nbsp;<i class="fa fa-angle-down"></i><input type="hidden" name="datestart"><input type="hidden" name="endstart"></div>
+<div class="col-md-2" style="padding: 7px; float: right;">
+		<div class="">
+			<select data-ng-model="dashboadStatus" class="form-control btn-blue"
+				data-ng-change="showCasesOnDashboard(dashboadStatus)" required>
+				<option value="all">All Status</option>
+				<option data-ng-repeat="dashboadStatus in ALLDashboardStatus" value="{{dashboadStatus.id}}">{{dashboadStatus.name}}</option>
+			</select>
+		</div>
+</div>

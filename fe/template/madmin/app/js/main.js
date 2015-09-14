@@ -1495,41 +1495,21 @@ App.run(function($rootScope, $state, $location, Auth) {
 				console.log("get search case");
 				console.log(resp);
 				$scope.AllSearchcase = resp;
-				
-
-/*					                 var map = new google.maps.Map(document.getElementById('googleMap'), {
-					                   zoom: 23,
-					                   center: new google.maps.LatLng(19.044218, 72.865868),
-					                   mapTypeId: google.maps.MapTypeId.ROADMAP
-					                 });
-
-					                 var infowindow = new google.maps.InfoWindow();
-
-					                 var marker, i;
-
-					                 for (i = 0; i < $scope.AllSearchcase.length; i++) {  
-					                	 console.log("lattt");
-					                	 console.log($scope.AllSearchcase[i].longitude);
-					                   marker = new google.maps.Marker({
-					                     position: new google.maps.LatLng($scope.AllSearchcase[i].latitude, $scope.AllSearchcase[i].longitude),
-					                     map: map
-					                   });
-
-					                   google.maps.event.addListener(marker, 'click', (function(marker, i) {
-					                     return function() {
-					                       infowindow.setContent($scope.AllSearchcase[i].id+"");
-					                       infowindow.open(map, marker);
-					                     }
-					                   })(marker, i));
-					                 }*/
-				
-				var locations = [];
-				for(i=0; i<resp.length; i++){
-					var temp1 = [ resp[i].latitude , resp[i].longitude ];
-					locations.push(temp1);
-				}
-				
-				console.log(locations);
+				});
+		};	
+		
+		$scope.getAllSearchCases(0,0,0);
+		
+		$scope.showMap = function(){
+			var locations = [];
+			var resp = $scope.AllSearchcase;
+			for(i=0; i<resp.length; i++){
+				var temp1 = [ resp[i].latitude , resp[i].longitude ];
+				locations.push(temp1);
+			}
+			
+			console.log(locations);
+	        setTimeout(function(){
 				if(locations.length != 0){
 					var circle ={
 						    path: google.maps.SymbolPath.CIRCLE,
@@ -1539,7 +1519,7 @@ App.run(function($rootScope, $state, $location, Auth) {
 						    strokeWeight: 1
 						};
 		               map = new google.maps.Map(document.getElementById('reportsGoogleMap'), {
-		                 zoom: 15,
+		                 zoom: 14,
 		                 center: new google.maps.LatLng(locations[0][0], locations[0][1]),
 		                 mapTypeId: google.maps.MapTypeId.ROADMAP
 		               });
@@ -1556,15 +1536,9 @@ App.run(function($rootScope, $state, $location, Auth) {
 		                 });
 		               }
 				}
+	        },300);
 
-				
-			});
-			
-			
-		};	
-		
-		$scope.getAllSearchCases(0,0,0);
-		
+		}
 /*		$scope.showMap = function(){
 				
 			 var map = new google.maps.Map(document.getElementById('googleMap'), {
@@ -9864,6 +9838,24 @@ App.controller('LayoutTitleBreadcrumbController', function ($scope, $routeParams
 });
 
 App.controller('MainController', function ($scope, $routeParams,$http){
+	$scope.dashboadStatus = "all";
+	$scope.ALLDashboardStatus = [{
+		id:'open',
+	    name:'New'
+		},
+		{
+			id:'Submitted',
+			name:'Submitted'
+		},
+		{
+			id:'Complete',
+			name:'Complete'
+		},
+		{
+			id:'Closed',
+			name:'Closed'
+		}]
+	
 	$scope.startDate = moment().subtract('days', 7).format("MMDDYYYY");;
 	$scope.endDate = moment().add('days', 1).format("MMDDYYYY");
 	setTimeout(function(){
@@ -9881,10 +9873,11 @@ App.controller('MainController', function ($scope, $routeParams,$http){
                     endDate: moment()
                 },
                 function(start, end) {
+                	$scope.startDate =  moment(start).format("MMDDYYYY");
+                	$scope.endDate =  moment(end).format("MMDDYYYY");
                 	var startDate =  moment(start).format("MMDDYYYY");
                 	var endDate =  moment(end).format("MMDDYYYY");
-                	
-                	$scope.showCasesOnDashboard(startDate,endDate);
+                	$scope.showCasesOnDashboard($scope.dashboadStatus);
                 	$scope.$emit('reportDateChange', { startDate: startDate, endDate: endDate });
                     $('.reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
                 }
@@ -9894,8 +9887,15 @@ App.controller('MainController', function ($scope, $routeParams,$http){
         $.fn.Data.checkbox();
 
     }, 3000);
-	$scope.showCasesOnDashboard = function(startDate, endDate){
-		$http.get('/webapp/dashBoardcases?start='+startDate+'&end='+endDate).success(function(resp){
+	$scope.showCasesOnDashboard = function(status){
+		console.log($scope.dashboadStatus);
+		console.log(status);
+		if(status != undefined){
+			$scope.dashboadStatus = status;
+		}else{
+			$scope.dashboadStatus = "all";
+		}
+		$http.get('/webapp/dashBoardcases?start='+$scope.startDate+'&end='+$scope.endDate+'&status='+$scope.dashboadStatus).success(function(resp){
 			console.log(resp);
 			$scope.myAllcase = resp;
 			$scope.myAllcaseowner = resp.owner;
@@ -9904,7 +9904,7 @@ App.controller('MainController', function ($scope, $routeParams,$http){
 		});
 	}
 	
-	$scope.showCasesOnDashboard($scope.startDate, $scope.endDate)
+	$scope.showCasesOnDashboard($scope.dashboadStatus);
 	var map 	
 	$scope.showAllCasesOnMap = function(response){
 		console.log("showAllCasesOnMap");
@@ -9925,7 +9925,7 @@ App.controller('MainController', function ($scope, $routeParams,$http){
 							    strokeWeight: 1
 							};
 			               map = new google.maps.Map(document.getElementById('googleMap'), {
-			                 zoom: 15,
+			                 zoom: 14,
 			                 center: new google.maps.LatLng(locations[0][0], locations[0][1]),
 			                 mapTypeId: google.maps.MapTypeId.ROADMAP
 			               });
