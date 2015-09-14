@@ -583,9 +583,9 @@ public class ConsultantController {
 	public List<authVM> getAllSanghnis(HttpServletRequest httpRequest) {
 		
 		
-		JsonNode node = (JsonNode)httpRequest.getSession().getAttribute("user");
+		/*JsonNode node = (JsonNode)httpRequest.getSession().getAttribute("user");
 		node.getObject().getJSONArray("groups").get(0);
-		Integer idd = node.getObject().getInt("id");
+		Integer idd = node.getObject().getInt("id");*/
 		//System.out.println("my idd =="+idd);
 		List<AuthUser> auth = new ArrayList<AuthUser>();
 		AuthGroup grpid = (AuthGroup) sessionFactory.getCurrentSession().createCriteria(AuthGroup.class)

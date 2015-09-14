@@ -169,6 +169,10 @@ public class ApplicationController {
 						 //.add(Restrictions.eq("owner", idd))
 						.list();
 			}
+		}else{
+			System.out.println("admin");
+			 cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+					.list();
 		}
 		
 		if(user != null){
@@ -289,9 +293,9 @@ public class ApplicationController {
 	@ResponseBody
 	@Transactional(readOnly=true)
 	public List<AuthUser> getConsultant(HttpServletRequest httpRequest) {
-		JsonNode node = (JsonNode)httpRequest.getSession().getAttribute("user");
+/*		JsonNode node = (JsonNode)httpRequest.getSession().getAttribute("user");
 		node.getObject().getJSONArray("groups").get(0);
-		Integer idd = node.getObject().getInt("id");
+		Integer idd = node.getObject().getInt("id");*/
 		//System.out.println("my idd =="+idd);
 		List<AuthUser> auth = new ArrayList<AuthUser>();
 		AuthGroup grpid = (AuthGroup) sessionFactory.getCurrentSession().createCriteria(AuthGroup.class)
