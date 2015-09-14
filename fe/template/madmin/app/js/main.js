@@ -1847,11 +1847,11 @@ App.controller('AllMySectorsController', function ($scope, $http, DTOptionsBuild
 			$scope.myAllsector = resp;
 		});
 		
-		$http.get('/webapp/getSubsectors').success(function(resp){
+/*		$http.get('/webapp/getSubsectors').success(function(resp){
 			console.log("sectorrr");
 			console.log(resp);
 			$scope.myAllsubsector = resp;
-		});
+		});*/
 		$scope.userData = {};
 		$scope.addSector = function(data){
 			console.log("Add sector");

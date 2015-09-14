@@ -346,7 +346,7 @@ public class ConsultantController {
 			for(AuthUser a : s.getAreaCoordinator()){
 				 //coordinateVm = new ArrayList<coordinateVM>();
 				coordinateVM au = new coordinateVM();
-				au.setName(a.getFirstName());
+				au.setName(a.getFirstName() + " " + a.getLastName());
 				au.setId(a.getId());
 				coordinateVm.add(au);
 			}
@@ -354,7 +354,7 @@ public class ConsultantController {
 			for(AuthUser a1 : s.getSanghani()){
 				 //sanghVm = new ArrayList<sanghniVM>();
 				sanghniVM au = new sanghniVM();
-				au.setName(a1.getFirstName());
+				au.setName(a1.getFirstName() + " " + a1.getLastName());
 				au.setId(a1.getId());
 				sanghVm.add(au);
 			}
@@ -467,9 +467,9 @@ public class ConsultantController {
 	@ResponseBody
 	@Transactional(readOnly=true)
 	public List<AuthUser> getAreaConsultant(HttpServletRequest httpRequest) {
-		JsonNode node = (JsonNode)httpRequest.getSession().getAttribute("user");
+/*		JsonNode node = (JsonNode)httpRequest.getSession().getAttribute("user");
 		node.getObject().getJSONArray("groups").get(0);
-		Integer idd = node.getObject().getInt("id");
+		Integer idd = node.getObject().getInt("id");*/
 		//System.out.println("my idd =="+idd);
 		List<AuthUser> auth = new ArrayList<AuthUser>();
 		AuthGroup grpid = (AuthGroup) sessionFactory.getCurrentSession().createCriteria(AuthGroup.class)
@@ -607,7 +607,7 @@ public class ConsultantController {
 		List<authVM> aaa = new ArrayList<authVM>();
 		for(AuthUser a : auth){
 			authVM au = new authVM();
-			au.setName(a.getFirstName());
+			au.setName(a.getFirstName() + " " + a.getLastName());
 			au.setId(a.getId());
 			aaa.add(au);
 		}

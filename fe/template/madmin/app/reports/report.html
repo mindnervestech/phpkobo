@@ -23,7 +23,7 @@
 				data-ng-change="getAllSearchCases(sang,consult,status)" required>
 				<option value="0">All Consultants</option>
 				<option data-ng-repeat="consult in AllAreaconsultant"
-					value="{{consult.id}}">{{consult.firstName}}</option>
+					value="{{consult.id}}">{{consult.firstName}} {{consult.lastName}}</option>
 			</select>
 		</div>
 	</div>
