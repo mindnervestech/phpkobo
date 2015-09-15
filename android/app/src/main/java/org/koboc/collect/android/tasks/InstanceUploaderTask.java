@@ -496,6 +496,7 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
         HttpContext localContext = Collect.getInstance().getHttpContext();
 
         Map<Uri, Uri> uriRemap = new HashMap<Uri, Uri>();
+        String role = AuthUser.findLoggedInUser().getRole();
 
         Cursor c = null;
         try {
@@ -512,6 +513,7 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
 	                String instance = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
                     String caseId = c.getString(c.getColumnIndex(InstanceColumns.CASE_ID)); // This line has been added by jagbir
 	                String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
+                    String form_id = c.getString(c.getColumnIndex(InstanceColumns.JR_FORM_ID));
 	                Uri toUpdate = Uri.withAppendedPath(InstanceColumns.CONTENT_URI, id);
 
 	                int subIdx = c.getColumnIndex(InstanceColumns.SUBMISSION_URI);
@@ -536,8 +538,13 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
 
 	                // add the deviceID to the request...
 	                try {
-						urlString += "?deviceID=" + URLEncoder.encode(deviceId, "UTF-8");
+                        String status = role.equalsIgnoreCase("sangini") ?
+                                "Submitted":form_id.toLowerCase().contains("pre_")?"Complete":"Closed";
+
+
+                        urlString += "?deviceID=" + URLEncoder.encode(deviceId, "UTF-8");
                         urlString += "&caseID=" + URLEncoder.encode(caseId, "UTF-8"); // This has been added by jagbir
+                        urlString += "&status=" + URLEncoder.encode(status, "UTF-8");
 					} catch (UnsupportedEncodingException e) {
 						// unreachable...
 					}

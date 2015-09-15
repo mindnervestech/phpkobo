@@ -77,16 +77,10 @@ public class InstanceListAdapter extends BaseAdapter {
         subTitle.setText(vm.getSubTitle());
 
         if(vm.getStatus() == null){
-            /*title.setTextColor(Color.parseColor("#fff9ff6a"));
-            subTitle.setTextColor(Color.parseColor("#fff9ff6a"));*/
             rootLayout.setBackgroundResource(R.drawable.rect_border_community_blue);
         }else if(vm.getStatus().equals("incomplete")){
-            /*title.setTextColor(Color.parseColor("#ff5433ff"));
-            subTitle.setTextColor(Color.parseColor("#ff5433ff"));*/
             rootLayout.setBackgroundResource(R.drawable.rect_border_community_yellow);
-        }else if(vm.getStatus().equals("complete")){
-            /*title.setTextColor(Color.parseColor("#ff26ff7a"));
-            subTitle.setTextColor(Color.parseColor("#ff26ff7a"));*/
+        }else if(vm.getStatus().equals("complete") || vm.getStatus().equals("submitted")){
             rootLayout.setBackgroundResource(R.drawable.rect_border_community_green);
         }
 

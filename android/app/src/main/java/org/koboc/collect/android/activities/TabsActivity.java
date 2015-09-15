@@ -14,27 +14,18 @@
  */
 
 package org.koboc.collect.android.activities;
-import android.app.AlertDialog;
 import android.app.TabActivity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
 
 import org.koboc.collect.android.R;
-import org.koboc.collect.android.application.Collect;
 import org.koboc.collect.android.database.AuthUser;
-import org.koboc.collect.android.preferences.AdminPreferencesActivity;
-import org.koboc.collect.android.preferences.PreferencesActivity;
 
 /**
  * Modified from the FingerPaint example found in The Android Open Source
@@ -50,9 +41,8 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
 
     private static final int PASSWORD_DIALOG = 1;
     TabHost tabHost;
-    private ListView mDrawerList;
-    private DrawerLayout mDrawerLayout;
-    private String mActivityTitle;
+    protected View mDrawerView;
+    private TextView userName,userRole,contactText;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,123 +50,35 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
 
         // create the TabHost that will contain the Tabs
         tabHost = (TabHost) findViewById(android.R.id.tabhost);
-        mDrawerList = (ListView)findViewById(R.id.navList);
-        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-        mActivityTitle = getTitle().toString();
-
-/*
-        final String[] data = { getApplicationContext().getString(R.string.my_forms), "General Setting", "Admin Setting", getApplicationContext().getString(R.string.logout) };
-*/
-
+        userName = (TextView) findViewById(R.id.var_user_name);
+        userRole = (TextView) findViewById(R.id.var_user_role);
+        contactText = (TextView) findViewById(R.id.nav_contact);
 
         AuthUser checkUser = AuthUser.findLoggedInUser();
         String getUserRole = checkUser.getRole();
-        final String[] data;
 
-        System.out.println("user role:::::"+getUserRole);
+        userName.setText(checkUser.getFirst_name());
+        userRole.setText(checkUser.getRole());
 
-        if(getUserRole.contains("sangani")) {
-           data  = new String[]{getApplicationContext().getString(R.string.my_forms), getApplicationContext().getString(R.string.emergencynumber), getApplicationContext().getString(R.string.logout)};
-        }else {
-           data  = new String[]{ getApplicationContext().getString(R.string.my_forms),getApplicationContext().getString(R.string.logout) };
+        if(getUserRole.contains("consultant")) {
+            contactText.setVisibility(View.GONE);
         }
 
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data);
-
-        final DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
-        final ListView navList = (ListView) findViewById(R.id.navList);
-        navList.setAdapter(adapter);
-        navList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int pos,long id){
-
-                switch (data[pos]){
-
-                    case "इमरजेंसी कॉन्टेक्ट्स":
-                        Intent intent2 = new Intent(TabsActivity.this, ContactActivity.class);
-                        startActivity(intent2);
-                        break;
-
-                    case "Emergency Contacts":
-                        Intent intent3 = new Intent(TabsActivity.this, ContactActivity.class);
-                        startActivity(intent3);
-                        break;
-
-                    case "My Forms":
-                        Intent intent = new Intent(TabsActivity.this, MainMenuActivity.class);
-                        startActivity(intent);
-                        break;
-
-                    case "माय फॉर्म्स":
-                        Intent intent1 = new Intent(TabsActivity.this, MainMenuActivity.class);
-                        startActivity(intent1);
-                        break;
-
-                    case "Logout":
-                        //AuthUser.deleteAll(AuthUser.class);
-                        AuthUser authUser = AuthUser.findLoggedInUser();
-                        authUser.setLogged("false");
-                        authUser.save();
-                        intent = new Intent(getApplicationContext(), LoginActivity.class);
-                        startActivity(intent);
-                        finish();
-                        break;
-
-                    case "लॉगआउट":
-                        //AuthUser.deleteAll(AuthUser.class);
-                        AuthUser authUser1 = AuthUser.findLoggedInUser();
-                        authUser1.setLogged("false");
-                        authUser1.save();
-                        intent = new Intent(getApplicationContext(), LoginActivity.class);
-                        startActivity(intent);
-                        finish();
-                        break;
-
-                    case "General Setting":
-                        Collect.getInstance()
-                                .getActivityLogger()
-                                .logAction(this, "onOptionsItemSelected",
-                                        "MENU_PREFERENCES");
-                        intent = new Intent(getApplicationContext(), PreferencesActivity.class);
-                        startActivity(intent);
-                        break;
-                    case "Admin Setting":
-                        Collect.getInstance().getActivityLogger()
-                                .logAction(this, "onOptionsItemSelected", "MENU_ADMIN");
-                        String pw = getApplicationContext().getSharedPreferences(
-                                AdminPreferencesActivity.ADMIN_PREFERENCES, 0).getString(AdminPreferencesActivity.KEY_ADMIN_PW, "");
-                        if ("".equalsIgnoreCase(pw)) {
-                            intent = new Intent(getApplicationContext(), AdminPreferencesActivity.class);
-                            startActivity(intent);
-                        } else {
-                            showDialog(PASSWORD_DIALOG);
-                            Collect.getInstance().getActivityLogger()
-                                    .logAction(this, "createAdminPasswordDialog", "show");
-                        }
-                        break;
-
-                }
-
-                drawer.setDrawerListener( new DrawerLayout.SimpleDrawerListener(){
-                    @Override
-                    public void onDrawerClosed(View drawerView){
-                        super.onDrawerClosed(drawerView);
-
-                    }
-                });
-                drawer.closeDrawer(navList);
-            }
-        });
-
+        mDrawerView = findViewById(R.id.nav_drawer);
 
         if(!getUserRole.contains("consultant")){
             TabHost.TabSpec tab1 = tabHost.newTabSpec("First Tab");
             tab1.setIndicator(getIndicator(getApplicationContext().getString(R.string.alert)));
             tab1.setContent(new Intent(this, AlertActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             tabHost.addTab(tab1);
-            //tabHost.setCurrentTab(1);
+        }else{
+
+            TabHost.TabSpec tab6 = tabHost.newTabSpec("Five Tab");
+            tab6.setIndicator(getIndicator("Pre"));
+            tab6.setContent(new Intent(this, PreCompleteActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            tabHost.addTab(tab6);
         }
+
 
         TabHost.TabSpec tab2 = tabHost.newTabSpec("Second Tab");
         TabHost.TabSpec tab3 = tabHost.newTabSpec("Third tab");
@@ -209,6 +111,7 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
         //tabHost.addTab(tab3);
         tabHost.addTab(tab4);
         tabHost.addTab(tab5);
+
         ((TextView) tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab())).setTextColor(Color.parseColor("#d14b8f"));
 
         tabHost.setOnTabChangedListener(this);
@@ -241,24 +144,24 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
         ((TextView) tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab())).setTextColor(Color.parseColor("#d14b8f"));
     }
 
-    @Override
-    public void onBackPressed() {
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Do you want to exit app ?")
-                    .setCancelable(false)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            TabsActivity.super.onBackPressed();
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.show();
-
-        }
+    public void navMyForms(View v){
+        Intent intent = new Intent(TabsActivity.this, MainMenuActivity.class);
+        startActivity(intent);
     }
+
+    public void navContact(View v){
+        Intent intent2 = new Intent(TabsActivity.this, ContactActivity.class);
+        startActivity(intent2);
+    }
+
+    public void navLogout(View v){
+        //AuthUser.deleteAll(AuthUser.class);
+        AuthUser authUser1 = AuthUser.findLoggedInUser();
+        authUser1.setLogged("false");
+        authUser1.save();
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+}

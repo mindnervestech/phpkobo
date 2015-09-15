@@ -194,7 +194,7 @@ public class AlertActivity extends Activity {
 
     private void fillTable(){
         TableRow.LayoutParams r1 = new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT,TableRow.LayoutParams.FILL_PARENT, 10.0f);
-        RelativeLayout.LayoutParams r2 = new RelativeLayout.LayoutParams(60,60);
+        RelativeLayout.LayoutParams r2 = new RelativeLayout.LayoutParams(30,30);
         r2.addRule(RelativeLayout.CENTER_IN_PARENT);
         TableRow.LayoutParams r = new TableRow.LayoutParams(25,25, 10.0f);
 
@@ -211,7 +211,7 @@ public class AlertActivity extends Activity {
         contact_title1.setTextSize(15);
         contact_title1.setTextColor(Color.BLACK);
         contact_title1.setBackgroundResource(R.drawable.table_cells_border);
-        contact_title1.setPadding(10, 10, 10, 10);
+        contact_title1.setPadding(5, 5, 5, 5);
         tr_head1.addView(contact_title1);// add the column to the table row here
 
         TextView number_title1 = new TextView(this);
@@ -220,7 +220,7 @@ public class AlertActivity extends Activity {
         number_title1.setBackgroundResource(R.drawable.table_cells_border);
         number_title1.setTextColor(Color.BLACK); // set the color
         number_title1.setTextSize(15);
-        number_title1.setPadding(10, 10, 10, 10); // set the padding (if required)
+        number_title1.setPadding(5, 5, 5, 5); // set the padding (if required)
         tr_head1.addView(number_title1); // add the column to the table row here
 
         RelativeLayout imageLayout = new RelativeLayout(this);
@@ -245,7 +245,7 @@ public class AlertActivity extends Activity {
             contact_name.setText(contactVM.getName());
             contact_name.setTextColor(Color.BLACK);
             contact_name.setTextSize(15);
-            contact_name.setPadding(10, 10, 10, 10);
+            contact_name.setPadding(5, 5, 5, 5);
             contact_name.setBackgroundResource(R.drawable.table_cells_border);
             tr_head.addView(contact_name);// add the column to the table row here
 
@@ -255,7 +255,7 @@ public class AlertActivity extends Activity {
             phone_number.setTextSize(15);
             phone_number.setTextColor(Color.BLACK); // set the color
             phone_number.setBackgroundResource(R.drawable.table_cells_border);
-            phone_number.setPadding(10, 10, 10, 10); // set the padding (if required)
+            phone_number.setPadding(5, 5, 5, 5); // set the padding (if required)
             tr_head.addView(phone_number); // add the column to the table row here
 
             RelativeLayout imageLayout1 = new RelativeLayout(this);
@@ -329,6 +329,8 @@ public class AlertActivity extends Activity {
         final String createdDate = sdf.format(new Date());
         CaseVM caseVM = new CaseVM(id,caseId, createdDate, createdDate, addressText, longitude, latitude);
 
+        System.out.println("sent data ::: "+createdDate);
+
         myApi.postCase(basicAuth, caseVM, new Callback<CaseResponseVM>() {
             @Override
             public void success(CaseResponseVM caseVM1, Response response) {
@@ -360,6 +362,27 @@ public class AlertActivity extends Activity {
             }
         });
 
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        System.out.println("onback clicked alert ::");
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(getApplicationContext().getString(R.string.exitappmsg))
+                    .setCancelable(false)
+                    .setPositiveButton(getApplicationContext().getString(R.string.yes), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            AlertActivity.super.onBackPressed();
+                        }
+                    })
+                    .setNegativeButton(getApplicationContext().getString(R.string.no), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
 
     }
 

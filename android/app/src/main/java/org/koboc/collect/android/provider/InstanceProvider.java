@@ -28,6 +28,7 @@ import android.util.Log;
 
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.database.ODKSQLiteOpenHelper;
 import org.koboc.collect.android.provider.InstanceProviderAPI.InstanceColumns;
@@ -391,14 +392,45 @@ public class InstanceProvider extends ContentProvider {
         final List<CaseRecord> caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where case_id = ?", Collect.getInstance().getCaseId());
         System.out.println("size:::" + caseRecords.size());
         CaseRecord caseRecord1 = caseRecords.get(0);
-        if (status.equals("submitted")) {
-            caseRecord1.status = "complete";
-            caseRecord1.save();
-            System.out.println("updated:::");
-        } else if (status.equals("incomplete") || status.equals("complete")) {
-            caseRecord1.status = "incomplete";
-            caseRecord1.save();
-            System.out.println("updated:::");
+        System.out.println("size:::" + caseRecords.get(0).status);
+
+        System.out.println("pre check status:::"+caseRecord1.status);
+
+        if(AuthUser.findLoggedInUser().getRole().equals("sangini")){
+            System.out.println("update for sangini..");
+                if(status.equals("submitted")) {
+                    System.out.println("update for submitted sangini..");
+                    caseRecord1.status = "submitted";
+                    caseRecord1.save();
+                }else if(status.equals("incomplete")){
+                    System.out.println("update for incomplete sangini..");
+                    caseRecord1.status = "incomplete";
+                    caseRecord1.save();
+                }else{
+                    System.out.println("update for complete sangini..");
+                    caseRecord1.status = "complete";
+                    caseRecord1.save();
+                }
+            System.out.println("status:::" + caseRecords.get(0).status);
+        }else {
+            System.out.println("update for consultant..");
+            if (status.equals("submitted") || caseRecord1.status.equals("presubmitted")) {
+                if (caseRecord1.status.equals("precomplete") || caseRecord1.status.equals("presubmitted")) {
+                    System.out.println("update for consultant presubmitted..");
+                    caseRecord1.status = "presubmitted";
+                    caseRecord1.save();
+                }else {
+                    System.out.println("update for consultant complete..");
+                    caseRecord1.status = "complete";
+                    caseRecord1.save();
+                    System.out.println("updated:::");
+                }
+            } else if (status.equals("incomplete") || status.equals("complete")) {
+                System.out.println("update for consultant incomplete..");
+                caseRecord1.status = "incomplete";
+                caseRecord1.save();
+                System.out.println("updated:::");
+            }
         }
     }
 

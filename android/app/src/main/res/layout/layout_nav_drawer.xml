@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nav_drawer"
+    android:layout_width="250dp"
+    android:background="@color/white"
+    android:layout_height="match_parent"
+    android:layout_gravity="start"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:onClick="navLogin"
+        android:background="@color/cararra"
+        android:paddingLeft="20dp">
+
+        <View
+            android:id="@+id/center_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_centerVertical="true"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/var_user_image"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/sneha_logo"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/var_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/center_line"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/var_user_image"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/var_user_role"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/center_line"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/var_user_image"
+            android:textSize="16sp" />
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/nav_my_requests"
+                style="@style/nav_item"
+                android:clickable="true"
+                android:text="@string/my_forms"
+                android:onClick="navMyForms" />
+
+            <TextView
+                android:layout_below="@+id/nav_my_requests"
+                android:id="@+id/nav_contact"
+                style="@style/nav_item"
+                android:clickable="true"
+                android:text="@string/emergencynumber"
+                android:onClick="navContact" />
+
+            <TextView
+                android:layout_below="@+id/nav_contact"
+                android:id="@+id/nav_explore"
+                style="@style/nav_item"
+                android:clickable="true"
+                android:text="@string/logout"
+                android:onClick="navLogout" />
+        </RelativeLayout>
+    </ScrollView>
+</LinearLayout>

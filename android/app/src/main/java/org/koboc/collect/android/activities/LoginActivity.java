@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -24,7 +26,9 @@ import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.model.CaseResponseVM;
 import org.koboc.collect.android.model.UserVM;
 import org.koboc.collect.android.preferences.PreferencesActivity;
+import org.koboc.collect.android.provider.FormsProvider;
 import org.koboc.collect.android.provider.FormsProviderAPI;
+import org.koboc.collect.android.provider.InstanceProvider;
 import org.koboc.collect.android.tasks.DeleteFormsTask;
 
 import java.io.File;
@@ -49,6 +53,10 @@ public class LoginActivity extends Activity {
     private Button languageButton;
     private SharedPreferences prefs;
     private SharedPreferences.Editor editor;
+    private static final String DATABASE_NAME = "instances.db";
+    private static final String DATABASE_NAME1 = "forms.db";
+    SQLiteDatabase db;
+    Cursor cursor1;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,6 +135,8 @@ public class LoginActivity extends Activity {
                         user.setApi_token(userVM.getApi_token());
                         user.setRole(userVM.getGroups().get(0));
                         user.setUserId(userVM.getId());
+                        user.setFirst_name(userVM.getFirst_name());
+                       user.setLast_name(userVM.getLast_name());
                         user.setLogged("true");
                         user.setUsername(userEditText.getText().toString());
                         user.setPassword(passwordEditText.getText().toString());
@@ -147,11 +157,26 @@ public class LoginActivity extends Activity {
 
                                 //delete ODK folder from SDcards
                                 File folder = Environment.getExternalStorageDirectory();
-                                String fileName = folder.getPath() + "/odk";
+                                String fileName = folder.getPath() + "/odk/forms/";
                                 System.out.println("folder path::::"+fileName);
                                 File myFile = new File(fileName);
                                 deleteDirectory(myFile);
 
+                                String fileName1 = folder.getPath() + "/odk/instances/";
+                                System.out.println("folder path::::"+fileName);
+                                File myFile1 = new File(fileName1);
+                                deleteDirectory(myFile1);
+
+                                //Database helper instance
+                                InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
+                                FormsProvider.DatabaseHelper databaseHelper1 = new FormsProvider.DatabaseHelper("forms.db");
+                                db = databaseHelper.getWritableDatabase();
+
+                                //Form Table Query
+                                SQLiteDatabase database = databaseHelper1.getWritableDatabase();
+
+                                db.execSQL("delete from instances");
+                                database.execSQL("delete from forms");
 
                                 //delete all Form from db and sdcard
                                 DeleteFormsTask mDeleteFormsTask = new DeleteFormsTask();
@@ -170,13 +195,13 @@ public class LoginActivity extends Activity {
                                     }
                                 });*/
                             }
-                        }else {
+                        }
+                       /* else {
                             if(user.getRole().contains("consultant")){
-                                //CaseRecord.deleteAll(CaseRecord.class);
                                 System.out.println("consultant called::::"+user.getRole());
                                 getConsultantCase();
                             }
-                        }
+                        }*/
                         AuthUser.deleteAll(AuthUser.class);
 
                         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -187,14 +212,11 @@ public class LoginActivity extends Activity {
                         user.save();
 
                         if(user.getRole().contains("consultant")){
-                            //CaseRecord.deleteAll(CaseRecord.class);
-                            System.out.println("consultant called::::"+user.getRole());
                             getConsultantCase();
                         }
 
                         Intent intent=new Intent(getApplicationContext(),SplashScreenActivity.class);
                         startActivity(intent);
-                        System.out.println("url:::" + response.getUrl());
 
                         finish();
                     }
@@ -230,25 +252,24 @@ public class LoginActivity extends Activity {
         AuthUser authUser = AuthUser.findLoggedInUser();
         String token = authUser.getApi_token();
         String username = authUser.getUsername();
-        System.out.println("authUser::" + authUser.getUsername());
-        System.out.println("token::" + token);
-        String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", username, token).getBytes(), Base64.NO_WRAP);
-
-        System.out.println("in consultant auth getConsultantCase  :::"+basicAuth);
+        final String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", username, token).getBytes(), Base64.NO_WRAP);
 
         myApi.getCase(basicAuth, new Callback<List<CaseResponseVM>>() {
             @Override
             public void success(List<CaseResponseVM> caseVMList, Response response) {
 
-                System.out.println("caseVMList size  :::" + caseVMList.size());
+                System.out.println("basic auth::"+basicAuth);
+                System.out.println("url:::::::::"+response.getUrl());
+
                 CaseRecord.deleteAll(CaseRecord.class);
                 for(CaseResponseVM crVm : caseVMList){
                     CaseRecord cr = new CaseRecord();
                     cr.caseId = crVm.id;
+                    System.out.println("Case record of phne:::"+cr.status);
+                    System.out.println("Case record of json:::"+crVm.status);
                     cr.status = crVm.status;
                     cr.latitude = crVm.latitude;
                     cr.longitude = crVm.longitude;
-                    System.out.println("caseVMList size  :::" + crVm.dateCreated);
 
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                     Date d1= new Date(crVm.dateCreated);

@@ -73,6 +73,7 @@ import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.listeners.AdvanceToNextListener;
 import org.koboc.collect.android.listeners.FormLoaderListener;
 import org.koboc.collect.android.listeners.FormSavedListener;
@@ -87,6 +88,7 @@ import org.koboc.collect.android.provider.InstanceProviderAPI;
 import org.koboc.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 import org.koboc.collect.android.tasks.FormLoaderTask;
 import org.koboc.collect.android.tasks.SaveToDiskTask;
+import org.koboc.collect.android.utilities.DatabaseUtility;
 import org.koboc.collect.android.utilities.FileUtils;
 import org.koboc.collect.android.utilities.MediaUtils;
 import org.koboc.collect.android.views.ODKView;
@@ -1471,21 +1473,25 @@ public class FormEntryActivity extends Activity implements AnimationListener,
 
         FormController formController = Collect.getInstance().getFormController();
         String[] items;
-        if (mAdminPreferences.getBoolean(AdminPreferencesActivity.KEY_SAVE_MID, true) && !flag) {
-            String[] two = {
-                    getString(R.string.keep_changes),
-                    getString(R.string.do_not_save)
-            };
-            items = two;
-        } else {
-            String[] one = {
-                    getString(R.string.do_not_save)
-            };
-            items = one;
-        }
+
+
+            if (mAdminPreferences.getBoolean(AdminPreferencesActivity.KEY_SAVE_MID, true)) {
+                String[] two = {
+                        getString(R.string.keep_changes),
+                        getString(R.string.do_not_save)
+                };
+                items = two;
+            } else {
+                String[] one = {
+                        getString(R.string.do_not_save)
+                };
+                items = one;
+            }
 
         Collect.getInstance().getActivityLogger()
                 .logInstanceAction(this, "createQuitDialog", "show");
+
+        if(!flag){
         mAlertDialog = new AlertDialog.Builder(this)
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .setTitle(
@@ -1508,25 +1514,20 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        System.out.println("which::::::" + which);
-                        if (!checkCaseStatus()) {
                             switch (which) {
 
                                 case 0: // save and exit
                                     // this is slightly complicated because if the option is disabled in
                                     // the admin menu, then case 0 actually becomes 'discard and exit'
                                     // whereas if it's enabled it's 'save and exit'
-                                    System.out.println("case 0::::::");
                                     if (mAdminPreferences.getBoolean(
                                             AdminPreferencesActivity.KEY_SAVE_MID, true)) {
-                                        System.out.println("case 0 1::::::");
                                         Collect.getInstance()
                                                 .getActivityLogger()
                                                 .logInstanceAction(this, "createQuitDialog",
                                                         "saveAndExit");
                                         saveDataToDisk(EXIT, isInstanceComplete(false), null);
                                     } else {
-                                        System.out.println("case 0 2::::::");
                                         Collect.getInstance()
                                                 .getActivityLogger()
                                                 .logInstanceAction(this, "createQuitDialog",
@@ -1537,7 +1538,6 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                                     break;
 
                                 case 1: // discard changes and exit
-                                    System.out.println("case 1::::::");
                                     Collect.getInstance()
                                             .getActivityLogger()
                                             .logInstanceAction(this, "createQuitDialog",
@@ -1547,14 +1547,26 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                                     break;
 
                                 case 2:// do nothing
-                                    System.out.println("case 2::::::");
                                     Collect.getInstance()
                                             .getActivityLogger()
                                             .logInstanceAction(this,
                                                     "createQuitDialog", "cancel");
                                     break;
                             }
-                        } else {
+
+                    }
+                }).create();
+        mAlertDialog.show();
+    }else{
+            System.out.println("ok dialog called::::::::::::");
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setTitle(
+                            getString(R.string.quit_application,
+                                    formController.getFormTitle())).setPositiveButton("Ok",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
                             Collect.getInstance()
                                     .getActivityLogger()
                                     .logInstanceAction(this, "createQuitDialog",
@@ -1562,9 +1574,9 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                             removeTempInstance();
                             finishReturnInstance();
                         }
-                    }
-                }).create();
-        mAlertDialog.show();
+                    }).create();
+            alertDialog.show();
+        }
     }
 
     /**
@@ -2380,18 +2392,33 @@ public class FormEntryActivity extends Activity implements AnimationListener,
         alert.show();
     }
 
-    private boolean checkCaseStatus(){
-        InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper("instances.db");
-        SQLiteDatabase database = databaseHelper.getWritableDatabase();
-        Cursor cursor1 = database.rawQuery("SELECT * FROM instances where caseId = "+Collect.getInstance().getCaseId() , null);
+    private boolean checkCaseStatus() {
 
-        while(cursor1.moveToNext()) {
-            System.out.println("status check:::" + cursor1.getString(7));
-            if (cursor1.getString(7).equals("submitted")) {
-                System.out.println("status check:::");
-                return true;
+        if (AuthUser.findLoggedInUser().getRole().equals("sangini")) {
+            InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper("instances.db");
+            SQLiteDatabase database = databaseHelper.getWritableDatabase();
+            Cursor cursor1 = database.rawQuery("SELECT * FROM instances where caseId = " + Collect.getInstance().getCaseId(), null);
+
+            if (DatabaseUtility.getTotalFormsCount() == DatabaseUtility.getTotalInstanceCount(Collect.getInstance().getCaseId())) {
+                while (cursor1.moveToNext()) {
+                    System.out.println("status check:::" + cursor1.getString(7));
+                    if (cursor1.getString(7).equals("submitted")) {
+                        System.out.println("status check:::");
+                        return true;
+                    }
+                }
+            }
+
+        }else {
+            Cursor cursor = DatabaseUtility.getPost_Instances(Collect.getInstance().getCaseId());
+            while (cursor.moveToNext()){
+                if(cursor.getString(7).equals("submitted")){
+                    System.out.println("status check:::");
+                    return true;
+                }
             }
         }
+
         return false;
     }
 }

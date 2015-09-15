@@ -1,7 +1,9 @@
 package org.koboc.collect.android.activities;
 
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
@@ -289,5 +291,23 @@ public class NearstLocation extends FragmentActivity implements LocationListener
 
     }
 
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(getApplicationContext().getString(R.string.exitappmsg))
+                .setCancelable(false)
+                .setPositiveButton(getApplicationContext().getString(R.string.yes), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        NearstLocation.super.onBackPressed();
+                    }
+                })
+                .setNegativeButton(getApplicationContext().getString(R.string.no), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
 
+    }
 }

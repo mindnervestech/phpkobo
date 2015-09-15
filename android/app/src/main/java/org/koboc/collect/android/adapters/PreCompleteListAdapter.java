@@ -14,7 +14,6 @@
 
 package org.koboc.collect.android.adapters;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,15 +30,12 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.activities.FormEntryActivity;
 import org.koboc.collect.android.activities.InstanceUploaderActivity;
-import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.provider.InstanceProvider;
-import org.koboc.collect.android.utilities.DatabaseUtility;
 
 import java.lang.reflect.Method;
 import java.text.ParseException;
@@ -47,16 +43,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class UploadCaseListAdapter extends BaseAdapter {
+public class PreCompleteListAdapter extends BaseAdapter {
 
     private LayoutInflater inflater;
-    private Activity mContext;
+    private Context mContext;
     private List<CaseRecord> mItems = new ArrayList<CaseRecord>();
     private RelativeLayout relativeLayout;
     private SQLiteDatabase db;
 
-    public UploadCaseListAdapter(Activity context, List<CaseRecord> items) {
+
+    public PreCompleteListAdapter(Context context, List<CaseRecord> items) {
         mContext = context;
         mItems=items;
     }
@@ -86,7 +84,7 @@ public class UploadCaseListAdapter extends BaseAdapter {
             inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         if (convertView == null)
-            convertView = inflater.inflate(R.layout.upload_case_list_item, null);
+            convertView = inflater.inflate(R.layout.pre_case_layout, null);
         TextView textView= (TextView) convertView.findViewById(R.id.caseIdText);
         relativeLayout= (RelativeLayout) convertView.findViewById(R.id.mainlayout1);
         TextView textView1= (TextView) convertView.findViewById(R.id.dateText);
@@ -114,24 +112,34 @@ public class UploadCaseListAdapter extends BaseAdapter {
 
         System.out.println("status::::::::::"+item.status);
 
-        if(item.status.equals("incomplete")){
+        if(item.status.equals("incomplete") || item.status.equals("precomplete") || item.status.equals("presubmitted")){
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_yellow);
         }
 
-        if(item.status.equals("complete") || item.status.equals("presubmitted") || item.status.equals("postcomplete") || item.status.equals("postsubmitted") || item.status.equals("submitted")){
+        if(item.status.equals("complete")){
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_green);
         }
 
         if(item.status.equals("new")){
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_blue);
         }
-
-        if(isPostUploaded(item.caseId+"")){
-            uploadButton.setVisibility(View.GONE);
+        Date date1 = new Date();
+        System.out.println("date::::::::"+item.dateCreated);
+        SimpleDateFormat myFormat = new SimpleDateFormat("yyyy/mm/dd");
+        try {
+            System.out.println("date 1::::::::"+item.dateCreated);
+            date1 = sdf.parse(item.dateCreated);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Date date2 = new Date();
+        long diff = date2.getTime() - date1.getTime();
+        System.out.println("day difference::::::::::"+TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
+        if(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) > 5) {
+            relativeLayout.setBackgroundResource(R.drawable.rect_border_community_red);
         }
 
-        System.out.println("isSent Adapter::"+item.isSent);
-        if(item.status.equals("postsubmitted") || item.status.equals("submitted") && !item.status.equals("presubmitted") && !item.status.equals("postcomplete") && !item.status.equals("complete")){
+        if(item.status.equals("presubmitted")){
             uploadButton.setVisibility(View.GONE);
         }
 
@@ -141,81 +149,18 @@ public class UploadCaseListAdapter extends BaseAdapter {
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("item.status::" + item.status);
-                if (AuthUser.findLoggedInUser().getRole().equals("consultant")) {
-                    //if(DatabaseUtility.getPost_InstanceCount(item.caseId+"") == DatabaseUtility.getPost_formCount()){
-                    Cursor cursor  = DatabaseUtility.getPost_Instances(item.caseId+"");
+                Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " +item.caseId, null);
 
-                    if(cursor.getCount() == 0){
-                        Toast.makeText(mContext,"Please fill all the Forms",Toast.LENGTH_LONG).show();
-                    }
-
-                    while(cursor.moveToNext()) {
-                        if (isAllComplete(item.caseId + "")) {
-                            System.out.println("post:::::"+cursor.getString(1));
-                            System.out.println("caseid:::::"+cursor.getString(9));
-                            System.out.println("item caseid:::::"+item.caseId);
-                            if (cursor.getString(1).contains("Post_") && cursor.getString(9).equals(item.caseId))
-                                System.out.println("instance id:::"+cursor.getString(0));
-                                upload(Long.parseLong(cursor.getString(0)));
-
-                        } else {
-                            Toast.makeText(mContext, "Please fill all the Forms", Toast.LENGTH_LONG).show();
-                            break;
-                        }
-                    }
-                    //}
-                } else {
-                    System.out.println("upload for sangini ..");
-                    Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + item.caseId, null);
-                    while (cursor.moveToNext()) {
-                        System.out.println("instance id::::::::" + Long.parseLong(cursor.getString(0)));
-                        System.out.println("instance status::::::::" + cursor.getString(7));
-                        if (cursor.getString(7).equals("complete")) {
-                            upload(Long.parseLong(cursor.getString(0)));
-                        }
-
-                    }
-
+                while(cursor.moveToNext()){
+                    System.out.println("instance id::::::::"+Long.parseLong(cursor.getString(0)));
+                    if(cursor.getString(7).equals("complete") && cursor.getString(1).contains("Pre_"))
+                         upload(Long.parseLong(cursor.getString(0)));
                 }
+
             }
         });
 
         return convertView;
-    }
-
-    private boolean isAllComplete(String id){
-        Cursor cursor = DatabaseUtility.getPost_Instances(id);
-        System.out.println("isAllComplete call...");
-        if(cursor.getCount() == 0){
-            return false;
-        }else if(DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(id)){
-        while(cursor.moveToNext()) {
-            if (cursor.getString(7).equals("incomplete")) {
-                return false;
-            }
-         }
-        }else{
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isPostUploaded(String id){
-        Cursor cursor = DatabaseUtility.getPost_Instances(id);
-        System.out.println("isUploaded call...");
-        if(cursor.getCount() == 0){
-            return false;
-        }else if(DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(id)){
-            while(cursor.moveToNext()) {
-                if (!cursor.getString(7).equals("submitted")) {
-                    return false;
-                }
-            }
-        }else{
-            return false;
-        }
-        return true;
     }
 
     private void upload(Long id){
@@ -264,5 +209,4 @@ public class UploadCaseListAdapter extends BaseAdapter {
         final AlertDialog alert = builder.create();
         alert.show();
     }
-
 }

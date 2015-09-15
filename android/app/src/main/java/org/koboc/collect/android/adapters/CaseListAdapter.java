@@ -97,7 +97,7 @@ public class CaseListAdapter extends BaseAdapter {
 
         System.out.println("status::::::::::"+item.status);
 
-        if(item.status.equals("incomplete")){
+        if(item.status.equals("incomplete") || item.status.equals("precomplete")){
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_yellow);
         }
 

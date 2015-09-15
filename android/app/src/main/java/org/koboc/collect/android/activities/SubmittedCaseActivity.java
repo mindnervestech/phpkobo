@@ -15,6 +15,8 @@
 package org.koboc.collect.android.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -26,8 +28,10 @@ import android.widget.ListView;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.adapters.UploadCaseListAdapter;
 import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.provider.InstanceProvider;
+import org.koboc.collect.android.utilities.DatabaseUtility;
 
 import java.util.List;
 
@@ -48,7 +52,7 @@ public class SubmittedCaseActivity extends Activity{
         System.out.println("count:::"+cnt);
 
         caseRecord=new CaseRecord();
-        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ?","complete");
+        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"complete\",\"presubmitted\",\"postcomplete\",\"postsubmitted\")");
         System.out.println("total records ::::"+caseRecords.size());
 
         //Database helper instance
@@ -60,14 +64,45 @@ public class SubmittedCaseActivity extends Activity{
         while(cursor1.moveToNext()){
             if(cursor1.getString(7).equals("submitted")){
                 for (CaseRecord item:caseRecords){
-                    if(cursor1.getLong(9) == item.caseId) {
+
+                    if (cursor1.getLong(9) == item.caseId) {
                         item.isSent = true;
                         item.save();
                     }
 
+
+                    if(AuthUser.findLoggedInUser().getRole().contains("consulatnt")) {
+                        System.out.println("consultant::::::::::::::::::");
+                        if (DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(item.caseId + "")) {
+                            Cursor cursor2 = DatabaseUtility.getPost_Instances(item.caseId+"");
+                            if (cursor2.getString(7).equals("submitted") && cursor2.getString(1).contains("Post_")) {
+                                System.out.println("postsubmitted set ::");
+                                item.status = "postsubmitted";
+                                item.isSent = true;
+                                item.save();
+                            } else if (cursor2.getString(7).equals("incomplete") && cursor2.getString(1).contains("Post_")) {
+                                System.out.println("presubmitted set ::");
+                                item.status = "presubmitted";
+                                item.isSent = false;
+                                item.save();
+                            } else {
+                                System.out.println("postcomplete set ::");
+                                item.status = "postcomplete";
+                                item.isSent = false;
+                                item.save();
+                            }
+                        }
+                    }
+
+
+
                 }
             }
         }
+
+
+
+
 
         adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         listView.setAdapter(adapter);
@@ -77,7 +112,8 @@ public class SubmittedCaseActivity extends Activity{
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Collect.getInstance().getActivityLogger().logAction(this, "fillBlankForm", "click");
                 Collect.getInstance().setCaseId(caseRecords.get(i).caseId+"");
-                    Intent intent = new Intent(getApplicationContext(), CompleteInstanceChooserList.class);
+                    //Intent intent = new Intent(getApplicationContext(), CompleteInstanceChooserList.class);
+                    Intent intent = new Intent(getApplicationContext(), InstanceChooserList.class);
                     startActivity(intent);
                 }
 
@@ -95,7 +131,7 @@ public class SubmittedCaseActivity extends Activity{
         SQLiteDatabase database = databaseHelper.getWritableDatabase();
         Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
 
-        while(cursor1.moveToNext()){
+       /* while(cursor1.moveToNext()){
             if(cursor1.getString(7).equals("submitted")){
                 for (CaseRecord item:caseRecords){
                     if(cursor1.getLong(9) == item.caseId) {
@@ -105,9 +141,10 @@ public class SubmittedCaseActivity extends Activity{
 
                 }
             }
-        }
+        }*/
 
-        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ? or status = ? ","complete","submitted");
+
+        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"presubmitted\",\"submitted\",\"complete\",\"postcomplete\",\"postsubmitted\")");
         adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         System.out.println("total records ::::"+caseRecords.size());
         listView.setAdapter(adapter);
@@ -122,7 +159,7 @@ public class SubmittedCaseActivity extends Activity{
         SQLiteDatabase database = databaseHelper.getWritableDatabase();
         Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
 
-        while(cursor1.moveToNext()){
+        /*while(cursor1.moveToNext()){
             if(cursor1.getString(7).equals("submitted")){
                 for (CaseRecord item:caseRecords){
                     if(cursor1.getLong(9) == item.caseId) {
@@ -132,12 +169,32 @@ public class SubmittedCaseActivity extends Activity{
 
                 }
             }
-        }
+        }*/
         System.out.println("onResume ::::");
-        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status = ? or status = ? ","complete","submitted");
+        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"presubmitted\",\"submitted\",\"complete\",\"postcomplete\",\"postsubmitted\")");
         adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         listView.setAdapter(adapter);
         System.out.println("total records ::::"+caseRecords.size());
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(getApplicationContext().getString(R.string.exitappmsg))
+                .setCancelable(false)
+                .setPositiveButton(getApplicationContext().getString(R.string.yes), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        SubmittedCaseActivity.super.onBackPressed();
+                    }
+                })
+                .setNegativeButton(getApplicationContext().getString(R.string.no), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
 
     }
 }
