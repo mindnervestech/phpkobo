@@ -1465,6 +1465,10 @@ App.run(function($rootScope, $state, $location, Auth) {
 				name:'Complete'
 			},
 			{
+				id:'External',
+				name:'External'
+			},
+			{
 				id:'Closed',
 				name:'Closed'
 			}]
@@ -1500,17 +1504,40 @@ App.run(function($rootScope, $state, $location, Auth) {
 		
 		$scope.getAllSearchCases(0,0,0);
 		
+		
+/*		$http.get('/webapp/getAllCluster').success(function(resp){
+			console.log("get getAllCluster");
+			console.log(resp);
+			$scope.testAllClusters = resp;
+		});*/
+		
 		$scope.showMap = function(){
 			var locations = [];
 			var resp = $scope.AllSearchcase;
 			for(i=0; i<resp.length; i++){
-				var temp1 = [ resp[i].latitude , resp[i].longitude ];
-				locations.push(temp1);
+				if(resp[i].status != "External"){
+					var temp1 = [ resp[i].latitude , resp[i].longitude , resp[i].caseId];
+					locations.push(temp1);
+				}
 			}
+			
+/*			var resp = $scope.testAllClusters;
+			for(i=0; i<resp.length; i++){
+				var temp1 = [ resp[i].latitude , resp[i].longtitude , resp[i].name];
+				locations.push(temp1);
+			}*/
+
 			
 			console.log(locations);
 	        setTimeout(function(){
 				if(locations.length != 0){
+					var bounds = new google.maps.LatLngBounds();
+				    var mapOptions = {
+			            zoom: 15,
+			            center: new google.maps.LatLng(19.040208, 72.850850),
+				        mapTypeId: 'roadmap'
+				    };
+				    
 					var circle ={
 						    path: google.maps.SymbolPath.CIRCLE,
 						    fillColor: 'red',
@@ -1518,23 +1545,42 @@ App.run(function($rootScope, $state, $location, Auth) {
 						    scale: 4.5,
 						    strokeWeight: 1
 						};
-		               map = new google.maps.Map(document.getElementById('reportsGoogleMap'), {
-		                 zoom: 14,
-		                 center: new google.maps.LatLng(locations[0][0], locations[0][1]),
-		                 mapTypeId: google.maps.MapTypeId.ROADMAP
-		               });
+				                    
+				    // Display a map on the page
+				    map = new google.maps.Map(document.getElementById("reportsGoogleMap"), mapOptions);
+				    map.setTilt(45);
+				        
+				    // Display multiple markers on a map
+				    var infoWindow = new google.maps.InfoWindow(), marker, i;
+				    
+				    // Loop through our array of markers & place each one on the map  
+				    for( i = 0; i < locations.length; i++ ) {
+				        var position = new google.maps.LatLng(locations[i][0], locations[i][1]);
+				        bounds.extend(position);
+				        marker = new google.maps.Marker({
+				        	icon:circle,
+				            position: position,
+				            map: map,
+				            title: locations[i][2]
+				        });
+				        
+				        // Allow each marker to have an info window    
+				        google.maps.event.addListener(marker, 'click', (function(marker, i) {
+				            return function() {
+				                infoWindow.setContent(locations[i][2]);
+				                infoWindow.open(map, marker);
+				            }
+				        })(marker, i));
 
-		               var infowindow = new google.maps.InfoWindow();
+				        // Automatically center the map fitting all markers on the screen
+				        map.fitBounds(bounds);
+				    }
 
-		               var marker, i;
-
-		               for (i = 0; i < locations.length; i++) {  
-		                 marker = new google.maps.Marker({
-			               icon:circle,
-		                   position: new google.maps.LatLng(locations[i][0], locations[i][1]),
-		                   map: map
-		                 });
-		               }
+				    // Override our map zoom level once our fitBounds function runs (Make sure it only runs once)
+				    var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function(event) {
+				        this.setZoom(15);
+				        google.maps.event.removeListener(boundsListener);
+				    });
 				}
 	        },300);
 
@@ -9852,6 +9898,10 @@ App.controller('MainController', function ($scope, $routeParams,$http){
 			name:'Complete'
 		},
 		{
+			id:'External',
+			name:'External'
+		},
+		{
 			id:'Closed',
 			name:'Closed'
 		}]
@@ -9911,12 +9961,21 @@ App.controller('MainController', function ($scope, $routeParams,$http){
 		
 		var locations = [];
 					for(i=0; i<response.length; i++){
-						var temp1 = [ response[i].latitude , response[i].longitude ];
-						locations.push(temp1);
+						if(response[i].status != "External" ){
+							var temp1 = [ response[i].latitude , response[i].longitude , response[i].caseId];
+							locations.push(temp1);
+						}
 					}
 					
 					console.log(locations);
-					if(locations.length != 0){
+					if(locations.length != 0 && $scope.dashboadStatus != "External"){
+						var bounds = new google.maps.LatLngBounds();
+					    var mapOptions = {
+				            zoom: 15,
+				            center: new google.maps.LatLng(19.040208, 72.850850),
+					        mapTypeId: 'roadmap'
+					    };
+					    
 						var circle ={
 							    path: google.maps.SymbolPath.CIRCLE,
 							    fillColor: 'red',
@@ -9924,51 +9983,66 @@ App.controller('MainController', function ($scope, $routeParams,$http){
 							    scale: 4.5,
 							    strokeWeight: 1
 							};
-			               map = new google.maps.Map(document.getElementById('googleMap'), {
-			                 zoom: 14,
-			                 center: new google.maps.LatLng(locations[0][0], locations[0][1]),
-			                 mapTypeId: google.maps.MapTypeId.ROADMAP
-			               });
+					                    
+					    // Display a map on the page
+					    map = new google.maps.Map(document.getElementById("googleMap"), mapOptions);
+					    map.setTilt(45);
+					        
+					    // Display multiple markers on a map
+					    var infoWindow = new google.maps.InfoWindow(), marker, i;
+					    
+					    // Loop through our array of markers & place each one on the map  
+					    for( i = 0; i < locations.length; i++ ) {
+					        var position = new google.maps.LatLng(locations[i][0], locations[i][1]);
+					        bounds.extend(position);
+					        marker = new google.maps.Marker({
+					        	icon:circle,
+					            position: position,
+					            map: map,
+					            title: locations[i][2]
+					        });
+					        
+					        // Allow each marker to have an info window    
+					        google.maps.event.addListener(marker, 'click', (function(marker, i) {
+					            return function() {
+					                infoWindow.setContent(locations[i][2]);
+					                infoWindow.open(map, marker);
+					            }
+					        })(marker, i));
 
-			               var infowindow = new google.maps.InfoWindow();
+					        // Automatically center the map fitting all markers on the screen
+					        map.fitBounds(bounds);
+					    }
 
-			               var marker, i;
-
-			               for (i = 0; i < locations.length; i++) {  
-			                 marker = new google.maps.Marker({
-				               icon:circle,
-			                   position: new google.maps.LatLng(locations[i][0], locations[i][1]),
-			                   map: map
-			                 });
-			               }
+					    // Override our map zoom level once our fitBounds function runs (Make sure it only runs once)
+					    var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function(event) {
+					        this.setZoom(15);
+					        google.maps.event.removeListener(boundsListener);
+					    });
 					}else{
 						$('#googleMap').empty();
 					}
 	}
 	
-	$scope.myfunc = function(lat,longg){
-		console.log("layytty");
-		console.log(lat);
-		console.log(longg);
-		//$('#mylat').val();
+	$scope.myfunc = function(lat,longg,caseId){
 		var myCenter=new google.maps.LatLng(lat,longg);
-
-		
 		var mapProp = {
 		  center:myCenter,
-		  zoom:15,
+		  zoom:14,
 		  mapTypeId:google.maps.MapTypeId.ROADMAP
 		  };
-
-		//map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
-
 		var marker=new google.maps.Marker({
-		  position:myCenter,
+			position:myCenter,
 		  });
-
 		marker.setMap(map);
-		
-
+		var infoWindow = new google.maps.InfoWindow();
+        google.maps.event.addListener(marker, 'click', (function(marker) {
+            return function() {
+                infoWindow.setContent(caseId);
+                infoWindow.open(map, marker);
+            }
+        })(marker));
+        
 		google.maps.event.addDomListener(window, "load");
 	}	
 

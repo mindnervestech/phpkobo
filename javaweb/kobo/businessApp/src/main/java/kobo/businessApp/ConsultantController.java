@@ -1,21 +1,12 @@
 package kobo.businessApp;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-import org.hibernate.*;
-import org.hibernate.cfg.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import kobo.entities.AuthGroup;
 import kobo.entities.AuthUser;
@@ -33,10 +24,12 @@ import kobo.vms.loggerCaseVM;
 import kobo.vms.sanghniVM;
 import kobo.vms.sectorVM;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
-import org.postgresql.util.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -49,13 +42,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 
 @Controller
 public class ConsultantController {
@@ -385,6 +372,18 @@ public class ConsultantController {
 		return secVM;
 		
 	}	
+	
+	@RequestMapping(value="getAllCluster",method=RequestMethod.GET)
+	@ResponseBody
+	@Transactional(readOnly=true)
+	public List<Cluster> getAllCluster(HttpServletRequest httpRequest) {
+		
+		List<Cluster> sec = sessionFactory.getCurrentSession().createCriteria(Cluster.class).list();
+		System.out.println("getCluster Size --==="+sec.size());
+		return sec;
+		
+	}	
+	
 	
 	@RequestMapping(value="getClusterOfSectors/{SID}",method=RequestMethod.POST)
 	@ResponseBody
