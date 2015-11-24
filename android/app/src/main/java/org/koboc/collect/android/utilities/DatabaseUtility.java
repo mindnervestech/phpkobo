@@ -100,9 +100,20 @@ public class DatabaseUtility {
     public static Cursor getPost_Instances(String id){
         database = databaseHelperInstance.getWritableDatabase();
 
+        //instanceCursor = database.rawQuery("SELECT * FROM instances where displayName like ('%Post_%') and caseId = "+ id +" and status in (\"complete\",\"submissionFailed\") ", null);
+
         instanceCursor = database.rawQuery("SELECT * FROM instances where displayName like ('%Post_%') and caseId = "+ id, null);
 
         return instanceCursor;
     }
 
+    public static Cursor getPost_InstancesForUpload(String id){
+        database = databaseHelperInstance.getWritableDatabase();
+
+        instanceCursor = database.rawQuery("SELECT * FROM instances where displayName like ('%Post_%') and caseId = "+ id +" and status in (\"complete\",\"submissionFailed\") ", null);
+
+        //instanceCursor = database.rawQuery("SELECT * FROM instances where displayName like ('%Post_%') and caseId = "+ id, null);
+
+        return instanceCursor;
+    }
 }

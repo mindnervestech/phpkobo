@@ -15,8 +15,8 @@
     <string name="password">पासवर्ड</string>
     <string name="alert">अलर्ट</string>
     <string name="map">मैप</string>
-    <string name="open_cases">ओपन केसेस</string>
-    <string name="complete_cases">कम्पलीट केसेस</string>
+    <string name="open_cases">ओपन</string>
+    <string name="complete_cases">कम्पलीट</string>
     <string name="choose_location">अपनी लोकेशन चुनिए</string>
     <string name="my_forms">माय फॉर्म्स</string>
     <string name="logout">लॉगआउट</string>
@@ -26,6 +26,19 @@
     <string name="submit">सबमिट</string>
     <string name="upload">अपलोड</string>
     <string name="emergencynumber">इमरजेंसी कॉन्टेक्ट्स</string>
+    <string name="exitappmsg">क्या आप ऍप बंद करना चाहते हैं ?</string>
+    <string name="yes">हां</string>
+    <string name="no">नहीं</string>
+    <string name="preforms">प्रि-फॉर्म्स</string>
+    <string name="create">क्रिएट</string>
+    <string name="failuremsg">सर्वर से जोड़ा नहीं जा सकता</string>
+    <string name="wrongname">यूजरनाम या पासवर्ड गलत हैं</string>
+    <string name="failurecase">केस रजिस्टर नहीं हुआ</string>
+    <string name="successcase">केस रजिस्टर हो गया</string>
+    <string name="register">रजिस्टर </string>
+    <string name="registering">रेजिस्टरिंग</string>
+
+
 
 
 
@@ -43,7 +56,7 @@
     <string name="add_repeat_no">जोड़ें नहीं</string>
     <string name="advance">forward to\nnext\nprompt</string>
     <string name="altitude">ऊंचाई</string>
-    <string name="app_name">Little Sister\'s</string>
+    <string name="app_name">Little Sister</string>
     <string name="base_url">192.168.1.4:8080</string>
     <string name="audio_file_error">No audio file was specified.</string>
     <string name="audio_file_invalid">File: %s is not a valid audio file.</string>

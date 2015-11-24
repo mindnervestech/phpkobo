@@ -69,7 +69,7 @@ public class CaseListAdapter extends BaseAdapter {
         if (inflater == null)
             inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        if (convertView == null)
+      if (convertView == null)
             convertView = inflater.inflate(R.layout.case_list_item, null);
         TextView textView= (TextView) convertView.findViewById(R.id.caseIdText);
         relativeLayout= (RelativeLayout) convertView.findViewById(R.id.mainlayout1);
@@ -78,6 +78,8 @@ public class CaseListAdapter extends BaseAdapter {
         final CaseRecord item=mItems.get(position);
 
         System.out.println("adapter::::::::::"+mItems.size());
+        System.out.println("display id::::::::::"+item.displayId);
+
 
         textView.setText(item.displayId);
 
@@ -105,7 +107,7 @@ public class CaseListAdapter extends BaseAdapter {
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_green);
         }
 
-        if(item.status.equals("new")){
+        if(item.status.equalsIgnoreCase("new")){
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_blue);
         }
         Date date1 = new Date();
@@ -120,7 +122,7 @@ public class CaseListAdapter extends BaseAdapter {
         Date date2 = new Date();
         long diff = date2.getTime() - date1.getTime();
         System.out.println("day difference::::::::::"+TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
-        if(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) == 1) {
+        if(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) > 5) {
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_red);
         }
         return convertView;

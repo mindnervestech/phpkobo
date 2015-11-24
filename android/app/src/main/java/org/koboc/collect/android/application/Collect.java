@@ -22,6 +22,9 @@ import android.preference.PreferenceManager;
 
 import com.orm.SugarApp;
 
+import org.acra.ReportField;
+import org.acra.ReportingInteractionMode;
+import org.acra.annotation.ReportsCrashes;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.database.ActivityLogger;
 import org.koboc.collect.android.logic.FormController;
@@ -42,6 +45,24 @@ import java.io.File;
  * 
  * @author carlhartung
  */
+
+@ReportsCrashes(
+        mailTo = "mindnervestech@gmail.com",
+        mode = ReportingInteractionMode.DIALOG,
+        customReportContent = {
+                ReportField.BUILD, ReportField.USER_APP_START_DATE, ReportField.USER_CRASH_DATE,
+                ReportField.USER_EMAIL, ReportField.APP_VERSION_NAME, ReportField.ANDROID_VERSION,
+                ReportField.PHONE_MODEL, ReportField.CUSTOM_DATA, ReportField.STACK_TRACE,
+                ReportField.LOGCAT,
+        },
+        resToastText = R.string.crash_toast_text,
+        resDialogText = R.string.crash_dialog_text,
+        resDialogIcon = android.R.drawable.ic_dialog_info,
+        resDialogTitle = R.string.crash_dialog_title,
+        resDialogCommentPrompt = R.string.crash_dialog_comment_prompt,
+        resDialogOkToast = R.string.crash_dialog_ok_toast,
+        logcatFilterByPid = true)
+
 public class Collect extends SugarApp {
 
     // Storage paths
@@ -58,7 +79,13 @@ public class Collect extends SugarApp {
 
     public long index;
 
+
+
     public static final String DEFAULT_FONTSIZE = "21";
+
+    public String currentId;
+
+    public String formType;
 
     public String getCaseId() {
         return caseId;
@@ -194,6 +221,7 @@ public class Collect extends SugarApp {
     @Override
     public void onCreate() {
         singleton = this;
+       // ACRA.init(getInstance());
 
         // // set up logging defaults for apache http component stack
         // Log log;

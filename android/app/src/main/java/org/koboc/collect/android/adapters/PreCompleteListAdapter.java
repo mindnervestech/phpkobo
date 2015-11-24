@@ -34,6 +34,7 @@ import android.widget.TextView;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.activities.FormEntryActivity;
 import org.koboc.collect.android.activities.InstanceUploaderActivity;
+import org.koboc.collect.android.application.Collect;
 import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.provider.InstanceProvider;
 
@@ -149,11 +150,12 @@ public class PreCompleteListAdapter extends BaseAdapter {
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " +item.caseId, null);
+                Collect.getInstance().formType = "precomplete";
+                Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " +item.caseId+ " and status in (\"complete\",\"submissionFailed\")", null);
 
                 while(cursor.moveToNext()){
                     System.out.println("instance id::::::::"+Long.parseLong(cursor.getString(0)));
-                    if(cursor.getString(7).equals("complete") && cursor.getString(1).contains("Pre_"))
+                    if(cursor.getString(1).contains("Pre_"))
                          upload(Long.parseLong(cursor.getString(0)));
                 }
 

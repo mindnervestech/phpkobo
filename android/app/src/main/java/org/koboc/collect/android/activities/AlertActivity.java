@@ -2,6 +2,8 @@ package org.koboc.collect.android.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +14,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Base64;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -64,6 +68,7 @@ public class AlertActivity extends Activity {
     private List<EmergencyContactVM> contactVMs;
     private String defaultSting;
     private double lon,lat;
+    private ProgressDialog mProgressDialog;
     private  TableLayout tl;
 
     @Override
@@ -97,16 +102,27 @@ public class AlertActivity extends Activity {
 
         successText = (TextView) findViewById(R.id.successText);
 
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setIcon(android.R.drawable.ic_dialog_info);
+        mProgressDialog.setTitle(getApplicationContext().getString(R.string.register));
+
         btnShowLocation.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
                 gps = new GPSTracker(AlertActivity.this);
-               if(defaultSting.equals(getApplicationContext().getString(R.string.choose_location))){
-                   getLocationByGPS();
-               }else{
-                   registerCase();
-               }
+
+                if(defaultSting != null) {
+                    mProgressDialog.setMessage(getApplicationContext().getString(R.string.registering));
+                    mProgressDialog.show();
+                    if (defaultSting.equals(getApplicationContext().getString(R.string.choose_location))) {
+                        getLocationByGPS();
+                    } else {
+                        registerCase();
+                    }
+                }else{
+                    Toast.makeText(getApplicationContext(),"No network Available ",Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -174,6 +190,7 @@ public class AlertActivity extends Activity {
 
             @Override
             public void failure(RetrofitError error) {
+                    Toast.makeText(getApplicationContext(),"No Network Available ",Toast.LENGTH_LONG).show();
                     error.printStackTrace();
             }
         });
@@ -299,8 +316,6 @@ public class AlertActivity extends Activity {
     }
 
     private void registerCase(){
-
-
         Geocoder geocoder = new Geocoder(AlertActivity.this, Locale.getDefault());
 
         List<Address> addresses = null;
@@ -319,7 +334,6 @@ public class AlertActivity extends Activity {
             e.printStackTrace();
         }
 
-
         AuthUser authUser = AuthUser.findLoggedInUser();
         String token = authUser.getApi_token();
         String username = authUser.getUsername();
@@ -327,17 +341,20 @@ public class AlertActivity extends Activity {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         final String createdDate = sdf.format(new Date());
-        CaseVM caseVM = new CaseVM(id,caseId, createdDate, createdDate, addressText, longitude, latitude);
+        CaseVM caseVM = new CaseVM(id,caseId, createdDate, createdDate, addressText,"New", longitude, latitude);
 
         System.out.println("sent data ::: "+createdDate);
 
         myApi.postCase(basicAuth, caseVM, new Callback<CaseResponseVM>() {
             @Override
             public void success(CaseResponseVM caseVM1, Response response) {
+                mProgressDialog.dismiss();
+
                 successText.setVisibility(View.VISIBLE);
                 relativeLayout.setVisibility(View.VISIBLE);
                 message.setText(addressText); //"Your Location "+address+", "+city+", "+zip+ " has been captured");
                 successText.setText("Your Case is successfully posted for  ");
+
                 successText.postDelayed(new Runnable() {
                     public void run() {
                 successText.setVisibility(View.INVISIBLE);
@@ -348,17 +365,19 @@ public class AlertActivity extends Activity {
 
                 if (caseVM1 == null) {
 
-                    Toast.makeText(getApplicationContext(), "Not able to log case", Toast.LENGTH_SHORT);
+                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.failurecase), Toast.LENGTH_SHORT);
                 } else {
-                    CaseRecord caseRecord = new CaseRecord(caseId,longitude, latitude, addressText, caseVM1.id, "new", createdDate, createdDate,false);
+                    CaseRecord caseRecord = new CaseRecord(caseId,longitude, latitude, addressText, caseVM1.id, "", createdDate, createdDate,false);
                     caseRecord.save();
+                    showCustomToast(getApplicationContext().getString(R.string.successcase), Toast.LENGTH_LONG);
                 }
             }
 
             @Override
             public void failure(RetrofitError error) {
-                Toast.makeText(getApplicationContext(), "Not able to log case", Toast.LENGTH_SHORT);
-                error.printStackTrace();
+                mProgressDialog.dismiss();
+                showCustomToast(getApplicationContext().getString(R.string.failurecase), Toast.LENGTH_LONG);
+                //error.printStackTrace();
             }
         });
 
@@ -367,7 +386,6 @@ public class AlertActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        System.out.println("onback clicked alert ::");
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(getApplicationContext().getString(R.string.exitappmsg))
                     .setCancelable(false)
@@ -384,6 +402,22 @@ public class AlertActivity extends Activity {
             AlertDialog alert = builder.create();
             alert.show();
 
+    }
+
+    private void showCustomToast(String message, int duration) {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        View view = inflater.inflate(R.layout.toast_view, null);
+
+        // set the text in the view
+        TextView tv = (TextView) view.findViewById(R.id.message);
+        tv.setText(message);
+
+        Toast t = new Toast(this);
+        t.setView(view);
+        t.setDuration(duration);
+        t.setGravity(Gravity.BOTTOM, 0, 0);
+        t.show();
     }
 
 }

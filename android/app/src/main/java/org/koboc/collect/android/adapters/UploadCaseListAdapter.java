@@ -36,6 +36,7 @@ import android.widget.Toast;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.activities.FormEntryActivity;
 import org.koboc.collect.android.activities.InstanceUploaderActivity;
+import org.koboc.collect.android.application.Collect;
 import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.provider.InstanceProvider;
@@ -55,6 +56,8 @@ public class UploadCaseListAdapter extends BaseAdapter {
     private List<CaseRecord> mItems = new ArrayList<CaseRecord>();
     private RelativeLayout relativeLayout;
     private SQLiteDatabase db;
+    private TextView textView,textView1,textView2;
+    private Button uploadButton;
 
     public UploadCaseListAdapter(Activity context, List<CaseRecord> items) {
         mContext = context;
@@ -85,13 +88,13 @@ public class UploadCaseListAdapter extends BaseAdapter {
         if (inflater == null)
             inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        if (convertView == null)
-            convertView = inflater.inflate(R.layout.upload_case_list_item, null);
-        TextView textView= (TextView) convertView.findViewById(R.id.caseIdText);
+      if (convertView == null)
+        convertView = inflater.inflate(R.layout.upload_case_list_item, null);
+        textView= (TextView) convertView.findViewById(R.id.caseIdText);
         relativeLayout= (RelativeLayout) convertView.findViewById(R.id.mainlayout1);
-        TextView textView1= (TextView) convertView.findViewById(R.id.dateText);
-        TextView textView2= (TextView) convertView.findViewById(R.id.addressText);
-        Button uploadButton = (Button) convertView.findViewById(R.id.upload_button);
+        textView1= (TextView) convertView.findViewById(R.id.dateText);
+        textView2= (TextView) convertView.findViewById(R.id.addressText);
+        uploadButton = (Button) convertView.findViewById(R.id.upload_button);
         final CaseRecord item=mItems.get(position);
 
         System.out.println("adapter::::::::::"+mItems.size());
@@ -111,6 +114,7 @@ public class UploadCaseListAdapter extends BaseAdapter {
         textView1.setText(formattedTime);
 
         textView2.setText(item.address);
+
 
         System.out.println("status::::::::::"+item.status);
 
@@ -142,10 +146,12 @@ public class UploadCaseListAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 System.out.println("item.status::" + item.status);
+
                 if (AuthUser.findLoggedInUser().getRole().equals("consultant")) {
                     //if(DatabaseUtility.getPost_InstanceCount(item.caseId+"") == DatabaseUtility.getPost_formCount()){
-                    Cursor cursor  = DatabaseUtility.getPost_Instances(item.caseId+"");
-
+                    Cursor cursor  = DatabaseUtility.getPost_InstancesForUpload(item.caseId+"");
+                    System.out.println("upload instance::::"+cursor.getCount());
+                    Collect.getInstance().formType = "presubmit";
                     if(cursor.getCount() == 0){
                         Toast.makeText(mContext,"Please fill all the Forms",Toast.LENGTH_LONG).show();
                     }
@@ -181,6 +187,8 @@ public class UploadCaseListAdapter extends BaseAdapter {
             }
         });
 
+        convertView.setTag(mItems);
+        uploadButton.setTag(item);
         return convertView;
     }
 
@@ -203,11 +211,12 @@ public class UploadCaseListAdapter extends BaseAdapter {
 
     private boolean isPostUploaded(String id){
         Cursor cursor = DatabaseUtility.getPost_Instances(id);
-        System.out.println("isUploaded call...");
+        System.out.println("isUploaded call..."+cursor.getCount());
         if(cursor.getCount() == 0){
             return false;
         }else if(DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(id)){
             while(cursor.moveToNext()) {
+                System.out.println("isUploaded status..."+cursor.getString(7));
                 if (!cursor.getString(7).equals("submitted")) {
                     return false;
                 }
@@ -217,7 +226,6 @@ public class UploadCaseListAdapter extends BaseAdapter {
         }
         return true;
     }
-
     private void upload(Long id){
         boolean mobileDataEnabled = false; // Assume disabled
         ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);

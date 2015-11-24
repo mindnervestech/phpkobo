@@ -29,5 +29,16 @@ the License.
     <color name="solid_blue">#0000ff</color>
     <color name="solid_green">#f0f0</color>
     <color name="solid_yellow">#ffffff00</color>
+    <color name="white">#FFFFFF</color>
+    <color name="transparent_white">#88FFFFFF</color>
+    <color name="flamingo">#E85F51</color>
+    <color name="cararra">#EEECE9</color>
+    <color name="bleu_de_france">#4493E8</color>
+    <color name="tea">#C4BAB2</color>
+    <color name="black">#000000</color>
+    <color name="darker_gray">#AAAAAA</color>
+    <color name="keppel">#37B29A</color>
+    <color name="gallery">#F0F0F0</color>
+    <color name="form_answer">#8c9399</color>
 
 </resources>

@@ -10,15 +10,17 @@ public class CaseVM {
     public String dateCreated;
     public String dateModified;
     public String note;
+    public String status;
     public double longitude;
     public double latitude;
 
-    public CaseVM(long id,String caseId, String dateCreated, String dateModified, String note, double longitude, double latitude) {
+    public CaseVM(long id,String caseId, String dateCreated, String dateModified, String note,String status, double longitude, double latitude) {
         this.id = id;
         this.caseId = caseId;
         this.dateCreated = dateCreated;
         this.dateModified = dateModified;
         this.note = note;
+        this.status = status;
         this.longitude = longitude;
         this.latitude = latitude;
     }

@@ -60,23 +60,28 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
         userName.setText(checkUser.getFirst_name());
         userRole.setText(checkUser.getRole());
 
-        if(getUserRole.contains("consultant")) {
+        if (getUserRole.contains("consultant")) {
             contactText.setVisibility(View.GONE);
         }
 
         mDrawerView = findViewById(R.id.nav_drawer);
 
-        if(!getUserRole.contains("consultant")){
+        if (!getUserRole.contains("consultant")) {
             TabHost.TabSpec tab1 = tabHost.newTabSpec("First Tab");
             tab1.setIndicator(getIndicator(getApplicationContext().getString(R.string.alert)));
             tab1.setContent(new Intent(this, AlertActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             tabHost.addTab(tab1);
-        }else{
+        } else {
 
             TabHost.TabSpec tab6 = tabHost.newTabSpec("Five Tab");
-            tab6.setIndicator(getIndicator("Pre"));
+            tab6.setIndicator(getIndicator(getApplicationContext().getString(R.string.preforms)));
             tab6.setContent(new Intent(this, PreCompleteActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             tabHost.addTab(tab6);
+
+            TabHost.TabSpec tab7 = tabHost.newTabSpec("Six Tab");
+            tab7.setIndicator(getIndicator(getApplicationContext().getString(R.string.create)));
+            tab7.setContent(new Intent(this, CreateCaseActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            tabHost.addTab(tab7);
         }
 
 
@@ -116,9 +121,15 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
 
         tabHost.setOnTabChangedListener(this);
 
-        if(getUserRole.contains("consultant")){
+        if (getUserRole.contains("consultant")) {
             tabHost.setCurrentTab(1);
         }
+
+        // tabHost.getTabWidget().getChildAt(0).getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+        for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++)
+            tabHost.getTabWidget().getChildAt(i).setMinimumWidth(100);
+
+
     }
 
     private TextView getIndicator(String tabName){

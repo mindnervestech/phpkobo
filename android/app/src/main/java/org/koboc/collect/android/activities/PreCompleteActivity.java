@@ -173,7 +173,7 @@ public class PreCompleteActivity extends Activity{
             return false;
         }else if(DatabaseUtility.getPre_formCount() == DatabaseUtility.getPre_InstanceCount(id)) {
             while (cursor.moveToNext()) {
-                if (cursor.getString(7).equals("incomplete")) {
+                if (!cursor.getString(7).equals("complete")) {
                     return false;
                 }
             }

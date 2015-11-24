@@ -128,61 +128,66 @@ public class LoginActivity extends Activity {
             public void onClick(View view) {
                 final String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", userEditText.getText().toString(), passwordEditText.getText().toString()).getBytes(), Base64.NO_WRAP);
                 System.out.println("auth:::"+basicAuth);
-                myApi.Login(basicAuth,new Callback<UserVM>() {
-                    @Override
-                    public void success(UserVM userVM, Response response) {
-                        AuthUser user = new AuthUser();
-                        user.setApi_token(userVM.getApi_token());
-                        user.setRole(userVM.getGroups().get(0));
-                        user.setUserId(userVM.getId());
-                        user.setFirst_name(userVM.getFirst_name());
-                       user.setLast_name(userVM.getLast_name());
-                        user.setLogged("true");
-                        user.setUsername(userEditText.getText().toString());
-                        user.setPassword(passwordEditText.getText().toString());
-                        //TODO: Password kobo , need to be from string.xml
-                        String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", user.getRole() + "_form", "kobo").getBytes(), Base64.NO_WRAP);
 
-                        user.setFormListUser(basicAuth);
-                        AuthUser authUser = AuthUser.findLoggedInUser();
-                        if(authUser != null){
-                            if(!authUser.getRole().equalsIgnoreCase(user.getRole()) ||
-                                    !authUser.getUsername().equalsIgnoreCase(user.getUsername())) {
-                                // if prev logged in users role or username has changed the delete all instance of
-                                // form and case from DB on current device.
-                                //TODO : implement above , refer to delete form section in OOB
+                if(userEditText.getText().toString() != null && !userEditText.getText().toString().isEmpty() && passwordEditText.getText().toString() != null && !passwordEditText.getText().toString().isEmpty()) {
+                    myApi.Login(basicAuth, new Callback<UserVM>() {
+                        @Override
+                        public void success(UserVM userVM, Response response) {
+                            System.out.println("url::::"+response.getUrl());
+                            System.out.println("role::::"+ userVM.getGroups().get(0));
 
-                               // Toast.makeText(LoginActivity.this, " in CaseRecord.deleteAll ", Toast.LENGTH_SHORT).show();
-                                CaseRecord.deleteAll(CaseRecord.class);
+                            AuthUser user = new AuthUser();
+                            user.setApi_token(userVM.getApi_token());
+                            user.setRole(userVM.getGroups().get(0));
+                            user.setUserId(userVM.getId());
+                            user.setFirst_name(userVM.getFirst_name());
+                            user.setLast_name(userVM.getLast_name());
+                            user.setLogged("true");
+                            user.setUsername(userEditText.getText().toString());
+                            user.setPassword(passwordEditText.getText().toString());
+                            //TODO: Password kobo , need to be from string.xml
+                            String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", user.getRole() + "_form", "kobo").getBytes(), Base64.NO_WRAP);
 
-                                //delete ODK folder from SDcards
-                                File folder = Environment.getExternalStorageDirectory();
-                                String fileName = folder.getPath() + "/odk/forms/";
-                                System.out.println("folder path::::"+fileName);
-                                File myFile = new File(fileName);
-                                deleteDirectory(myFile);
+                            user.setFormListUser(basicAuth);
+                            AuthUser authUser = AuthUser.findLoggedInUser();
+                            if (authUser != null) {
+                                if (!authUser.getRole().equalsIgnoreCase(user.getRole()) ||
+                                        !authUser.getUsername().equalsIgnoreCase(user.getUsername())) {
+                                    // if prev logged in users role or username has changed the delete all instance of
+                                    // form and case from DB on current device.
+                                    //TODO : implement above , refer to delete form section in OOB
 
-                                String fileName1 = folder.getPath() + "/odk/instances/";
-                                System.out.println("folder path::::"+fileName);
-                                File myFile1 = new File(fileName1);
-                                deleteDirectory(myFile1);
+                                    // Toast.makeText(LoginActivity.this, " in CaseRecord.deleteAll ", Toast.LENGTH_SHORT).show();
+                                    CaseRecord.deleteAll(CaseRecord.class);
 
-                                //Database helper instance
-                                InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
-                                FormsProvider.DatabaseHelper databaseHelper1 = new FormsProvider.DatabaseHelper("forms.db");
-                                db = databaseHelper.getWritableDatabase();
+                                    //delete ODK folder from SDcards
+                                    File folder = Environment.getExternalStorageDirectory();
+                                    String fileName = folder.getPath() + "/odk/forms/";
+                                    System.out.println("folder path::::" + fileName);
+                                    File myFile = new File(fileName);
+                                    deleteDirectory(myFile);
 
-                                //Form Table Query
-                                SQLiteDatabase database = databaseHelper1.getWritableDatabase();
+                                    String fileName1 = folder.getPath() + "/odk/instances/";
+                                    System.out.println("folder path::::" + fileName);
+                                    File myFile1 = new File(fileName1);
+                                    deleteDirectory(myFile1);
 
-                                db.execSQL("delete from instances");
-                                database.execSQL("delete from forms");
+                                    //Database helper instance
+                                    InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
+                                    FormsProvider.DatabaseHelper databaseHelper1 = new FormsProvider.DatabaseHelper("forms.db");
+                                    db = databaseHelper.getWritableDatabase();
 
-                                //delete all Form from db and sdcard
-                                DeleteFormsTask mDeleteFormsTask = new DeleteFormsTask();
-                                String[] data = new String[] { FormsProviderAPI.FormsColumns.DISPLAY_NAME,
-                                        FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT, FormsProviderAPI.FormsColumns.JR_VERSION };
-                                mDeleteFormsTask.execute(new Long[data.length]);
+                                    //Form Table Query
+                                    SQLiteDatabase database = databaseHelper1.getWritableDatabase();
+
+                                    db.execSQL("delete from instances");
+                                    database.execSQL("delete from forms");
+
+                                    //delete all Form from db and sdcard
+                                    DeleteFormsTask mDeleteFormsTask = new DeleteFormsTask();
+                                    String[] data = new String[]{FormsProviderAPI.FormsColumns.DISPLAY_NAME,
+                                            FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT, FormsProviderAPI.FormsColumns.JR_VERSION};
+                                    mDeleteFormsTask.execute(new Long[data.length]);
 
                                 /* Dont delete this , it may be used in future
                                 String basicAuthWithToken = "Basic " + Base64.encodeToString(String.format("%s:%s", user.getUsername(), user.getApi_token()).getBytes(), Base64.NO_WRAP);
@@ -194,46 +199,52 @@ public class LoginActivity extends Activity {
                                     public void failure(RetrofitError error) {
                                     }
                                 });*/
+                                }
                             }
-                        }
                        /* else {
                             if(user.getRole().contains("consultant")){
                                 System.out.println("consultant called::::"+user.getRole());
                                 getConsultantCase();
                             }
                         }*/
-                        AuthUser.deleteAll(AuthUser.class);
+                            AuthUser.deleteAll(AuthUser.class);
 
-                        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                        SharedPreferences.Editor editor = preferences.edit();
-                        editor.putString(PreferencesActivity.KEY_FORMLIST_URL, "/" + user.getRole() + "_form/formList");
-                        editor.commit();
+                            preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                            SharedPreferences.Editor editor = preferences.edit();
+                            editor.putString(PreferencesActivity.KEY_FORMLIST_URL, "/" + user.getRole() + "_form/formList");
+                            editor.commit();
 
-                        user.save();
+                            user.save();
 
-                        if(user.getRole().contains("consultant")){
-                            getConsultantCase();
+                            if (user.getRole().contains("consultant")) {
+                                getConsultantCase();
+                            }
+
+                            Intent intent = new Intent(getApplicationContext(), SplashScreenActivity.class);
+                            startActivity(intent);
+
+                            finish();
                         }
 
-                        Intent intent=new Intent(getApplicationContext(),SplashScreenActivity.class);
-                        startActivity(intent);
+                        @Override
+                        public void failure(RetrofitError error) {
+                            //TODO : Handle null pointer here
 
-                        finish();
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        //TODO : Handle null pointer here
-
-                        if(error.getResponse().getStatus() == 401){
-                            Toast.makeText(getApplicationContext(),"Incorrect User Or Password ... ",Toast.LENGTH_LONG).show();
-                        }else{
-                            Toast.makeText(getApplicationContext(),"Unable to connect server ... ",Toast.LENGTH_LONG).show();
+                            if(error.getResponse() != null) {
+                                if (error.getResponse().getStatus() == 401) {
+                                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.wrongname), Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.failuremsg), Toast.LENGTH_LONG).show();
+                                }
+                            }else{
+                                Toast.makeText(getApplicationContext(), "No network available ", Toast.LENGTH_LONG).show();
+                            }
                         }
-                        error.printStackTrace();
-                    }
 
-                });
+                    });
+                }else{
+                    Toast.makeText(getApplicationContext(),"Enter UserName And Password !",Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -265,11 +276,12 @@ public class LoginActivity extends Activity {
                 for(CaseResponseVM crVm : caseVMList){
                     CaseRecord cr = new CaseRecord();
                     cr.caseId = crVm.id;
-                    System.out.println("Case record of phne:::"+cr.status);
-                    System.out.println("Case record of json:::"+crVm.status);
+                    System.out.println("Case record of phne:::"+cr.displayId);
+                    System.out.println("Case record of json:::"+crVm.caseId);
                     cr.status = crVm.status;
                     cr.latitude = crVm.latitude;
                     cr.longitude = crVm.longitude;
+                    cr.displayId = crVm.caseId;
 
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                     Date d1= new Date(crVm.dateCreated);

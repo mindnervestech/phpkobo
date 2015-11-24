@@ -188,36 +188,36 @@ public class InstanceChooserList extends ListActivity implements LocationListene
          myFragmentManager = getFragmentManager();
          myMapFragment
                 = (MapFragment)myFragmentManager.findFragmentById(R.id.map);
-         myMap = myMapFragment.getMap();
+        // myMap = myMapFragment.getMap();
 
-        myMap.setMyLocationEnabled(true);
+        //myMap.setMyLocationEnabled(true);
 
-        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        //myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
        // mLatitude = 19.040208; // gps.getLatitude(); //29.9272;//gps.getLatitude();
        // mLongitude = 72.85085; //gps.getLongitude(); //31.2153;//gps.getLongitude();
-        LatLng latLng = new LatLng(mLatitude, mLongitude);
+        //LatLng latLng = new LatLng(mLatitude, mLongitude);
 
-        System.out.println("long:::"+mLongitude+" latt:::"+mLatitude);
-        drawMarker(latLng);
-
-
-        myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        myMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+        //System.out.println("long:::"+mLongitude+" latt:::"+mLatitude);
+        //drawMarker(latLng);
 
 
-        StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        //myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        //myMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+
+
+        /*StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         sb.append("location=" + mLatitude + "," + mLongitude);
         sb.append("&radius=5000");
         sb.append("&types=" + "police");
         sb.append("&sensor=true");
         sb.append("&key=AIzaSyCRLa4LQZWNQBcjCYcIVYA45i9i8zfClqc");
-
+*/
         // Creating a new non-ui thread task to download Google place json data
-        PlacesTask placesTask = new PlacesTask();
+        //PlacesTask placesTask = new PlacesTask();
 
         // Invokes the "doInBackground()" method of the class PlaceTask
-        placesTask.execute(sb.toString());
+        //placesTask.execute(sb.toString());
 
 }
 
@@ -255,6 +255,8 @@ public class InstanceChooserList extends ListActivity implements LocationListene
         InstanceVM instanceVM = (InstanceVM) getListAdapter().getItem(position);
         Uri instanceUri;
 
+        Collect.getInstance().currentId = instanceVM.getInstance_id();
+        System.out.println("current id:::::::::"+instanceVM.getInstance_id());
         if(!instanceVM.getIsTemplate()) {
              instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI,
                     Long.parseLong(instanceVM.getInstance_id()));
@@ -262,6 +264,8 @@ public class InstanceChooserList extends ListActivity implements LocationListene
              instanceUri =ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, Long.parseLong(instanceVM.getInstance_id()));
         }
 
+
+        System.out.println("instanceUri::::"+instanceUri);
 
         Collect.getInstance().getActivityLogger().logAction(this, "onListItemClick", instanceUri.toString());
 

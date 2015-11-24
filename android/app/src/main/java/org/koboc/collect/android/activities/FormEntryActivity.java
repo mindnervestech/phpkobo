@@ -24,7 +24,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -73,7 +72,6 @@ import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.application.Collect;
-import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.listeners.AdvanceToNextListener;
 import org.koboc.collect.android.listeners.FormLoaderListener;
 import org.koboc.collect.android.listeners.FormSavedListener;
@@ -83,12 +81,10 @@ import org.koboc.collect.android.logic.PropertyManager;
 import org.koboc.collect.android.preferences.AdminPreferencesActivity;
 import org.koboc.collect.android.preferences.PreferencesActivity;
 import org.koboc.collect.android.provider.FormsProviderAPI.FormsColumns;
-import org.koboc.collect.android.provider.InstanceProvider;
 import org.koboc.collect.android.provider.InstanceProviderAPI;
 import org.koboc.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 import org.koboc.collect.android.tasks.FormLoaderTask;
 import org.koboc.collect.android.tasks.SaveToDiskTask;
-import org.koboc.collect.android.utilities.DatabaseUtility;
 import org.koboc.collect.android.utilities.FileUtils;
 import org.koboc.collect.android.utilities.MediaUtils;
 import org.koboc.collect.android.views.ODKView;
@@ -944,7 +940,7 @@ public class FormEntryActivity extends Activity implements AnimationListener,
 
                 // Create 'save' button
 
-                if(!checkCaseStatus()) {
+                if(checkCaseStatus()) {
                     ((Button) endView.findViewById(R.id.save_exit_button))
                             .setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -1491,7 +1487,7 @@ public class FormEntryActivity extends Activity implements AnimationListener,
         Collect.getInstance().getActivityLogger()
                 .logInstanceAction(this, "createQuitDialog", "show");
 
-        if(!flag){
+        if(flag){
         mAlertDialog = new AlertDialog.Builder(this)
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .setTitle(
@@ -1894,6 +1890,7 @@ public class FormEntryActivity extends Activity implements AnimationListener,
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
+                System.out.println("createQuitDialog:::::::::::::::::::::");
                 Collect.getInstance().getActivityLogger()
                         .logInstanceAction(this, "onKeyDown.KEYCODE_BACK", "quit");
                 createQuitDialog();
@@ -2394,31 +2391,35 @@ public class FormEntryActivity extends Activity implements AnimationListener,
 
     private boolean checkCaseStatus() {
 
-        if (AuthUser.findLoggedInUser().getRole().equals("sangini")) {
-            InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper("instances.db");
-            SQLiteDatabase database = databaseHelper.getWritableDatabase();
-            Cursor cursor1 = database.rawQuery("SELECT * FROM instances where caseId = " + Collect.getInstance().getCaseId(), null);
+        FormController formController = Collect.getInstance().getFormController();
 
-            if (DatabaseUtility.getTotalFormsCount() == DatabaseUtility.getTotalInstanceCount(Collect.getInstance().getCaseId())) {
-                while (cursor1.moveToNext()) {
-                    System.out.println("status check:::" + cursor1.getString(7));
-                    if (cursor1.getString(7).equals("submitted")) {
-                        System.out.println("status check:::");
-                        return true;
-                    }
+        String selection = InstanceColumns.INSTANCE_FILE_PATH + "=?";
+        String[] selectionArgs = {
+                formController.getInstancePath()
+                        .getAbsolutePath()
+        };
+        Cursor c = null;
+        try {
+            c = getContentResolver().query(InstanceColumns.CONTENT_URI, null,
+                    selection, selectionArgs, null);
+            System.out.println("cursor::::::::::::1:::"+c.getCount());
+            if (c != null && c.getCount() > 0) {
+                c.moveToFirst();
+                String status = c.getString(c
+                        .getColumnIndex(InstanceColumns.STATUS));
+                System.out.println("status:::"+status);
+                if (InstanceProviderAPI.STATUS_SUBMITTED.compareTo(status) == 0) {
+                    //complete = true;
+                    System.out.println("done:::");
+                    return false;
                 }
             }
-
-        }else {
-            Cursor cursor = DatabaseUtility.getPost_Instances(Collect.getInstance().getCaseId());
-            while (cursor.moveToNext()){
-                if(cursor.getString(7).equals("submitted")){
-                    System.out.println("status check:::");
-                    return true;
-                }
+        } finally {
+            if (c != null) {
+                c.close();
             }
         }
 
-        return false;
+        return true;
     }
 }

@@ -10,7 +10,6 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="100dp"
-        android:onClick="navLogin"
         android:background="@color/cararra"
         android:paddingLeft="20dp">
 

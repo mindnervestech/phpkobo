@@ -50,7 +50,7 @@ public class InstanceProvider extends ContentProvider {
     private static final String t = "InstancesProvider";
 
     private static final String DATABASE_NAME = "instances.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     private static final String INSTANCES_TABLE_NAME = "instances";
 
     private static HashMap<String, String> sInstancesProjectionMap;
@@ -414,7 +414,18 @@ public class InstanceProvider extends ContentProvider {
             System.out.println("status:::" + caseRecords.get(0).status);
         }else {
             System.out.println("update for consultant..");
-            if (status.equals("submitted") || caseRecord1.status.equals("presubmitted")) {
+            if(status.equals("submissionFailed")){
+                System.out.println("collect status:::" +Collect.getInstance().formType );
+                if(caseRecord1.status.equals("presubmitted") && Collect.getInstance().formType.equals("precomplete")) {
+                    System.out.println("update for consultant submissionFailed..precomplete");
+                    caseRecord1.status = "precomplete";
+                    caseRecord1.save();
+                }else if(caseRecord1.status.equals("presubmitted") && Collect.getInstance().formType.equals("presubmit")){
+                    System.out.println("update for consultant submissionFailed.. presubmit");
+                    caseRecord1.status = "presubmitted";
+                    caseRecord1.save();
+                }
+            }else if (status.equals("submitted") || caseRecord1.status.equals("presubmitted")) {
                 if (caseRecord1.status.equals("precomplete") || caseRecord1.status.equals("presubmitted")) {
                     System.out.println("update for consultant presubmitted..");
                     caseRecord1.status = "presubmitted";

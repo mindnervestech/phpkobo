@@ -82,6 +82,8 @@ public class InstanceListAdapter extends BaseAdapter {
             rootLayout.setBackgroundResource(R.drawable.rect_border_community_yellow);
         }else if(vm.getStatus().equals("complete") || vm.getStatus().equals("submitted")){
             rootLayout.setBackgroundResource(R.drawable.rect_border_community_green);
+        }else if(vm.getStatus().equals("submissionFailed")){
+            rootLayout.setBackgroundResource(R.drawable.rect_border_community_red);
         }
 
         System.out.println("adapter::::::::::"+mItems.size());

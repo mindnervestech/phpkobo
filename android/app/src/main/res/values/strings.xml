@@ -15,8 +15,8 @@
     <string name="password">Password</string>
     <string name="alert">Alert</string>
     <string name="map">Map</string>
-    <string name="open_cases">Open Cases</string>
-    <string name="complete_cases">Complete Cases</string>
+    <string name="open_cases">Open</string>
+    <string name="complete_cases">Complete</string>
     <string name="choose_location">Choose your location</string>
     <string name="my_forms">My Forms</string>
     <string name="logout">Logout</string>
@@ -26,6 +26,24 @@
     <string name="submit">Submit</string>
     <string name="upload">Upload</string>
     <string name="emergencynumber">Emergency Contacts</string>
+    <string name="exitappmsg">Do you want to exit app ?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="preforms">Pre-Forms</string>
+    <string name="create">Create</string>
+    <string name="failuremsg">Unable to connect server</string>
+    <string name="wrongname">UserName or Password is Incorrect</string>
+    <string name="failurecase">Unable to log case</string>
+    <string name="successcase">Case Successfully posted</string>
+    <string name="register">Register</string>
+    <string name="registering">Registering</string>
+
+    <string name="crash_toast_text">Little Sister Crashed</string>
+    <string name="crash_dialog_title">Little Sister Report</string>
+    <string name="crash_dialog_text">Little Sister error</string>
+    <string name="crash_dialog_comment_prompt">Comment here</string>
+    <string name="crash_dialog_ok_toast">Ok！</string>
+
 
 
 
@@ -41,7 +59,7 @@
 <string name="add_repeat_no">Do Not Add</string>
 <string name="advance">forward to\nnext\nprompt</string>
 <string name="altitude">Altitude</string>
-<string name="app_name">Little Sister\'s</string>
+<string name="app_name">Little Sister</string>
 <string name="base_url">http://192.168.1.9:8080</string>
 <string name="audio_file_error">No audio file was specified.</string>
 <string name="audio_file_invalid">File: %s is not a valid audio file.</string>
@@ -69,9 +87,9 @@
 <string name="data_saved_ok">Form successfully saved!</string>
 <string name="default_completed">Default to Finalized</string>
 <string name="default_completed_summary">Mark form as finalized by default</string>
-<string name="default_server_url">http://10.0.0.38:8001</string>
-<string name="default_java_server_url">http://10.0.0.51:8080</string>
-<string name="default_phython_server_url">http://10.0.0.38:8001</string>
+<string name="default_server_url">http://139.162.13.46:8001</string>
+<string name="default_java_server_url">http://139.162.13.46:8080</string>
+<string name="default_phython_server_url">http://139.162.13.46:8001</string>
 <string name="delete_confirm">Delete %s form(s)?</string>
 <string name="delete_file">Delete Selected</string>
 <string name="delete_no">Do Not Delete</string>
