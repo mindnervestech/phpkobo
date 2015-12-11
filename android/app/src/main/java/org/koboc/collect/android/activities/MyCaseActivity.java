@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -53,6 +54,7 @@ public class MyCaseActivity extends Activity {
     private CaseRecord caseRecord;
     private static final String DATABASE_NAME = "instances.db";
     private static final String DATABASE_NAME1 = "forms.db";
+    private static final String Tag = "MyCaseActivity";
     SQLiteDatabase db;
     Cursor cursor1;
     private MyApi myApi;
@@ -72,6 +74,9 @@ public class MyCaseActivity extends Activity {
         FormsProvider.DatabaseHelper databaseHelper1 = new FormsProvider.DatabaseHelper("forms.db");
         db = databaseHelper.getWritableDatabase();
 
+        Cursor instanceCursor = db.rawQuery("SELECT * FROM instances", null);
+        Log.d(Tag,"total Instances :: "+instanceCursor.getCount());
+
         //Form Table Query
         SQLiteDatabase database = databaseHelper1.getWritableDatabase();
         cursor1 = database.rawQuery("SELECT * FROM forms", null);
@@ -81,24 +86,20 @@ public class MyCaseActivity extends Activity {
             // getConsultantCase();
         }
 
-
         long cnt = CaseRecord.count(CaseRecord.class, null, null);
-        System.out.println("count:::" + cnt);
+        Log.d(Tag,"total Cases in sugar :: "+cnt);
+
+       // CaseRecord record = new CaseRecord();
+      // List<CaseRecord> list = new ArrayList<>();
+       // list = record.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where caseId");
 
         caseRecord = new CaseRecord();
         caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where status in (\"incomplete\",\"new\",\"\")");
-        System.out.println("oncreatetotal records ::::" + caseRecords.size());
 
         for (CaseRecord item : caseRecords) {
-            System.out.println("status::::::::" + item.status);
-
             //Instance Table Query
             Boolean isComplete = false;
             Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + item.caseId, null);
-
-            System.out.println("total instance::::::::" + cursor.getCount());
-            System.out.println("total forms::::::::" + cursor1.getCount());
-
             if (cursor.getCount() == 0) {
                 List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ?", item.caseId + "");
                 CaseRecord record = new CaseRecord();
@@ -107,9 +108,6 @@ public class MyCaseActivity extends Activity {
                 record.save();
             }
         }
-
-
-        System.out.println("total records ::::" + caseRecords.size());
 
         adapter = new CaseListAdapter(getApplicationContext(), caseRecords);
         listView.setAdapter(adapter);
@@ -122,8 +120,8 @@ public class MyCaseActivity extends Activity {
 
                 InstanceProvider instanceProvider = new InstanceProvider();
                 int count = instanceProvider.checkInstance(caseRecords.get(i).caseId);
-
-                System.out.println("count instance:::::::" + count);
+                Log.d(Tag,"instance count for case Id :"+caseRecords.get(i).caseId +" is "+count);
+                Log.d(Tag,"instance Status for case Id :"+caseRecords.get(i).status);
 
                 /*if(count == 0){
                     Intent intent = new Intent(getApplicationContext(), FormChooserList.class);
@@ -132,8 +130,6 @@ public class MyCaseActivity extends Activity {
                 Intent intent = new Intent(getApplicationContext(), InstanceChooserList.class);
                 startActivity(intent);
                 //    }
-                System.out.println("total cases::" + caseRecords.size());
-                System.out.println("status cases::" + caseRecords.get(i).status);
 
             }
         });
@@ -143,11 +139,9 @@ public class MyCaseActivity extends Activity {
     /*@Override
     public void onStart() {
         super.onStart();
-        System.out.println("onStart :::");
         caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where status != ?", "complete");
         adapter = new CaseListAdapter(getApplicationContext(), caseRecords);
         listView.setAdapter(adapter);
-        System.out.println("total records ::::" + caseRecords.size());
     }*/
 
     @Override
@@ -169,8 +163,6 @@ public class MyCaseActivity extends Activity {
 
         }
 
-
-        System.out.println("onResume :::");
         //caseRecords = caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"incomplete\",\"new\")");
 
         if(user.getRole().equals("consultant")){
@@ -181,8 +173,6 @@ public class MyCaseActivity extends Activity {
 
         adapter = new CaseListAdapter(getApplicationContext(), caseRecords);
         listView.setAdapter(adapter);
-        System.out.println("total records ::::" + caseRecords.size());
-
     }
 
     @Override
@@ -217,18 +207,11 @@ public class MyCaseActivity extends Activity {
         AuthUser authUser = AuthUser.findLoggedInUser();
         String token = authUser.getApi_token();
         String username = authUser.getUsername();
-        System.out.println("authUser::" + authUser.getUsername());
-        System.out.println("token::" + token);
         String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", username, token).getBytes(), Base64.NO_WRAP);
-
-        System.out.println("in consultant auth getConsultantCase  :::" + basicAuth);
 
         myApi.getCase(basicAuth, new Callback<List<CaseResponseVM>>() {
             @Override
             public void success(List<CaseResponseVM> caseVMList, Response response) {
-
-                System.out.println("refresh case size::::::" + caseVMList.size());
-
                 //CaseRecord.deleteAll(CaseRecord.class);
                 CaseRecord record = new CaseRecord();
                 List<CaseRecord> list = record.findWithQuery(CaseRecord.class, "Select * from Case_Record", null);
@@ -257,9 +240,6 @@ public class MyCaseActivity extends Activity {
                     cr.latitude = crVm.latitude;
                     cr.longitude = crVm.longitude;
                     cr.displayId = crVm.caseId;
-
-                    System.out.println("json status:::" + crVm.status);
-                    System.out.println("json status:::" + cr.status);
 
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                     Date d1 = new Date(crVm.dateCreated);
@@ -293,8 +273,6 @@ public class MyCaseActivity extends Activity {
                // adapter.notifyDataSetChanged();
                 adapter = new CaseListAdapter(getApplicationContext(),caseRecords);
                 listView.setAdapter(adapter);
-                System.out.println("onresume size:::" + caseRecords.size());
-
             }
 
             @Override

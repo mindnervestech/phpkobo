@@ -56,6 +56,151 @@ public class SplashScreenActivity extends Activity {
 
         System.out.println("in splash:::::::::::::::");
 
+        /*CaseRecord record = new CaseRecord();
+        record.caseId = 1446195311;
+        record.dateCreated = "1446195636211";
+        record.status = "submitted";
+        record.save();
+
+        CaseRecord record1 = new CaseRecord();
+        record1.caseId = 1446195652;
+        record1.dateCreated = "1446196372318";
+        record1.status = "submitted";
+        record1.save();
+
+        CaseRecord record2 = new CaseRecord();
+        record2.caseId = 1446198763;
+        record2.dateCreated = "1446200260971";
+        record2.status = "submitted";
+        record2.save();
+
+        CaseRecord record3 = new CaseRecord();
+        record3.caseId = 1446200478;
+        record3.status = "complete";
+        record3.dateCreated = "1446200905762";
+        record3.save();
+
+        CaseRecord record4 = new CaseRecord();
+        record4.caseId = 1446115960;
+        record4.displayId = "fail 1";
+        record4.dateCreated = "1446202220088";
+        record4.status = "submissionFailed";
+        record4.save();
+
+        CaseRecord record5 = new CaseRecord();
+        record5.caseId = 1446196513;
+        record5.dateCreated = "1446208552914";
+        record5.status = "submissionFailed";
+        record5.save();
+
+        CaseRecord record6 = new CaseRecord();
+        record6.caseId = 1446209172;
+        record6.dateCreated = "1446209834273";
+        record6.status = "complete";
+        record6.save();
+
+        CaseRecord record7 = new CaseRecord();
+        record7.caseId = 1446631999;
+        record7.dateCreated = "1446632615288";
+        record7.status = "complete";
+        record7.save();
+
+        CaseRecord record8 = new CaseRecord();
+        record8.caseId = 1446232730;
+        record8.dateCreated = "1446633101934";
+        record8.status = "complete";
+        record8.save();
+
+        CaseRecord record9 = new CaseRecord();
+        record9.caseId = 1446705801;
+        record9.status = "complete";
+        record9.dateCreated = "1446706440540";
+        record9.save();
+
+        CaseRecord record10 = new CaseRecord();
+        record10.caseId = 1446707214;
+        record10.dateCreated = "1446708428262";
+        record10.status = "complete";
+        record10.save();
+
+        CaseRecord record11 = new CaseRecord();
+        record11.caseId = 1447826336;
+        record11.dateCreated="1447828101959";
+        record11.status = "complete";
+        record11.save();
+
+        CaseRecord record12 = new CaseRecord();
+        record12.caseId = 1448699876;
+        record12.dateCreated = "1448700208398";
+        record12.status = "complete";
+        record12.save();
+
+        CaseRecord record13 = new CaseRecord();
+        record13.caseId = 1448885436;
+        record13.dateCreated = "1448886011043";
+        record13.status = "complete";
+        record13.save();
+
+        CaseRecord record14 = new CaseRecord();
+        record14.caseId = 1448886108;
+        record14.dateCreated = "1448886378888";
+        record14.status = "complete";
+        record14.save();
+
+        CaseRecord record15 = new CaseRecord();
+        record15.caseId = 1448886644;
+        record15.dateCreated = "1448887102776";
+        record15.status = "complete";
+        record15.save();
+
+        CaseRecord record16 = new CaseRecord();
+        record16.caseId = 1448887148;
+        record16.dateCreated = "1448887509327";
+        record16.status = "complete";
+        record16.save();
+
+        CaseRecord record17 = new CaseRecord();
+        record17.caseId = 1448887790;
+        record17.dateCreated = "1448888067496";
+        record17.status = "complete";
+        record17.save();
+
+        CaseRecord record18 = new CaseRecord();
+        record18.caseId = 1448888270;
+        record18.dateCreated = "1448888704256";
+        record18.status = "complete";
+        record18.save();
+
+        CaseRecord record19 = new CaseRecord();
+        record19.caseId = 1448888732;
+        record19.dateCreated = "1448888974368";
+        record19.status = "complete";
+        record19.save();
+
+        CaseRecord record20 = new CaseRecord();
+        record20.caseId = 1448889000;
+        record20.dateCreated = "1448889281132";
+        record20.status = "complete";
+        record20.save();
+
+        CaseRecord record22 = new CaseRecord();
+        record22.caseId = 1448889542;
+        record22.dateCreated = "1449122065421";
+        record22.status = "complete";
+        record22.save();
+
+        CaseRecord record23 = new CaseRecord();
+        record23.caseId = 1446707851;
+        record23.dateCreated = "1449123340835";
+        record23.status = "complete";
+        record23.save();
+
+        CaseRecord record24 = new CaseRecord();
+        record24.caseId = 1449652711;
+        record24.dateCreated = "1449653034782";
+        record24.status = "complete";
+        record24.save();
+*/
         // must be at the beginning of any activity that can be called from an external intent
         try {
             Collect.createODKDirs();

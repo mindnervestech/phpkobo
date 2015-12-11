@@ -114,14 +114,25 @@ public class InstanceChooserList extends ListActivity implements LocationListene
         InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
         FormsProvider.DatabaseHelper databaseHelper1 = new FormsProvider.DatabaseHelper("forms.db");
 
-
         //Instance Table Query
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " +Collect.getInstance().getCaseId(), null);
 
+        Log.d("InstanceChooserList :: ","Instances for case "+Collect.getInstance().getCaseId() +" is "+cursor.getCount());
+
+        /*if(cursor.getCount() != 0) {
+            cursor.moveToNext();
+        }*/
+
         List<InstanceVM> vms = new ArrayList<InstanceVM>();
 
         while (cursor.moveToNext()){
+
+            System.out.println("traversing cursor :: "+cursor.getString(5));
+            System.out.println("traversing cursor :: "+cursor.getString(1));
+            System.out.println("traversing cursor :: "+cursor.getString(9));
+            System.out.println("traversing cursor :: "+cursor.getString(0));
+
             InstanceVM instanceVM = new InstanceVM();
 
             instanceVM.setForm_id(cursor.getString(5));
@@ -141,16 +152,21 @@ public class InstanceChooserList extends ListActivity implements LocationListene
         Cursor cursor1 = database.rawQuery("SELECT * FROM forms" , null);
 
         while (cursor1.moveToNext()){
+            System.out.println("traversing cursor form :: "+cursor1.getString(4));
             String id = cursor1.getString(4);
             String templateId = cursor1.getString(0);
             String subTitle  = cursor1.getString(2);
             boolean flag = true;
+            System.out.println("vms size :: "+vms.size());
             for(InstanceVM instanceVM : vms) {
+                System.out.println("form id :: "+instanceVM.getForm_id());
                 if (id.equals(instanceVM.getForm_id())){
                     flag = false;
                     break;
                 }
             }
+
+            System.out.println("Flag :: "+flag);
             if(flag) {
                 InstanceVM vm = new InstanceVM();
                 vm.setForm_id(id);
@@ -198,7 +214,6 @@ public class InstanceChooserList extends ListActivity implements LocationListene
        // mLongitude = 72.85085; //gps.getLongitude(); //31.2153;//gps.getLongitude();
         //LatLng latLng = new LatLng(mLatitude, mLongitude);
 
-        //System.out.println("long:::"+mLongitude+" latt:::"+mLatitude);
         //drawMarker(latLng);
 
 
@@ -256,19 +271,17 @@ public class InstanceChooserList extends ListActivity implements LocationListene
         Uri instanceUri;
 
         Collect.getInstance().currentId = instanceVM.getInstance_id();
-        System.out.println("current id:::::::::"+instanceVM.getInstance_id());
+        System.out.println("instance vm :: "+instanceVM.getIsTemplate());
         if(!instanceVM.getIsTemplate()) {
+            System.out.println("Instance pick :: ::");
              instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI,
                     Long.parseLong(instanceVM.getInstance_id()));
         }else {
+            System.out.println("Form pick :: ::");
              instanceUri =ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, Long.parseLong(instanceVM.getInstance_id()));
         }
 
-
-        System.out.println("instanceUri::::"+instanceUri);
-
         Collect.getInstance().getActivityLogger().logAction(this, "onListItemClick", instanceUri.toString());
-
 
         String action = getIntent().getAction();
         if (Intent.ACTION_PICK.equals(action)) {

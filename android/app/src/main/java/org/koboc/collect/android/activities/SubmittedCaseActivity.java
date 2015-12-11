@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -49,11 +50,9 @@ public class SubmittedCaseActivity extends Activity{
         listView= (ListView) findViewById(R.id.caseList);
 
         long cnt=CaseRecord.count(CaseRecord.class,null,null);
-        System.out.println("count:::"+cnt);
 
         caseRecord=new CaseRecord();
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"complete\",\"presubmitted\",\"postcomplete\",\"postsubmitted\")");
-        System.out.println("total records ::::"+caseRecords.size());
 
         //Database helper instance
         InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
@@ -64,45 +63,36 @@ public class SubmittedCaseActivity extends Activity{
         while(cursor1.moveToNext()){
             if(cursor1.getString(7).equals("submitted")){
                 for (CaseRecord item:caseRecords){
-
+                    System.out.println("Checking ::::: "+item.status);
+                    System.out.println("Checking  item Id ::::: "+cursor1.getLong(9));
+                    System.out.println("Checking Id ::::: "+cursor1.getLong(9));
                     if (cursor1.getLong(9) == item.caseId) {
+                        System.out.println("Changed ::::: ");
                         item.isSent = true;
                         item.save();
                     }
 
-
                     if(AuthUser.findLoggedInUser().getRole().contains("consulatnt")) {
-                        System.out.println("consultant::::::::::::::::::");
                         if (DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(item.caseId + "")) {
                             Cursor cursor2 = DatabaseUtility.getPost_Instances(item.caseId+"");
                             if (cursor2.getString(7).equals("submitted") && cursor2.getString(1).contains("Post_")) {
-                                System.out.println("postsubmitted set ::");
                                 item.status = "postsubmitted";
                                 item.isSent = true;
                                 item.save();
                             } else if (cursor2.getString(7).equals("incomplete") && cursor2.getString(1).contains("Post_")) {
-                                System.out.println("presubmitted set ::");
                                 item.status = "presubmitted";
                                 item.isSent = false;
                                 item.save();
                             } else {
-                                System.out.println("postcomplete set ::");
                                 item.status = "postcomplete";
                                 item.isSent = false;
                                 item.save();
                             }
                         }
                     }
-
-
-
                 }
             }
         }
-
-
-
-
 
         adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         listView.setAdapter(adapter);
@@ -112,6 +102,10 @@ public class SubmittedCaseActivity extends Activity{
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Collect.getInstance().getActivityLogger().logAction(this, "fillBlankForm", "click");
                 Collect.getInstance().setCaseId(caseRecords.get(i).caseId+"");
+
+                Log.d("SubmmitedCaseActivity", "instance count for case Id :" + caseRecords.get(i).caseId);
+                Log.d("SubmmitedCaseActivity","instance Status for case Id :"+caseRecords.get(i).status);
+
                     //Intent intent = new Intent(getApplicationContext(), CompleteInstanceChooserList.class);
                     Intent intent = new Intent(getApplicationContext(), InstanceChooserList.class);
                     startActivity(intent);
@@ -123,8 +117,6 @@ public class SubmittedCaseActivity extends Activity{
     @Override
     public void onStart() {
         super.onStart();
-        System.out.println("onStart ::::");
-
         //Database helper instance
         InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
 
@@ -146,7 +138,6 @@ public class SubmittedCaseActivity extends Activity{
 
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"presubmitted\",\"submitted\",\"complete\",\"postcomplete\",\"postsubmitted\")");
         adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
-        System.out.println("total records ::::"+caseRecords.size());
         listView.setAdapter(adapter);
     }
 
@@ -159,6 +150,9 @@ public class SubmittedCaseActivity extends Activity{
         SQLiteDatabase database = databaseHelper.getWritableDatabase();
         Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
 
+        CaseRecord recordTest = new CaseRecord();
+        //System.out.println("Testing ::::::::: "+recordTest.findWithQuery(CaseRecord.class,"Select * from Case_Record where case_Id = "+Collect.getInstance().getCaseId() ).size());
+        //System.out.println("Status:::::::::"+recordTest.findWithQuery(CaseRecord.class,"Select * from Case_Record where case_Id = "+Collect.getInstance().getCaseId() ).get(0).status);
         /*while(cursor1.moveToNext()){
             if(cursor1.getString(7).equals("submitted")){
                 for (CaseRecord item:caseRecords){
@@ -170,11 +164,9 @@ public class SubmittedCaseActivity extends Activity{
                 }
             }
         }*/
-        System.out.println("onResume ::::");
         caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"presubmitted\",\"submitted\",\"complete\",\"postcomplete\",\"postsubmitted\")");
         adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         listView.setAdapter(adapter);
-        System.out.println("total records ::::"+caseRecords.size());
 
     }
 

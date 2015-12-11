@@ -88,7 +88,7 @@ public class UploadCaseListAdapter extends BaseAdapter {
         if (inflater == null)
             inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-      if (convertView == null)
+     //   if (convertView == null)
         convertView = inflater.inflate(R.layout.upload_case_list_item, null);
         textView= (TextView) convertView.findViewById(R.id.caseIdText);
         relativeLayout= (RelativeLayout) convertView.findViewById(R.id.mainlayout1);
@@ -96,8 +96,6 @@ public class UploadCaseListAdapter extends BaseAdapter {
         textView2= (TextView) convertView.findViewById(R.id.addressText);
         uploadButton = (Button) convertView.findViewById(R.id.upload_button);
         final CaseRecord item=mItems.get(position);
-
-        System.out.println("adapter::::::::::"+mItems.size());
 
         textView.setText(item.displayId);
 
@@ -115,9 +113,6 @@ public class UploadCaseListAdapter extends BaseAdapter {
 
         textView2.setText(item.address);
 
-
-        System.out.println("status::::::::::"+item.status);
-
         if(item.status.equals("incomplete")){
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_yellow);
         }
@@ -130,12 +125,17 @@ public class UploadCaseListAdapter extends BaseAdapter {
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_blue);
         }
 
+        System.out.println("uploadAdapter case id ::: "+item.caseId);
+        System.out.println("uploadAdapter case status ::: "+item.status);
+        System.out.println("uploadAdapter isPostUploaded ::: "+isPostUploaded(item.caseId+""));
+
         if(isPostUploaded(item.caseId+"")){
+            System.out.println("inside 1 :::::::::::::::");
             uploadButton.setVisibility(View.GONE);
         }
 
-        System.out.println("isSent Adapter::"+item.isSent);
         if(item.status.equals("postsubmitted") || item.status.equals("submitted") && !item.status.equals("presubmitted") && !item.status.equals("postcomplete") && !item.status.equals("complete")){
+            System.out.println("inside 2 :::::::::::::::");
             uploadButton.setVisibility(View.GONE);
         }
 
@@ -145,12 +145,11 @@ public class UploadCaseListAdapter extends BaseAdapter {
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("item.status::" + item.status);
+                Collect.getInstance().setCaseId(item.caseId+"");
 
                 if (AuthUser.findLoggedInUser().getRole().equals("consultant")) {
                     //if(DatabaseUtility.getPost_InstanceCount(item.caseId+"") == DatabaseUtility.getPost_formCount()){
                     Cursor cursor  = DatabaseUtility.getPost_InstancesForUpload(item.caseId+"");
-                    System.out.println("upload instance::::"+cursor.getCount());
                     Collect.getInstance().formType = "presubmit";
                     if(cursor.getCount() == 0){
                         Toast.makeText(mContext,"Please fill all the Forms",Toast.LENGTH_LONG).show();
@@ -158,11 +157,7 @@ public class UploadCaseListAdapter extends BaseAdapter {
 
                     while(cursor.moveToNext()) {
                         if (isAllComplete(item.caseId + "")) {
-                            System.out.println("post:::::"+cursor.getString(1));
-                            System.out.println("caseid:::::"+cursor.getString(9));
-                            System.out.println("item caseid:::::"+item.caseId);
                             if (cursor.getString(1).contains("Post_") && cursor.getString(9).equals(item.caseId))
-                                System.out.println("instance id:::"+cursor.getString(0));
                                 upload(Long.parseLong(cursor.getString(0)));
 
                         } else {
@@ -172,12 +167,9 @@ public class UploadCaseListAdapter extends BaseAdapter {
                     }
                     //}
                 } else {
-                    System.out.println("upload for sangini ..");
                     Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + item.caseId, null);
                     while (cursor.moveToNext()) {
-                        System.out.println("instance id::::::::" + Long.parseLong(cursor.getString(0)));
-                        System.out.println("instance status::::::::" + cursor.getString(7));
-                        if (cursor.getString(7).equals("complete")) {
+                        if (cursor.getString(7).equals("complete") || cursor.getString(7).equals("submissionFailed")) {
                             upload(Long.parseLong(cursor.getString(0)));
                         }
 
@@ -194,7 +186,6 @@ public class UploadCaseListAdapter extends BaseAdapter {
 
     private boolean isAllComplete(String id){
         Cursor cursor = DatabaseUtility.getPost_Instances(id);
-        System.out.println("isAllComplete call...");
         if(cursor.getCount() == 0){
             return false;
         }else if(DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(id)){
@@ -211,12 +202,10 @@ public class UploadCaseListAdapter extends BaseAdapter {
 
     private boolean isPostUploaded(String id){
         Cursor cursor = DatabaseUtility.getPost_Instances(id);
-        System.out.println("isUploaded call..."+cursor.getCount());
         if(cursor.getCount() == 0){
             return false;
         }else if(DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(id)){
             while(cursor.moveToNext()) {
-                System.out.println("isUploaded status..."+cursor.getString(7));
                 if (!cursor.getString(7).equals("submitted")) {
                     return false;
                 }

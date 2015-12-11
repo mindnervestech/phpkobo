@@ -391,6 +391,7 @@ public class InstanceProvider extends ContentProvider {
         CaseRecord caseRecord = new CaseRecord();
         final List<CaseRecord> caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where case_id = ?", Collect.getInstance().getCaseId());
         System.out.println("size:::" + caseRecords.size());
+        System.out.println("case id : " + Collect.getInstance().getCaseId());
         CaseRecord caseRecord1 = caseRecords.get(0);
         System.out.println("size:::" + caseRecords.get(0).status);
 
@@ -399,6 +400,7 @@ public class InstanceProvider extends ContentProvider {
         if(AuthUser.findLoggedInUser().getRole().equals("sangini")){
             System.out.println("update for sangini..");
                 if(status.equals("submitted")) {
+                    System.out.println("submitted case id :::"+caseRecord1.caseId);
                     System.out.println("update for submitted sangini..");
                     caseRecord1.status = "submitted";
                     caseRecord1.save();
