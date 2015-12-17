@@ -125,17 +125,11 @@ public class UploadCaseListAdapter extends BaseAdapter {
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_blue);
         }
 
-        System.out.println("uploadAdapter case id ::: "+item.caseId);
-        System.out.println("uploadAdapter case status ::: "+item.status);
-        System.out.println("uploadAdapter isPostUploaded ::: "+isPostUploaded(item.caseId+""));
-
         if(isPostUploaded(item.caseId+"")){
-            System.out.println("inside 1 :::::::::::::::");
             uploadButton.setVisibility(View.GONE);
         }
 
         if(item.status.equals("postsubmitted") || item.status.equals("submitted") && !item.status.equals("presubmitted") && !item.status.equals("postcomplete") && !item.status.equals("complete")){
-            System.out.println("inside 2 :::::::::::::::");
             uploadButton.setVisibility(View.GONE);
         }
 
@@ -149,15 +143,23 @@ public class UploadCaseListAdapter extends BaseAdapter {
 
                 if (AuthUser.findLoggedInUser().getRole().equals("consultant")) {
                     //if(DatabaseUtility.getPost_InstanceCount(item.caseId+"") == DatabaseUtility.getPost_formCount()){
+                    System.out.println("logged user is consultant :::::::");
                     Cursor cursor  = DatabaseUtility.getPost_InstancesForUpload(item.caseId+"");
+                    System.out.println("Post instance :::::::"+cursor.getCount());
                     Collect.getInstance().formType = "presubmit";
                     if(cursor.getCount() == 0){
                         Toast.makeText(mContext,"Please fill all the Forms",Toast.LENGTH_LONG).show();
                     }
 
                     while(cursor.moveToNext()) {
+                        System.out.println("isAllComplete(item.caseId) :::::::"+isAllComplete(item.caseId+""));
                         if (isAllComplete(item.caseId + "")) {
+                            System.out.println("isAllComplete:::::::::::");
+                            System.out.println("getString(1) :::::::::::"+cursor.getString(1));
+                            System.out.println("getString(9):::::::::::"+cursor.getString(9));
+                            System.out.println("item case id :::::::::::"+item.caseId);
                             if (cursor.getString(1).contains("Post_") && cursor.getString(9).equals(item.caseId))
+                                System.out.println("near to upload ::::::"+cursor.getString(0));
                                 upload(Long.parseLong(cursor.getString(0)));
 
                         } else {
@@ -216,6 +218,7 @@ public class UploadCaseListAdapter extends BaseAdapter {
         return true;
     }
     private void upload(Long id){
+        System.out.println("in upload ::::::");
         boolean mobileDataEnabled = false; // Assume disabled
         ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 

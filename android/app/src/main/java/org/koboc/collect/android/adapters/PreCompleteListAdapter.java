@@ -84,7 +84,7 @@ public class PreCompleteListAdapter extends BaseAdapter {
         if (inflater == null)
             inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        if (convertView == null)
+       // if (convertView == null)
             convertView = inflater.inflate(R.layout.pre_case_layout, null);
         TextView textView= (TextView) convertView.findViewById(R.id.caseIdText);
         relativeLayout= (RelativeLayout) convertView.findViewById(R.id.mainlayout1);
@@ -150,6 +150,7 @@ public class PreCompleteListAdapter extends BaseAdapter {
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Collect.getInstance().setCaseId(item.caseId+"");
                 Collect.getInstance().formType = "precomplete";
                 Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " +item.caseId+ " and status in (\"complete\",\"submissionFailed\")", null);
 
