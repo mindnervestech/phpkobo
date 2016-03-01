@@ -1764,6 +1764,54 @@ App.run(function($rootScope, $state, $location, Auth) {
 					});
 				}
 			};
+			
+			$scope.confirmDeleteMultipleCase = function(){
+				$('#deleteMultiple-case-modal').modal('hide');
+				$("#loading-id").removeAttr("style");
+				var flag = false;
+				var count = 0;
+				var processingCount = 0;
+				for(var i=0; i<$scope.selectedGridRows.length; i++){
+					var selected = $scope.selectedGridRows[i];
+					if(selected.selectedRow != undefined && selected.selectedRow != false){
+						count++;
+					}
+				}
+				
+				for(var i=0; i<$scope.selectedGridRows.length; i++){
+					var selected = $scope.selectedGridRows[i];
+					if(selected.selectedRow != undefined && selected.selectedRow != false){
+						
+						flag = true;
+						$http.get('/webapp/delete/cases/'+selected.id).success(function(resp){
+								console.log(resp);
+								processingCount++;
+								if(count == processingCount){
+									$scope.spliceRows();
+								}
+								
+							});
+					}
+				}
+				
+				if(flag == false){
+					$("#loading-id").css("display","none");
+					alert("Please select atleast one case to delete");
+				}
+			};
+			
+			$scope.spliceRows = function(){
+				for(var i=0; i<$scope.selectedGridRows.length; i++){
+					var selected = $scope.selectedGridRows[i];
+					if(selected.selectedRow != undefined && selected.selectedRow != false){
+						console.log("here "+selected.id);
+						$scope.myAllcase.splice(selected.selectedIndex, 1);
+					}
+				}
+				$("#loading-id").css("display","none");
+				$scope.selectedGridRows = [];
+			}
+			
 			$scope.assignConsutlt = function(consutlId){
 				console.log("assign Consultant");
 				console.log(consutlId);
@@ -1788,7 +1836,26 @@ App.run(function($rootScope, $state, $location, Auth) {
 					});
 				}
 			};
-		
+			
+			$scope.selectedGridRows = [];
+			$scope.selectRow = function(index, flag){
+				console.log(flag);
+				
+				console.log(index);
+				console.log($scope.myAllcase);
+				var selected = $scope.myAllcase[index];
+				if(selected.selectedRow != undefined && selected.selectedRow != false){
+					selected.selectedIndex = index;
+					$scope.selectedGridRows.push(selected);
+				}else if(selected.selectedRow == false){
+					for(var j=0;j<$scope.selectedGridRows.length;j++){
+						if(selected.selectedIndex == $scope.selectedGridRows[j].selectedIndex){
+							$scope.selectedGridRows.splice(j, 1);
+						}
+					}
+				}
+				console.log($scope.selectedGridRows);
+			}
 		
 	});
 	
