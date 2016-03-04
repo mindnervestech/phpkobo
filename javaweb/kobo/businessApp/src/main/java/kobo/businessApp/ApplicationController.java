@@ -359,7 +359,7 @@ public class ApplicationController {
 	public FileSystemResource exportToExcel(HttpServletRequest httpRequest,HttpServletResponse response, @RequestParam ("status") String status, @RequestParam ("consult") Integer consult,
 			@RequestParam ("sangini") Integer sangini) {
 		
-		System.out.println(myProps.getProperty("hello"));
+		//System.out.println(myProps.getProperty("hello"));
 		
 		/* */
 		
@@ -429,7 +429,15 @@ public class ApplicationController {
         int i = 1;
     	rowhead.createCell(0).setCellValue("Case Id");
         for(String name : columnNameEng){
-        	rowhead.createCell(i).setCellValue(name);//todo
+        	String convetedValue;
+        	try{
+        		convetedValue = myProps.getProperty(name);
+        	}catch(Exception e){
+        		e.printStackTrace();
+        		convetedValue=name;
+        		System.out.println("not found "+convetedValue);
+        	}
+        	rowhead.createCell(i).setCellValue(convetedValue);//todo
         	i++;
         }
         
