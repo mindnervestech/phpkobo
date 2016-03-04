@@ -37,6 +37,9 @@
     <beans:property name="sessionFactory" ref="sessionFactory"/>
   </beans:bean>
   
+  	<beans:bean id="myProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+  		<beans:property name="location" value="classpath:conf/caselist.properties"/>
+	</beans:bean>
 	
 	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
 	

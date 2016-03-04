@@ -10,8 +10,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Map.Entry;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -21,6 +23,7 @@ import kobo.entities.AuthUser;
 import kobo.entities.AuthUserGroup;
 import kobo.entities.LoggerCase;
 import kobo.entities.LoggerCaseInstance;
+import kobo.entities.LoggerXform;
 import kobo.entities.Sector;
 
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -28,7 +31,9 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.postgresql.util.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +66,8 @@ public class ApplicationController {
 	@Autowired
     private SessionFactory sessionFactory;
 	
+	@Resource(name = "myProps")
+	private Properties myProps;
 	public static String KOBOCAT_URL = "http://li855-46.members.linode.com:8001";
 	//public static String KOBOCAT_URL = "http://192.168.2.11:8001";
 	
@@ -351,13 +358,84 @@ public class ApplicationController {
 	@Transactional
 	public FileSystemResource exportToExcel(HttpServletRequest httpRequest,HttpServletResponse response, @RequestParam ("status") String status, @RequestParam ("consult") Integer consult,
 			@RequestParam ("sangini") Integer sangini) {
-		//System.out.println("sangini =="+sangini);
 		
-		//System.out.println("consult =="+consult);
+		System.out.println(myProps.getProperty("hello"));
 		
-		//System.out.println("status =="+status);
+		/* */
 		
-		List<LoggerCase> cases = null;		
+		String sequeenceForm[] = { "new_form", 
+				"pre_rosenberg_self_esteem",
+				"pre_police_intervention", 
+				"pre_screening_questionnaire",
+				"pre_sneha_program_on_preventio", 
+				"pre_empowerment",
+				"post_screening_questionnaire", 
+				"post_rosenberg_self_esteem",
+				"post_empowerment" }; 
+		
+		ArrayList<String> columnLabelHn=new ArrayList<String>();
+		ArrayList<String> columnNameEng=new ArrayList<String>();
+		List<LoggerXform> forms = null;
+		
+		for(int ind=0; ind<sequeenceForm.length; ind++){
+			forms = (List<LoggerXform>) sessionFactory.getCurrentSession().createCriteria(LoggerXform.class).add(Restrictions.eq("idString", sequeenceForm[ind])).list();
+			
+			if(forms.size() != 0){
+				for(LoggerXform tempForm : forms){
+					if (!tempForm.getJson().isEmpty()) {
+						//System.out.println("-------" + tempForm.getIdString()+ "-----");
+
+						JSONObject jObject = new JSONObject(tempForm.getJson().trim());
+						JSONArray headerArr = (JSONArray) jObject.get("children");
+						
+						//System.out.println("length ---  " + headerArr.length());
+						for (int i = 0; i < headerArr.length(); i++) {
+							try {
+								JSONObject rec = headerArr.getJSONObject(i);
+
+								String formLabel = tempForm.getIdString() + "_" + rec.getString("label");
+								String formName = tempForm.getIdString() + "_" + rec.getString("name");
+								
+								//System.out.println(tempForm.getIdString() + "_" + rec.getString("name")+"=");
+
+								if (columnLabelHn.size() != 0
+										&& columnLabelHn.contains(formLabel)) {
+								} else {
+									columnLabelHn.add(formLabel);
+								}
+
+								if (columnNameEng.size() != 0
+										&& columnNameEng.contains(formName)) {
+								} else {
+									columnNameEng.add(formName);
+								}
+
+							} catch (Exception e) {
+								// System.out.println("not found..");
+							}
+						}
+
+					}
+				}
+			}
+		}
+		
+		String filename = "/home/kobo/NewExcelFile.xls" ;
+		//String filename = "d:/NewExcelFile.xls" ;
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        HSSFSheet sheet = workbook.createSheet("FirstSheet");  
+
+        HSSFRow rowhead = sheet.createRow((short)0);
+        int i = 1;
+    	rowhead.createCell(0).setCellValue("Case Id");
+        for(String name : columnNameEng){
+        	rowhead.createCell(i).setCellValue(name);//todo
+        	i++;
+        }
+        
+        //-------------------------------
+        
+        List<LoggerCase> cases = null;		
 		if(sangini != 0 && consult != 0 && !status.equals("0")){
 			if(status.equals("open")){
 				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
@@ -430,81 +508,80 @@ public class ApplicationController {
 		}else{
 			cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();	
 		}
-		
-		
-		List<String> questions = new ArrayList();
-		Boolean flag = true;
-		Map<Map<String,String>, Map<String, String>> mainMap = new HashMap<Map<String,String>, Map<String,String>>();
+        
+        
+		Map<String, Map<String, String>> mainMap = new HashMap<String, Map<String,String>>();
 		if(cases.size() != 0){
-			//System.out.println("cases.size()" + cases.size());
 			for(LoggerCase tempCase : cases){
 				if(!tempCase.getLoggerCaseInstances().isEmpty()){
 					Map<String,String> caseMap = new HashMap<String, String>();
+					
+					String currentCaseId = tempCase.getCaseId();
+					//System.out.println("caseID-- "+currentCaseId);
+
+					caseMap = mainMap.get(currentCaseId);
+					if(caseMap == null){
+						caseMap = new HashMap<String, String>();
+					}
+					
 					for(LoggerCaseInstance instance : tempCase.getLoggerCaseInstances()){
 						JSONObject jObject = new JSONObject(instance.getLoggerInstance().getJson().trim());
+						System.out.println("---------form-----------"+instance.getLoggerInstance().getLoggerXform().getIdString());
+						String preKeyValue = instance.getLoggerInstance().getLoggerXform().getIdString();
+						
 						Iterator<?> keys = jObject.keys();
 						while( keys.hasNext() ) {
-						    String key = (String)keys.next();
-						    if(!key.equals("meta/instanceID") && !key.equals("_xform_id_string") && !key.equals("start") && !key.equals("formhub/uuid") && !key.equals("end")){
-						    	//if(flag){
-							    	//System.out.println(key);
-							    	Iterator<String> s = questions.iterator();
-							    	Boolean questionFlag = true;
-							    	while(s.hasNext()){
-							    		if(s.next().equalsIgnoreCase(key)){
-							    			questionFlag = false;
-							    		}
-							    	}
-							    	if(questionFlag){
-									    questions.add(key);
-							    	}
-								//}
-								caseMap.put(key, (String) jObject.get(key));
+							String key = (String) keys.next();
+						    if(!key.equals("meta/instanceID") && 
+						    		!key.equals("_xform_id_string") && 
+						    		!key.equals("start") && 
+						    		!key.equals("formhub/uuid") && 
+						    		!key.equals("end")) {
+						    		//System.out.println(key);
+						    		//System.out.println(jObject.getString(key));
+						    		try{
+						    			caseMap.put(preKeyValue+"_"+key, jObject.getString(key));
+						    		}
+						    		catch(Exception e){
+						    			e.printStackTrace();
+						    			System.out.println("in null");
+						    		}
+						    	
 						    }
+						 
 						}
 					}
-				flag = false;
-				Map<String,String> idMap = new HashMap<String, String>();
-				idMap.put(tempCase.getId().toString(), tempCase.getCaseId());
-				mainMap.put(idMap, caseMap);
-				}else{
-					Map<String,String> caseMap = new HashMap<String, String>();
-					Map<String,String> idMap = new HashMap<String, String>();
-					idMap.put(tempCase.getId().toString(), tempCase.getCaseId());
-					mainMap.put(idMap, caseMap);
+					mainMap.put(currentCaseId, caseMap);
 				}
 			}
 		}
-	    //System.out.println("mainMap size" + mainMap.size());
-	    String filename = "/home/kobo/NewExcelFile.xls" ;
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        HSSFSheet sheet = workbook.createSheet("FirstSheet");  
-
-        HSSFRow rowhead = sheet.createRow((short)0);
-        int i = 1;
-    	rowhead.createCell(0).setCellValue("Case Id");
-        for(String question : questions){
-        	rowhead.createCell(i).setCellValue(question.replaceAll("_", " "));
-        	i++;
-        }
-
-        int j = 1;
-        for (Map.Entry<Map<String,String>, Map<String, String>> entry : mainMap.entrySet()) {
-            HSSFRow row = sheet.createRow((short)j);
-    		//System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue());
-            for (Entry<String, String> keyEntry : entry.getKey().entrySet()) {
-        		//System.out.println("Key : " + keyEntry.getKey() + " Value : " + keyEntry.getValue());
-                row.createCell(0).setCellValue(keyEntry.getValue().replaceAll("_", " "));
-            }
-            for (Entry<String, String> valueEntry : entry.getValue().entrySet()) {
-        		//System.out.println("Key : " + valueEntry.getKey() + " Value : " + valueEntry.getValue() + "que Index" + questions.indexOf(valueEntry.getKey()));
-                row.createCell(questions.indexOf(valueEntry.getKey()) + 1).setCellValue(valueEntry.getValue().replaceAll("_", " "));
-            }
-            j++;
-    	}
-        
-    	int d = 0;
-        for(String question : questions){
+		System.out.println(mainMap);
+		int rowCount = 1;
+		for (Map.Entry<String, Map<String, String>> entry : mainMap.entrySet())
+		{
+			HSSFRow row = sheet.createRow((short)rowCount);
+			rowCount++;
+			row.createCell(0).setCellValue(entry.getKey().replaceAll("_", " "));
+			int colCount = 0;
+			for(String colname : columnNameEng){
+				colCount++;
+				//System.out.println("--------"+colname+"------");
+				Map<String,String> innermap = entry.getValue();
+				for (Map.Entry<String, String> currentInnermap : innermap.entrySet()){
+					//System.out.println(currentInnermap.getKey());
+					if(currentInnermap.getKey().equals(colname)){
+						
+						row.createCell(colCount).setCellValue(currentInnermap.getValue().replaceAll("_", " "));
+						break;
+					}
+				}
+				
+			}
+			
+		}
+		 
+        int d = 0;
+        for(String name : columnNameEng){
         	sheet.autoSizeColumn(d);
         	d++;
         }
@@ -514,13 +591,18 @@ public class ApplicationController {
         	workbook.write(fileOut);
         	fileOut.close();
         } catch(IOException e) {
-        	
+        	e.printStackTrace();
         }
-        File f = new File("/home/kobo/NewExcelFile.xls");
+		File f = new File("/home/kobo/NewExcelFile.xls");
+        //File f = new File("d:/NewExcelFile.xls");
         System.out.println("Your excel file has been generated!");
         response.setContentType("apphlication/xls");
         response.setHeader("Content-Disposition", "attachment;filename=CaseList.xls"); 
-	    return new FileSystemResource(f);
+        
+        return new FileSystemResource(f);
+		
+		/* */
+
 	}
 	
 }
