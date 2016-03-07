@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -356,12 +357,17 @@ public class ApplicationController {
 	@RequestMapping(value="exportToExcel", method=RequestMethod.GET)
 	@ResponseBody
 	@Transactional
-	public FileSystemResource exportToExcel(HttpServletRequest httpRequest,HttpServletResponse response, @RequestParam ("status") String status, @RequestParam ("consult") Integer consult,
+	public FileSystemResource exportToExcel(HttpServletRequest httpRequest,HttpServletResponse response, 
+			@RequestParam ("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
+			@RequestParam ("end") @DateTimeFormat(pattern="MMddyyyy") Date end,
+			@RequestParam ("status") String status, 
+			@RequestParam ("consult") Integer consult,
 			@RequestParam ("sangini") Integer sangini) {
 		
 		//System.out.println(myProps.getProperty("hello"));
 		
 		/* */
+		
 		
 		String sequeenceForm[] = { "new_form", 
 				"pre_rosenberg_self_esteem",
@@ -444,7 +450,7 @@ public class ApplicationController {
         //-------------------------------
         
         List<LoggerCase> cases = null;		
-		if(sangini != 0 && consult != 0 && !status.equals("0")){
+        /*if(sangini != 0 && consult != 0 && !status.equals("0")){
 			if(status.equals("open")){
 				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
 						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.isNull("status"))))
@@ -515,13 +521,17 @@ public class ApplicationController {
 			}
 		}else{
 			cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();	
-		}
+		}*/
         
+        cases = findcases(start, end, status, consult, sangini);
+		//System.out.println("cases --==="+cases.size());
         
 		Map<String, Map<String, String>> mainMap = new HashMap<String, Map<String,String>>();
 		if(cases.size() != 0){
 			for(LoggerCase tempCase : cases){
+				//System.out.println("Outer name ==== "+tempCase.getStatus());
 				if(!tempCase.getLoggerCaseInstances().isEmpty()){
+					//System.out.println("inner name ==== "+tempCase.getStatus());
 					Map<String,String> caseMap = new HashMap<String, String>();
 					
 					String currentCaseId = tempCase.getCaseId();
@@ -559,7 +569,9 @@ public class ApplicationController {
 						 
 						}
 					}
-					mainMap.put(currentCaseId, caseMap);
+					mainMap.put(currentCaseId+"#"+tempCase.getDateCreated(), caseMap);
+				}else{
+					mainMap.put(tempCase.getCaseId()+"#"+tempCase.getDateCreated(),  new HashMap<String, String>());
 				}
 			}
 		}
@@ -569,7 +581,8 @@ public class ApplicationController {
 		{
 			HSSFRow row = sheet.createRow((short)rowCount);
 			rowCount++;
-			row.createCell(0).setCellValue(entry.getKey().replaceAll("_", " "));
+			String tempval[] = entry.getKey().split("\\#");
+			row.createCell(0).setCellValue(tempval[0].replaceAll("_", " "));
 			int colCount = 0;
 			for(String colname : columnNameEng){
 				colCount++;
@@ -613,4 +626,119 @@ public class ApplicationController {
 
 	}
 	
+	public List<LoggerCase> findcases(Date start,
+			Date end,
+			String status, 
+			Integer consult,
+			Integer sangini){
+		
+		 Calendar cal = Calendar.getInstance();
+	        cal.setTime(end);
+	        cal.set(Calendar.SECOND, 59);
+	        cal.set(Calendar.MINUTE, 59);
+	        cal.set(Calendar.HOUR, 23);
+	        end = cal.getTime();
+	        
+		List<LoggerCase> cases = null;		
+		
+		if(sangini != 0 && consult != 0 && !status.equals("0")){
+			if(status.equals("open")){
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.isNull("status"))))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}else{
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.eq("status", status))))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}
+			return cases;
+		}
+		
+		if(sangini != 0 && consult != 0){
+			//allCases = " where user_id = '"+sangini+"' and consultant_id = '"+consult+"'";
+			cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+					.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.eq("consultant.id", consult)))
+					.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+					.list();
+			return cases;
+		} 
+			
+		if(sangini != 0 && !status.equals("0")){
+			//allCases = " where status = '"+status+"'";
+			if(status.equals("open")){
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.isNull("status")))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}else{
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.eq("status", status)))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}
+
+			return cases;
+		}
+		
+		if(consult != 0 && !status.equals("0")){
+			//allCases = " where status = '"+status+"'";
+			if(status.equals("open")){
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.isNull("status")))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}else{
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.and(Restrictions.eq("consultant.id", consult), Restrictions.eq("status", status)))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}
+
+			return cases;
+		}
+		
+		//sql = "select * from loggercase where user_id"
+		
+		if(sangini != 0 ){
+			//allCases = " where user_id = '"+sangini+"'";
+			cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+					.add(Restrictions.eq("owner.id", sangini))
+					.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+					.list();
+			
+			return cases;
+		}
+		if(consult != 0){
+			//allCases = " where user_id = '"+sangini+"' and consultant_id = '"+consult+"'";
+			cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+					.add(Restrictions.eq("consultant.id", consult))
+					.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+					.list();
+			return cases;
+		}
+		if(!status.equals("0")){
+			//allCases = " where status = '"+status+"'";
+			if(status.equals("open")){
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.isNull("status"))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}else{
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(Restrictions.eq("status", status))
+						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+			}
+			return cases;
+		}
+		
+		cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+				.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+				.list();
+		
+		System.out.println("cases --==="+cases.size());
+		return cases;
+	}
 }
