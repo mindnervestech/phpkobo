@@ -5,13 +5,14 @@ import com.orm.SugarRecord;
 /**
  * Created by User on 02-06-2015.
  */
-public class CaseRecord extends SugarRecord<CaseRecord> {
+public class CaseRecord extends SugarRecord {
     public double longitude;
     public double latitude;
     public String address;
 
     public String displayId;
     public long caseId;
+    public long uid;
     public String status;
     public String dateCreated;
     public String dateModified;

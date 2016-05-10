@@ -36,6 +36,7 @@ import android.widget.Toast;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.activities.FormEntryActivity;
 import org.koboc.collect.android.activities.InstanceUploaderActivity;
+import org.koboc.collect.android.activities.SubmittedCaseActivity;
 import org.koboc.collect.android.application.Collect;
 import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.database.CaseRecord;
@@ -57,7 +58,7 @@ public class UploadCaseListAdapter extends BaseAdapter {
     private RelativeLayout relativeLayout;
     private SQLiteDatabase db;
     private TextView textView,textView1,textView2;
-    private Button uploadButton;
+    private Button uploadButton,delete_button;
 
     public UploadCaseListAdapter(Activity context, List<CaseRecord> items) {
         mContext = context;
@@ -95,6 +96,7 @@ public class UploadCaseListAdapter extends BaseAdapter {
         textView1= (TextView) convertView.findViewById(R.id.dateText);
         textView2= (TextView) convertView.findViewById(R.id.addressText);
         uploadButton = (Button) convertView.findViewById(R.id.upload_button);
+		delete_button = (Button) convertView.findViewById(R.id.delete_button);
         final CaseRecord item=mItems.get(position);
 
         textView.setText(item.displayId);
@@ -127,10 +129,14 @@ public class UploadCaseListAdapter extends BaseAdapter {
 
         if(isPostUploaded(item.caseId+"")){
             uploadButton.setVisibility(View.GONE);
+			delete_button.setVisibility(View.VISIBLE);
         }
+
+
 
         if(item.status.equals("postsubmitted") || item.status.equals("submitted") && !item.status.equals("presubmitted") && !item.status.equals("postcomplete") && !item.status.equals("complete")){
             uploadButton.setVisibility(View.GONE);
+			delete_button.setVisibility(View.VISIBLE);
         }
 
         InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper("instances.db");
@@ -181,8 +187,35 @@ public class UploadCaseListAdapter extends BaseAdapter {
             }
         });
 
+		delete_button.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+
+				CaseRecord record = new CaseRecord();
+				List<CaseRecord> list = record.findWithQuery(CaseRecord.class, "Select * from Case_Record", null);
+				System.out.println("before size :::: "+list.size());
+
+				for(CaseRecord record1 : list){
+					System.out.println("item :::: "+record1.caseId);
+				}
+
+				CaseRecord.deleteAll(CaseRecord.class, "case_id = ?", item.caseId+"");
+
+				List<CaseRecord> list1 = record.findWithQuery(CaseRecord.class, "Select * from Case_Record", null);
+				System.out.println("after size :::: "+list1.size());
+
+				for(CaseRecord record1 : list1){
+					System.out.println("item 1:::: "+record1.caseId);
+				}
+
+				((SubmittedCaseActivity)mContext).resume();
+
+			}
+		});
+
         convertView.setTag(mItems);
         uploadButton.setTag(item);
+        delete_button.setTag(item);
         return convertView;
     }
 
@@ -240,6 +273,8 @@ public class UploadCaseListAdapter extends BaseAdapter {
         instanceId[0]=id;
         if(!mobileDataEnabled && !wifi.isWifiEnabled()){
             buildAlertMessageNoInternet();
+
+
         }else{
 
             Intent i = new Intent(mContext, InstanceUploaderActivity.class);

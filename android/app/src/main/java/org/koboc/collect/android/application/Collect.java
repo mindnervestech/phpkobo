@@ -14,11 +14,15 @@
 
 package org.koboc.collect.android.application;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.orm.SugarApp;
 
@@ -105,6 +109,8 @@ public class Collect extends SugarApp {
 
     private  String caseId;
     private  String tokenAuthentification;
+
+
 
     // share all session cookies across all sessions...
     private CookieStore cookieStore = new BasicCookieStore();
@@ -243,5 +249,31 @@ public class Collect extends SugarApp {
         mActivityLogger = new ActivityLogger(
                 mgr.getSingularProperty(PropertyManager.DEVICE_ID_PROPERTY));
     }
+
+	public void sendEmail(Exception e) {
+		Log.i("Send email", "");
+		String[] TO = {""};
+		String[] CC = {""};
+		Intent emailIntent = new Intent(Intent.ACTION_SEND);
+
+		//System.out.println("error :: "+e.toString());
+
+		emailIntent.setData(Uri.parse("mailto:"));
+		emailIntent.setType("text/plain");
+		emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
+		emailIntent.putExtra(Intent.EXTRA_CC, CC);
+		emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Your subject");
+		emailIntent.putExtra(Intent.EXTRA_TEXT, "eee");
+		emailIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+		try {
+			startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+			//	finish();
+			Log.i("Finished sending email...", "");
+		}
+		catch (android.content.ActivityNotFoundException ex) {
+			Toast.makeText(this, "There is no email client installed.", Toast.LENGTH_SHORT).show();
+		}
+	}
 
 }

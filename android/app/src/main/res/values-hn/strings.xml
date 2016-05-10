@@ -14,6 +14,7 @@
     <string name="user">यूजर</string>
     <string name="password">पासवर्ड</string>
     <string name="alert">अलर्ट</string>
+    <string name="change_password">Change Password</string>
     <string name="map">मैप</string>
     <string name="open_cases">ओपन</string>
     <string name="complete_cases">कम्पलीट</string>
@@ -285,6 +286,16 @@
     <string name="admin_password_incorrect">Sorry, password is incorrect!</string>
     <string name="enter_admin_password">Enter Admin Password</string>
     <string name="found_in_menu">Found using Menu button in Form Entry</string>
+
+    <string name="crash_toast_text">Little Sister Crashed</string>
+    <string name="crash_dialog_title">Little Sister Report</string>
+    <string name="crash_dialog_text">Little Sister error</string>
+    <string name="crash_dialog_comment_prompt">Comment here</string>
+    <string name="crash_dialog_ok_toast">Ok！</string>
+
+    <string name="default_java_server_url">http://139.162.13.46:8080</string>
+    <string name="default_phython_server_url">http://139.162.13.46:8001</string>
+
 
 
 </resources>

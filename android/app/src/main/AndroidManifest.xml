@@ -55,13 +55,13 @@
         android:theme="@style/Collect" >
 
         <meta-data android:name="DATABASE" android:value="koboc.db" />
-        <meta-data android:name="VERSION" android:value="5" />
+        <meta-data android:name="VERSION" android:value="6" />
         <meta-data android:name="QUERY_LOG" android:value="true" />
         <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="org.koboc.collect.android.database" />
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyBTCzr4IP7KaBOUquBr_1V-S2QuVsDYq8U" />
+            android:value="AIzaSyD4Mgetxh2-LrabWEm8YHV-5a9VUWkTTyg" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

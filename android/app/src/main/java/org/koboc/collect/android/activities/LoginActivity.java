@@ -103,10 +103,32 @@ public class LoginActivity extends Activity {
         //AuthUser.deleteAll(AuthUser.class);
         AuthUser authUser = AuthUser.findLoggedInUser();
         if(authUser != null && authUser.getLogged().equals("true")) {
+			//Uncomment foe new versionm
+			CaseRecord record = new CaseRecord();
+			List<CaseRecord> caseRecords1 = record.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where uid = null");
+			List<CaseRecord> caseRecords2 = record.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where uid = 0");
+
+			System.out.println("caseRecords1 ::::: "+caseRecords1.size());
+			System.out.println("caseRecords2 ::::: "+caseRecords2.size());
+
+
+			List<CaseRecord> lists = record.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record");
+			for(CaseRecord c : lists) {
+				System.out.println("userId ::::: "+c.uid);
+				System.out.println("authUser.getUserId() ::::: "+authUser.getUserId());
+
+				if(c.uid == 0){
+					System.out.println("saved ::::: ");
+					c.uid = authUser.getUserId();
+				    c.save();
+				}
+			}
+
             Intent intent=new Intent(LoginActivity.this,SplashScreenActivity.class);
             startActivity(intent);
             finish();
-        }
+
+		}
 
         languageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,10 +180,10 @@ public class LoginActivity extends Activity {
                                     //TODO : implement above , refer to delete form section in OOB
 
                                     // Toast.makeText(LoginActivity.this, " in CaseRecord.deleteAll ", Toast.LENGTH_SHORT).show();
-                                    CaseRecord.deleteAll(CaseRecord.class);
+                              //      CaseRecord.deleteAll(CaseRecord.class);
 
                                     //delete ODK folder from SDcards
-                                    File folder = Environment.getExternalStorageDirectory();
+                                   /* File folder = Environment.getExternalStorageDirectory();
                                     String fileName = folder.getPath() + "/odk/forms/";
                                     System.out.println("folder path::::" + fileName);
                                     File myFile = new File(fileName);
@@ -171,23 +193,23 @@ public class LoginActivity extends Activity {
                                     System.out.println("folder path::::" + fileName);
                                     File myFile1 = new File(fileName1);
                                     deleteDirectory(myFile1);
-
+*/
                                     //Database helper instance
-                                    InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
+                                  /*  InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
                                     FormsProvider.DatabaseHelper databaseHelper1 = new FormsProvider.DatabaseHelper("forms.db");
                                     db = databaseHelper.getWritableDatabase();
-
+*/
                                     //Form Table Query
-                                    SQLiteDatabase database = databaseHelper1.getWritableDatabase();
+                                   /* SQLiteDatabase database = databaseHelper1.getWritableDatabase();
 
                                     db.execSQL("delete from instances");
-                                    database.execSQL("delete from forms");
+                                    database.execSQL("delete from forms");*/
 
                                     //delete all Form from db and sdcard
-                                    DeleteFormsTask mDeleteFormsTask = new DeleteFormsTask();
+                                   /* DeleteFormsTask mDeleteFormsTask = new DeleteFormsTask();
                                     String[] data = new String[]{FormsProviderAPI.FormsColumns.DISPLAY_NAME,
                                             FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT, FormsProviderAPI.FormsColumns.JR_VERSION};
-                                    mDeleteFormsTask.execute(new Long[data.length]);
+                                    mDeleteFormsTask.execute(new Long[data.length]);*/
 
                                 /* Dont delete this , it may be used in future
                                 String basicAuthWithToken = "Basic " + Base64.encodeToString(String.format("%s:%s", user.getUsername(), user.getApi_token()).getBytes(), Base64.NO_WRAP);
@@ -215,6 +237,20 @@ public class LoginActivity extends Activity {
                             editor.commit();
 
                             user.save();
+
+							//Uncomment foe new versionm
+							CaseRecord record = new CaseRecord();
+							List<CaseRecord> lists = record.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record");
+							for(CaseRecord c : lists) {
+								System.out.println("userId ::::: "+c.uid);
+								System.out.println("authUser.getUserId() ::::: "+userVM.getId());
+
+								if(c.uid == 0){
+									System.out.println("saved ::::: ");
+									c.uid = userVM.getId();
+									c.save();
+								}
+							}
 
                             if (user.getRole().contains("consultant")) {
                                 getConsultantCase();
@@ -272,7 +308,7 @@ public class LoginActivity extends Activity {
                 System.out.println("basic auth::"+basicAuth);
                 System.out.println("url:::::::::"+response.getUrl());
 
-                CaseRecord.deleteAll(CaseRecord.class);
+                //CaseRecord.deleteAll(CaseRecord.class);
                 for(CaseResponseVM crVm : caseVMList){
                     CaseRecord cr = new CaseRecord();
                     cr.caseId = crVm.id;
@@ -282,6 +318,8 @@ public class LoginActivity extends Activity {
                     cr.latitude = crVm.latitude;
                     cr.longitude = crVm.longitude;
                     cr.displayId = crVm.caseId;
+					//uncomment for new version
+					cr.uid = AuthUser.findLoggedInUser().getUserId();
 
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                     Date d1= new Date(crVm.dateCreated);

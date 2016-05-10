@@ -15,6 +15,8 @@
 package org.koboc.collect.android.tasks;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.application.Collect;
@@ -48,7 +51,10 @@ import org.opendatakit.httpclientandroidlib.entity.mime.content.FileBody;
 import org.opendatakit.httpclientandroidlib.entity.mime.content.StringBody;
 import org.opendatakit.httpclientandroidlib.protocol.HttpContext;
 
+import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
@@ -57,6 +63,16 @@ import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+import android.widget.Toast;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 /**
  * Background task for uploading completed forms.
@@ -65,6 +81,8 @@ import android.webkit.MimeTypeMap;
  */
 public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<String, String>> {
 
+
+
     private static final String t = "InstanceUploaderTask";
     // it can take up to 27 seconds to spin up Aggregate
     private static final int CONNECTION_TIMEOUT = 60000;
@@ -72,10 +90,21 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
 
     private InstanceUploaderListener mStateListener;
 
+	private Context mContext;
+
     private Uri mAuthRequestingServer;
     HashMap<String, String> mResults;
 
-    /**
+
+	/*public InstanceUploaderTask(Context context) {
+
+		mContext = context;
+
+	}*/
+
+
+
+	/**
      * Uploads to urlString the submission identified by id with filepath of instance
      * @param urlString destination URL
      * @param id
@@ -174,6 +203,8 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
+							System.out.println("error :::::::::::: 5");
+							sendMail("akshaythakar42@gmail.com", "Kobo Exception", e.toString());
                             mResults.put(id, fail + urlString + " " + e.toString());
                             cv.put(InstanceColumns.STATUS,
                                 InstanceProviderAPI.STATUS_SUBMISSION_FAILED);
@@ -201,6 +232,8 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                 }
             } catch (ClientProtocolException e) {
                 e.printStackTrace();
+				System.out.println("error :::::::::::: 4");
+				sendMail("akshaythakar42@gmail.com", "Kobo Exception", e.toString());
                 Log.e(t, e.toString());
                 WebUtils.clearHttpConnectionManager();
                 mResults.put(id, fail + "Client Protocol Exception");
@@ -209,6 +242,7 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                 return true;
             } catch (ConnectTimeoutException e) {
                 e.printStackTrace();
+				sendMail("akshaythakar42@gmail.com", "Kobo Exception", e.toString());
                 Log.e(t, e.toString());
                 WebUtils.clearHttpConnectionManager();
                 mResults.put(id, fail + "Connection Timeout");
@@ -218,6 +252,8 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 Log.e(t, e.toString());
+				System.out.println("error :::::::::::: 3");
+				sendMail("akshaythakar42@gmail.com", "Kobo Exception", e.toString());
                 WebUtils.clearHttpConnectionManager();
                 mResults.put(id, fail + e.toString() + " :: Network Connection Failed");
                 cv.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_SUBMISSION_FAILED);
@@ -227,6 +263,8 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                 e.printStackTrace();
                 Log.e(t, e.toString());
                 WebUtils.clearHttpConnectionManager();
+				System.out.println("error :::::::::::: 2");
+				sendMail("akshaythakar42@gmail.com", "Kobo Exception", e.toString());
                 mResults.put(id, fail + "Connection Timeout");
                 cv.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_SUBMISSION_FAILED);
                 Collect.getInstance().getContentResolver().update(toUpdate, cv, null, null);
@@ -235,6 +273,19 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                 e.printStackTrace();
                 Log.e(t, e.toString());
                 WebUtils.clearHttpConnectionManager();
+
+				System.out.println("generic exception 2::::: ");
+
+
+				StringWriter errors = new StringWriter();
+				e.printStackTrace(new PrintWriter(errors));
+
+				sendMail("akshaythakar42@gmail.com", "Kobo Exception", errors.toString());
+
+				//Collect.getInstance().sendEmail(e);
+
+				//sendEmail(e);
+
                 mResults.put(id, fail + "Generic Exception");
                 cv.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_SUBMISSION_FAILED);
                 Collect.getInstance().getContentResolver().update(toUpdate, cv, null, null);
@@ -456,6 +507,20 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                     return true;
                 }
             } catch (Exception e) {
+
+				System.out.println("generic exception 1::::: ");
+
+				StringWriter errors = new StringWriter();
+				e.printStackTrace(new PrintWriter(errors));
+
+
+
+				sendMail("akshaythakar42@gmail.com", "Kobo Exception", errors.toString());
+
+				//Collect.getInstance().sendEmail(e);
+
+				//sendEmail(e);
+
                 e.printStackTrace();
                 Log.e(t, e.toString());
                 WebUtils.clearHttpConnectionManager();
@@ -479,6 +544,8 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
     protected HashMap<String, String> doInBackground(Long... values) {
         mResults = new HashMap<String, String>();
         mAuthRequestingServer = null;
+
+
 
         String selection = InstanceColumns._ID + "=?";
         String[] selectionArgs = new String[values.length];
@@ -541,11 +608,17 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                         String status = role.equalsIgnoreCase("sangini") ?
                                 "Submitted":form_id.toLowerCase().contains("pre_")?"Complete":"Closed";
 
+						System.out.println("error :::::::::::: 1");
+					//	sendMail("akshaythakar42@gmail.com", "Kobo Exception", status);
+
+
 
                         urlString += "?deviceID=" + URLEncoder.encode(deviceId, "UTF-8");
                         urlString += "&caseID=" + URLEncoder.encode(caseId, "UTF-8"); // This has been added by jagbir
                         urlString += "&status=" + URLEncoder.encode(status, "UTF-8");
 					} catch (UnsupportedEncodingException e) {
+
+						sendMail("akshaythakar42@gmail.com", "Kobo Exception", e.toString());
 						// unreachable...
 					}
 
@@ -594,4 +667,74 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
             mStateListener = sl;
         }
     }
+
+	private static final String username = "akshaythakar42@gmail.com";
+	private static final String password = "24akshay92";
+
+
+	private void sendMail(String email, String subject, String messageBody) {
+		Session session = createSessionObject();
+
+		try {
+			Message message = createMessage(email, subject, messageBody, session);
+			new SendMailTask().execute(message);
+		} catch (AddressException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private Message createMessage(String email, String subject, String messageBody, Session session) throws MessagingException, UnsupportedEncodingException {
+		Message message = new MimeMessage(session);
+		message.setFrom(new InternetAddress("tutorials@tiemenschut.com", "Tiemen Schut"));
+		message.addRecipient(Message.RecipientType.TO, new InternetAddress(email, email));
+		message.setSubject(subject);
+		message.setText(messageBody);
+		return message;
+	}
+
+	private Session createSessionObject() {
+		Properties properties = new Properties();
+		properties.put("mail.smtp.auth", "true");
+		properties.put("mail.smtp.starttls.enable", "true");
+		properties.put("mail.smtp.host", "smtp.gmail.com");
+		properties.put("mail.smtp.port", "587");
+
+		return Session.getInstance(properties, new javax.mail.Authenticator() {
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(username, password);
+			}
+		});
+	}
+
+	private class SendMailTask extends AsyncTask<Message, Void, Void> {
+		private ProgressDialog progressDialog;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			//progressDialog = ProgressDialog.show(MainActivity.this, "Please wait", "Sending mail", true, false);
+		}
+
+		@Override
+		protected void onPostExecute(Void aVoid) {
+			super.onPostExecute(aVoid);
+		//	progressDialog.dismiss();
+		}
+
+		@Override
+		protected Void doInBackground(Message... messages) {
+			try {
+				Transport.send(messages[0]);
+			} catch (MessagingException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+	}
+
+
 }

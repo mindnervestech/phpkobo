@@ -94,14 +94,18 @@ public class MyCaseActivity extends Activity {
        // list = record.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where caseId");
 
         caseRecord = new CaseRecord();
-        caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where status in (\"incomplete\",\"new\",\"\")");
+		//Uncomment foe new versionm
+        caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where status in (\"incomplete\",\"new\",\"\") and uid = "+AuthUser.findLoggedInUser().getUserId());
+        //caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where status in (\"incomplete\",\"new\",\"\") ");
 
         for (CaseRecord item : caseRecords) {
             //Instance Table Query
             Boolean isComplete = false;
             Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + item.caseId, null);
             if (cursor.getCount() == 0) {
-                List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ?", item.caseId + "");
+				//Uncomment foe new versionm
+                List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ? and uid = ?", item.caseId + "",AuthUser.findLoggedInUser().getUserId()+"");
+               // List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ?", item.caseId + "");
                 CaseRecord record = new CaseRecord();
                 record = list.get(0);
                 record.status = "new";
@@ -168,7 +172,10 @@ public class MyCaseActivity extends Activity {
         if(user.getRole().equals("consultant")){
             getConsultantCase();
         }else{
-            caseRecords = caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"incomplete\",\"new\")");
+
+			//Uncomment foe new versionm
+           caseRecords = caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"incomplete\",\"new\")and uid = "+AuthUser.findLoggedInUser().getUserId());
+			// caseRecords = caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"incomplete\",\"new\")");
         }
 
         adapter = new CaseListAdapter(getApplicationContext(), caseRecords);
@@ -222,8 +229,11 @@ public class MyCaseActivity extends Activity {
                     // cr = CaseRecord.findById(CaseRecord.class, crVm.id);
                     records = caseRecord.findWithQuery(CaseRecord.class, "Select * from Case_Record where case_id = ?", crVm.id + "");
 
+					System.out.println("is that case present ::: "+records.size());
+
                     if (records.size() != 0) {
                         continue;
+						//break;
                     }
 
                     CaseRecord cr = new CaseRecord();
@@ -235,11 +245,12 @@ public class MyCaseActivity extends Activity {
                         cr.caseId = crVm.id;
                     }
 
-
                     cr.status = crVm.status;
                     cr.latitude = crVm.latitude;
                     cr.longitude = crVm.longitude;
                     cr.displayId = crVm.caseId;
+					//uncomment for new version
+					cr.uid = AuthUser.findLoggedInUser().getUserId();
 
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                     Date d1 = new Date(crVm.dateCreated);
@@ -251,8 +262,8 @@ public class MyCaseActivity extends Activity {
                         e.printStackTrace();
                     }
                     cr.save();
+					System.out.println("saved from api ::: ");
                 }
-
 
                 for (CaseRecord item : caseRecords) {
                     //Instance Table Query
@@ -260,16 +271,24 @@ public class MyCaseActivity extends Activity {
                     Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + item.caseId, null);
 
                     if (cursor.getCount() == 0) {
-                        List<CaseRecord> list1 = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ?", item.caseId + "");
+						//uncomment for new version
+                        List<CaseRecord> list1 = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ? and uid = ? ", item.caseId + "",AuthUser.findLoggedInUser().getUserId()+"");
+                      //  List<CaseRecord> list1 = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ? ", item.caseId + "");
                         CaseRecord record1 = new CaseRecord();
                         record1 = list1.get(0);
                         record1.status = "new";
                         record1.save();
-                    }
 
+						System.out.println("saved if no instance ::");
+
+
+                    }
                 }
                 // caseRecords.clear();
-                caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where status not in (\"presubmitted\",\"precomplete\",\"complete\")", null);
+
+               // caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where status not in (\"presubmitted\",\"precomplete\",\"complete\")", null);
+				//uncomment for new version
+                caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where status not in (\"presubmitted\",\"precomplete\",\"complete\") and uid = ?" ,AuthUser.findLoggedInUser().getUserId()+"");
                // adapter.notifyDataSetChanged();
                 adapter = new CaseListAdapter(getApplicationContext(),caseRecords);
                 listView.setAdapter(adapter);

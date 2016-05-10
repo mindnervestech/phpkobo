@@ -368,7 +368,9 @@ public class AlertActivity extends Activity {
                     Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.failurecase), Toast.LENGTH_SHORT);
                 } else {
                     CaseRecord caseRecord = new CaseRecord(caseId,longitude, latitude, addressText, caseVM1.id, "", createdDate, createdDate,false);
-                    caseRecord.save();
+					//Uncomment foe new versionm
+                     caseRecord.uid = AuthUser.findLoggedInUser().getUserId();
+					caseRecord.save();
                     showCustomToast(getApplicationContext().getString(R.string.successcase), Toast.LENGTH_LONG);
                 }
             }

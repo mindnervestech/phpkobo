@@ -28,6 +28,7 @@ import android.widget.ListView;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.adapters.PreCompleteListAdapter;
 import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.provider.FormsProvider;
 import org.koboc.collect.android.provider.InstanceProvider;
@@ -55,7 +56,10 @@ public class PreCompleteActivity extends Activity{
         database = databaseHelperInstance.getWritableDatabase();
 
         CaseRecord caseRecord = new CaseRecord();
-        List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ?","complete");
+
+		//uncomment for new version
+		List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ? and uid = ?","complete", AuthUser.findLoggedInUser().getUserId()+"");
+        //List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ?","complete");
 
         System.out.println("pre list sized  :: "+list.size());
         int i=0;
@@ -65,7 +69,10 @@ public class PreCompleteActivity extends Activity{
 
             if (isAllComplete(record.caseId+""))
             {
-                List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where Case_Id = ?",record.caseId+"");
+              //  List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where Case_Id = ?",record.caseId+"");
+
+				//uncomment for new version
+                List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where Case_Id = ? and uid = ?",record.caseId+"",AuthUser.findLoggedInUser().getUserId()+"");
                 System.out.println("Case record size::::"+caseRecords.size());
                 System.out.println("Precomplete set .. "+caseRecords.size());
                 CaseRecord caseRecord1 = caseRecords.get(0);
@@ -116,7 +123,9 @@ public class PreCompleteActivity extends Activity{
 
         }
 
-        preCompleteList = caseRecord.findWithQuery(CaseRecord.class,"Select * from Case_Record where status in (\"precomplete\")");
+       // preCompleteList = caseRecord.findWithQuery(CaseRecord.class,"Select * from Case_Record where status in (\"precomplete\")");
+		//uncomment for new version
+        preCompleteList = caseRecord.findWithQuery(CaseRecord.class,"Select * from Case_Record where status in (\"precomplete\") and uid = ?",AuthUser.findLoggedInUser().getUserId()+"");
         System.out.println("preCompleteList::::"+preCompleteList.size());
         adapter = new PreCompleteListAdapter(getApplicationContext(),preCompleteList);
         listView.setAdapter(adapter);

@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by User on 02-06-2015.
  */
-public class AuthUser extends SugarRecord<AuthUser> {
+public class AuthUser extends SugarRecord {
 
     private Long userId;
     private String api_token;

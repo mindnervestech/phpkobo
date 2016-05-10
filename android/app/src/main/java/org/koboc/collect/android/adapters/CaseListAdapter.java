@@ -122,9 +122,12 @@ public class CaseListAdapter extends BaseAdapter {
         Date date2 = new Date();
         long diff = date2.getTime() - date1.getTime();
         System.out.println("day difference::::::::::"+TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
-        if(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) > 5) {
+        /*if(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) > 5) {
+
+		//	TODO : Remove red color from conseller
+
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_red);
-        }
+        }*/
         return convertView;
     }
 }

@@ -37,7 +37,7 @@ import org.koboc.collect.android.utilities.DatabaseUtility;
 import java.util.List;
 
 public class SubmittedCaseActivity extends Activity{
-    private ListView listView;
+    public ListView listView;
     private UploadCaseListAdapter adapter;
     private CaseRecord caseRecord;
     private List<CaseRecord> caseRecords;
@@ -52,7 +52,9 @@ public class SubmittedCaseActivity extends Activity{
         long cnt=CaseRecord.count(CaseRecord.class,null,null);
 
         caseRecord=new CaseRecord();
-        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"complete\",\"presubmitted\",\"postcomplete\",\"postsubmitted\")");
+		//Uncomment foe new versionm
+        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"complete\",\"presubmitted\",\"postcomplete\",\"postsubmitted\") and uid = "+AuthUser.findLoggedInUser().getUserId());
+        //caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"complete\",\"presubmitted\",\"postcomplete\",\"postsubmitted\")");
 
         //Database helper instance
         InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
@@ -136,7 +138,9 @@ public class SubmittedCaseActivity extends Activity{
         }*/
 
 
-        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"presubmitted\",\"submitted\",\"complete\",\"postcomplete\",\"postsubmitted\")");
+        //caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"presubmitted\",\"submitted\",\"complete\",\"postcomplete\",\"postsubmitted\")");
+		//Uncomment foe new versionm
+        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"presubmitted\",\"submitted\",\"complete\",\"postcomplete\",\"postsubmitted\") and uid = "+AuthUser.findLoggedInUser().getUserId());
         adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         listView.setAdapter(adapter);
     }
@@ -164,11 +168,41 @@ public class SubmittedCaseActivity extends Activity{
                 }
             }
         }*/
-        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"presubmitted\",\"submitted\",\"complete\",\"postcomplete\",\"postsubmitted\")");
+
+      // caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"presubmitted\",\"submitted\",\"complete\",\"postcomplete\",\"postsubmitted\")");
+		//Uncomment foe new versionm
+        caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"presubmitted\",\"submitted\",\"complete\",\"postcomplete\",\"postsubmitted\") and uid = "+AuthUser.findLoggedInUser().getUserId());
         adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         listView.setAdapter(adapter);
 
     }
+
+	public void resume(){
+
+		InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
+
+		SQLiteDatabase database = databaseHelper.getWritableDatabase();
+		Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
+
+		CaseRecord recordTest = new CaseRecord();
+		//System.out.println("Testing ::::::::: "+recordTest.findWithQuery(CaseRecord.class,"Select * from Case_Record where case_Id = "+Collect.getInstance().getCaseId() ).size());
+		//System.out.println("Status:::::::::"+recordTest.findWithQuery(CaseRecord.class,"Select * from Case_Record where case_Id = "+Collect.getInstance().getCaseId() ).get(0).status);
+        /*while(cursor1.moveToNext()){
+            if(cursor1.getString(7).equals("submitted")){
+                for (CaseRecord item:caseRecords){
+                    if(cursor1.getLong(9) == item.caseId) {
+                        item.isSent = true;
+                        item.save();
+                    }
+
+                }
+            }
+        }*/
+		caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"presubmitted\",\"submitted\",\"complete\",\"postcomplete\",\"postsubmitted\")");
+		adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
+		listView.setAdapter(adapter);
+
+	}
 
     @Override
     public void onBackPressed() {

@@ -34,7 +34,10 @@ import android.widget.LinearLayout;
 
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.database.AuthUser;
+import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.preferences.PreferencesActivity;
+import org.opendatakit.httpclientandroidlib.auth.AUTH;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -54,7 +57,8 @@ public class SplashScreenActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        System.out.println("in splash:::::::::::::::");
+        System.out.println("in splash  AuthUser:::::::::::::::"+ AuthUser.listAll(AuthUser.class).size());
+        System.out.println("in splash  CaseRecord:::::::::::::::"+ CaseRecord.listAll(CaseRecord.class).size());
 
         /*CaseRecord record = new CaseRecord();
         record.caseId = 1446195311;

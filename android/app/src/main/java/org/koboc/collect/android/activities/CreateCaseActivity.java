@@ -149,7 +149,9 @@ public class CreateCaseActivity extends Activity {
                     Toast.makeText(getApplicationContext(), "Not able to log case", Toast.LENGTH_SHORT);
                 } else {
                     CaseRecord caseRecord = new CaseRecord(caseId,0, 0, addressString, caseVM1.id, "external", createdDate, createdDate,false);
-                    caseRecord.save();
+					//Uncomment foe new versionm
+					caseRecord.uid = AuthUser.findLoggedInUser().getUserId();
+					caseRecord.save();
                     showCustomToast(getApplicationContext().getString(R.string.successcase), Toast.LENGTH_LONG);
                 }
             }
