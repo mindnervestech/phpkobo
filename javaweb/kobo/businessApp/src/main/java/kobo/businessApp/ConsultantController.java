@@ -626,7 +626,7 @@ public class ConsultantController {
 			@RequestParam ("status") String status) {
 	
 		List<loggerCaseVM> aaa = new ArrayList<loggerCaseVM>();
-		List cases = null;
+		List<LoggerCase> cases = null;
 		//System.out.println("start =="+start);
 		end.setHours(23);
 		end.setMinutes(59);
@@ -651,6 +651,7 @@ public class ConsultantController {
 						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.list();
 			}
+			cases = getOwnerRole(cases);
 			return cases;
 		}
 		
@@ -660,6 +661,7 @@ public class ConsultantController {
 					.add(Restrictions.and(Restrictions.eq("owner.id", sangini), Restrictions.eq("consultant.id", consult)))
 					.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 					.list();
+			cases = getOwnerRole(cases);
 			return cases;
 		} 
 			
@@ -676,7 +678,7 @@ public class ConsultantController {
 						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.list();
 			}
-
+			cases = getOwnerRole(cases);
 			return cases;
 		}
 		
@@ -693,7 +695,7 @@ public class ConsultantController {
 						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.list();
 			}
-
+			cases = getOwnerRole(cases);
 			return cases;
 		}
 		
@@ -705,7 +707,7 @@ public class ConsultantController {
 					.add(Restrictions.eq("owner.id", sangini))
 					.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 					.list();
-			
+			cases = getOwnerRole(cases);
 			return cases;
 		}
 		if(consult != 0){
@@ -714,6 +716,7 @@ public class ConsultantController {
 					.add(Restrictions.eq("consultant.id", consult))
 					.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 					.list();
+			cases = getOwnerRole(cases);
 			return cases;
 		}
 		if(!status.equals("0")){
@@ -729,16 +732,22 @@ public class ConsultantController {
 						.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						.list();
 			}
+			cases = getOwnerRole(cases);
 			return cases;
 		}
 		
 		cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
 				.add(Restrictions.between("dateCreated",start, end)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 				.list();
-		
+		cases = getOwnerRole(cases); 
 		//System.out.println("cases --==="+cases.size());
 		return cases;
 	}
 	
-
+	public List<LoggerCase> getOwnerRole(List<LoggerCase> cases) {
+		for(LoggerCase c : cases) {
+			c.setOwner_role(c.getOwner().getAuthUserGroups().get(0).getAuthGroup().getName());
+		}
+		return cases;
+	}
 }

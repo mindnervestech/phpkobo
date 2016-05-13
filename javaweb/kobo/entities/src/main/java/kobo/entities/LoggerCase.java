@@ -31,6 +31,19 @@ public class LoggerCase implements Serializable {
 	private String caseId;
 	
 	private String note;
+	
+	@Transient
+	private String owner_role;
+
+	@Transient
+	public String getOwner_role() {
+		return owner_role;
+	}
+
+	@Transient
+	public void setOwner_role(String owner_role) {
+		this.owner_role = owner_role;
+	}
 
 	private String status;
 	

@@ -1453,7 +1453,7 @@ App.run(function($rootScope, $state, $location, Auth) {
 	    //}, 3000);
 		
 		$scope.ALLStatus = [{
-			id:'open',
+			id:'New',
 		    name:'New'
 			},
 			{
@@ -1702,16 +1702,23 @@ App.run(function($rootScope, $state, $location, Auth) {
 	      .withColumnFilter();
 
 
-		
+	    $scope.currentStatus = "";
 		console.log("All Cases Controller");
-	
-		
-			$http.get('/webapp/case').success(function(resp){
-				console.log(resp);
-				$scope.myAllcase = resp;
-				$scope.myAllcaseowner = resp.owner;
+		$scope.onClickTab = function(status){
+			$scope.currentStatus = status;
+			//console.log(status);
+			//console.log($scope.currentStatus);
+			$http.get('/webapp/filteredCase?status='+status).success(function(resp){
+				if($scope.currentStatus == status){
+					console.log(resp);
+					$scope.myAllcase = resp;
+					$scope.myAllcaseowner = resp.owner;
+				}
 				//$('#saved-report-tab a').click();
 			});
+		}
+		
+			
 			
 			$scope.editDetailsCase = function(data){
 				console.log("editDetailsCase = "+data);

@@ -34,6 +34,7 @@ import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.SimpleExpression;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.postgresql.util.Base64;
@@ -202,6 +203,84 @@ public class ApplicationController {
 						 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 						 //.add(Restrictions.eq("owner", idd))
 						.list();
+			}
+		}
+		
+		//System.out.println("cases --==="+cases.size());
+		return cases;
+	}
+	
+	@RequestMapping(value="filteredCase",method=RequestMethod.GET)
+	@ResponseBody
+	@Transactional(readOnly=true)
+	public List allOwnedUserFilteredCases(HttpServletRequest httpRequest,@RequestParam("status") String status) {
+		
+		Criterion statusCri = null;
+		
+		if(status.equals("Open")) {
+			statusCri = Restrictions.and(Restrictions.ne("status", "Closed"),
+					Restrictions.ne("status", "Complete")); 
+		}else {
+			statusCri = Restrictions.eq("status", status);
+		}
+		
+		
+		AuthUser user = getUserFromRequest(httpRequest,sessionFactory);
+		JsonNode node = (JsonNode)httpRequest.getSession().getAttribute("user");
+		//System.out.println(user);
+		List<LoggerCase> cases = null;
+		
+		if(node != null) {
+			System.out.println("node not null");
+			node.getObject().getJSONArray("groups").get(0);
+			Integer idd = node.getObject().getInt("id");
+			//System.out.println("my idd =="+idd);
+			if(node.getObject().getJSONArray("groups").get(0).equals("consultant")){
+				cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						.add(statusCri)
+						.add(Restrictions.eq("consultant.id", idd)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						.list();
+				for(LoggerCase c : cases) {
+					c.setOwner_role(c.getOwner().getAuthUserGroups().get(0).getAuthGroup().getName());
+				}
+				
+			}else{
+				//System.out.println("admin");
+				 cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						 //.add(Restrictions.eq("owner", idd))
+						 .add(statusCri)
+						 .list();
+			}
+		}else{
+			System.out.println("admin");
+			 cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+					 .add(statusCri).list();
+			 for(LoggerCase c : cases) {
+					c.setOwner_role(c.getOwner().getAuthUserGroups().get(0).getAuthGroup().getName());
+				}
+		}
+		
+		if(user != null){
+			System.out.println("user not null");
+			List<AuthUserGroup> authUserGroups = user.getAuthUserGroups();
+			for(AuthUserGroup group : authUserGroups) {
+				if(group.getAuthGroup().getName().equalsIgnoreCase("consultant")){
+					cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+							.add(Restrictions.eq("consultant.id", user.getId())).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+							.add(statusCri).list();
+					
+					break;
+				}
+			
+			}
+            
+			if(cases == null) {
+				System.out.println("cases null");
+				 cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+						 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+						 //.add(Restrictions.eq("owner", idd))
+						 .add(statusCri)
+						 .list();
 			}
 		}
 		
@@ -740,5 +819,21 @@ public class ApplicationController {
 		
 		System.out.println("cases --==="+cases.size());
 		return cases;
+	}
+	
+	@RequestMapping(value="isCaseDeleted",method=RequestMethod.GET)
+	@ResponseBody
+	@Transactional(readOnly=true)
+	public boolean checkIsDeleted(HttpServletRequest httpRequest,@RequestParam ("id") Integer id) {
+		System.out.println(id);
+		List<LoggerCase> cases = null;
+		cases = sessionFactory.getCurrentSession().createCriteria(LoggerCase.class)
+				.add(Restrictions.eq("id", id)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+				.list();
+		//System.out.println("size is "+cases.size());
+		if(cases.size() > 0){
+			return false;
+		}
+		return true;
 	}
 }

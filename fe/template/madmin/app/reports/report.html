@@ -12,8 +12,10 @@
 		<div class="">
 			<select data-ng-model="sang" class="form-control btn-blue"
 				data-ng-change="getAllSearchCases(sang,consult,status)" required>
-				<option value="0">All Sanginis</option>
-				<option data-ng-repeat="sang in Allsanginis" value="{{sang.id}}">{{sang.name}}</option>
+				<option value="0">Select All</option>
+				<option data-ng-repeat="sang in Allsanginis" value="{{sang.id}}">{{sang.name}} (S)</option>
+				<option data-ng-repeat="consult in AllAreaconsultant"
+					value="{{consult.id}}">{{consult.firstName}} {{consult.lastName}} (C)</option>
 			</select>
 		</div>
 	</div>
@@ -67,8 +69,8 @@
 								<th style="background-color: #dc6767; color: white;"">Case
 									Id</th>
 								<th style="background-color: #dc6767; color: white;">Created Date</th>
-								<th style="background-color: #dc6767; color: white;">Sangini</th>
-								<th style="background-color: #dc6767; color: white;">Consultant</th>
+								<th style="background-color: #dc6767; color: white;">Created By</th>
+								<th style="background-color: #dc6767; color: white;">Role</th>
 								<th style="background-color: #dc6767; color: white;">Status</th>
 							</tr>
 						</thead>
@@ -78,7 +80,7 @@
 								<td>{{ item.caseId }}</td>
 								<td>{{ item.dateCreated | date:'MM/dd/yyyy HH:mm' }}</td>
 								<td>{{ item.owner.firstName }}</td>
-								<td>{{ item.consultant.firstName }}</td>
+								<td>{{ item.owner_role }}</td>
 								<td>{{ item.status == null ? "New" :
 										item.status}}</td>
 							</tr>
