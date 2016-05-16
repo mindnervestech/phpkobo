@@ -50,7 +50,5 @@ public class FormListAdapter extends CursorAdapter {
 
 
         tv1.setText(mCursor.getString(1));
-        System.out.println("cursor:::"+mCursor.getString(1));
-        tv2.setText("akshay");
     }
 }

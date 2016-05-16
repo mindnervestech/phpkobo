@@ -28,6 +28,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.squareup.okhttp.OkHttpClient;
+
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.adapters.CaseListAdapter;
 import org.koboc.collect.android.application.Collect;
@@ -41,6 +43,7 @@ import org.koboc.collect.android.provider.InstanceProvider;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -113,7 +116,7 @@ public class MyCaseActivity extends Activity {
             }
         }
 
-        adapter = new CaseListAdapter(getApplicationContext(), caseRecords);
+        adapter = new CaseListAdapter(MyCaseActivity.this, caseRecords);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -160,12 +163,21 @@ public class MyCaseActivity extends Activity {
             if (cursor.getCount() == 0) {
                 List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ?", item.caseId + "");
                 CaseRecord record = new CaseRecord();
-                record = list.get(0);
-                record.status = "new";
-                record.save();
+
+				if(list.size() > 0) {
+					record = list.get(0);
+					record.status = "new";
+					record.save();
+				}
             }
 
-        }
+
+			BASE_URL = getApplicationContext().getString(R.string.default_java_server_url);
+
+			RestAdapter restAdapter = new RestAdapter.Builder()
+					.setEndpoint(BASE_URL).setLogLevel(RestAdapter.LogLevel.FULL)
+					.setClient(new OkClient()).build();
+			myApi = restAdapter.create(MyApi.class);        }
 
         //caseRecords = caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"incomplete\",\"new\")");
 
@@ -178,7 +190,7 @@ public class MyCaseActivity extends Activity {
 			// caseRecords = caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"incomplete\",\"new\")");
         }
 
-        adapter = new CaseListAdapter(getApplicationContext(), caseRecords);
+        adapter = new CaseListAdapter(MyCaseActivity.this, caseRecords);
         listView.setAdapter(adapter);
     }
 
@@ -204,47 +216,48 @@ public class MyCaseActivity extends Activity {
 
     public void getConsultantCase() {
 
-        BASE_URL = getApplicationContext().getString(R.string.default_java_server_url);
-
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(BASE_URL).setLogLevel(RestAdapter.LogLevel.FULL)
-                .setClient(new OkClient()).build();
-        myApi = restAdapter.create(MyApi.class);
 
         AuthUser authUser = AuthUser.findLoggedInUser();
         String token = authUser.getApi_token();
         String username = authUser.getUsername();
         String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", username, token).getBytes(), Base64.NO_WRAP);
 
-        myApi.getCase(basicAuth, new Callback<List<CaseResponseVM>>() {
+		OkHttpClient okHttpClient = new OkHttpClient();
+		okHttpClient.setReadTimeout(336597 , TimeUnit.MILLISECONDS);
+		okHttpClient.setConnectTimeout(336597 , TimeUnit.MILLISECONDS);
+
+		BASE_URL = getApplicationContext().getString(R.string.default_java_server_url);
+		RestAdapter restAdapter = new RestAdapter.Builder()
+				.setEndpoint(BASE_URL).setLogLevel(RestAdapter.LogLevel.FULL)
+				.setClient(new OkClient(okHttpClient)).build();
+		myApi = restAdapter.create(MyApi.class);
+
+
+	myApi.getCase(basicAuth, new Callback<List<CaseResponseVM>>() {
             @Override
             public void success(List<CaseResponseVM> caseVMList, Response response) {
                 //CaseRecord.deleteAll(CaseRecord.class);
+
+				System.out.println("Before ::::: "+caseRecord.listAll(CaseRecord.class).size());
+
                 CaseRecord record = new CaseRecord();
                 List<CaseRecord> list = record.findWithQuery(CaseRecord.class, "Select * from Case_Record", null);
-
                 for (CaseResponseVM crVm : caseVMList) {
-
                     List<CaseRecord> records;
                     // cr = CaseRecord.findById(CaseRecord.class, crVm.id);
                     records = caseRecord.findWithQuery(CaseRecord.class, "Select * from Case_Record where case_id = ?", crVm.id + "");
-
 					System.out.println("is that case present ::: "+records.size());
-
                     if (records.size() != 0) {
                         continue;
 						//break;
                     }
-
                     CaseRecord cr = new CaseRecord();
                     cr.caseId = crVm.id;
-
 
                     if (cr == null) {
                         cr = new CaseRecord();
                         cr.caseId = crVm.id;
                     }
-
                     cr.status = crVm.status;
                     cr.latitude = crVm.latitude;
                     cr.longitude = crVm.longitude;
@@ -269,7 +282,6 @@ public class MyCaseActivity extends Activity {
                     //Instance Table Query
                     Boolean isComplete = false;
                     Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + item.caseId, null);
-
                     if (cursor.getCount() == 0) {
 						//uncomment for new version
                         List<CaseRecord> list1 = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ? and uid = ? ", item.caseId + "",AuthUser.findLoggedInUser().getUserId()+"");
@@ -278,10 +290,7 @@ public class MyCaseActivity extends Activity {
                         record1 = list1.get(0);
                         record1.status = "new";
                         record1.save();
-
 						System.out.println("saved if no instance ::");
-
-
                     }
                 }
                 // caseRecords.clear();
@@ -292,6 +301,10 @@ public class MyCaseActivity extends Activity {
                // adapter.notifyDataSetChanged();
                 adapter = new CaseListAdapter(getApplicationContext(),caseRecords);
                 listView.setAdapter(adapter);
+
+
+				System.out.println("After ::::: "+caseRecord.listAll(CaseRecord.class).size());
+
             }
 
             @Override

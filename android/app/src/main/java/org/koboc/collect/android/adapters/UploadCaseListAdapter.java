@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,13 +37,16 @@ import android.widget.Toast;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.activities.FormEntryActivity;
 import org.koboc.collect.android.activities.InstanceUploaderActivity;
+import org.koboc.collect.android.activities.MyCaseActivity;
 import org.koboc.collect.android.activities.SubmittedCaseActivity;
 import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.application.MyApi;
 import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.provider.InstanceProvider;
 import org.koboc.collect.android.utilities.DatabaseUtility;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -50,17 +54,28 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.OkClient;
+import retrofit.client.Response;
+
 public class UploadCaseListAdapter extends BaseAdapter {
 
     private LayoutInflater inflater;
     private Activity mContext;
     private List<CaseRecord> mItems = new ArrayList<CaseRecord>();
     private RelativeLayout relativeLayout;
-    private SQLiteDatabase db;
     private TextView textView,textView1,textView2;
     private Button uploadButton,delete_button;
+	private MyApi myApi;
+	private String BASE_URL;
+	private static final String DATABASE_NAME = "instances.db";
+	private static final String DATABASE_NAME1 = "forms.db";
+	SQLiteDatabase db;
 
-    public UploadCaseListAdapter(Activity context, List<CaseRecord> items) {
+
+	public UploadCaseListAdapter(Activity context, List<CaseRecord> items) {
         mContext = context;
         mItems=items;
     }
@@ -191,7 +206,8 @@ public class UploadCaseListAdapter extends BaseAdapter {
 			@Override
 			public void onClick(View view) {
 
-				CaseRecord record = new CaseRecord();
+				showDialog(item.caseId);
+				/*CaseRecord record = new CaseRecord();
 				List<CaseRecord> list = record.findWithQuery(CaseRecord.class, "Select * from Case_Record", null);
 				System.out.println("before size :::: "+list.size());
 
@@ -208,7 +224,7 @@ public class UploadCaseListAdapter extends BaseAdapter {
 					System.out.println("item 1:::: "+record1.caseId);
 				}
 
-				((SubmittedCaseActivity)mContext).resume();
+				((SubmittedCaseActivity)mContext).resume();*/
 
 			}
 		});
@@ -299,5 +315,107 @@ public class UploadCaseListAdapter extends BaseAdapter {
         final AlertDialog alert = builder.create();
         alert.show();
     }
+
+	private void showDialog(final Long caseId) {
+		final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setMessage("Do you want to delete the case and related forms ?")
+				.setCancelable(false)
+				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+					public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+						isCaseExist(caseId);
+
+					}
+				}).setNegativeButton("No",new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialogInterface, int i) {
+				dialogInterface.dismiss();
+			}
+		});
+		final AlertDialog alert = builder.create();
+		alert.show();
+	}
+
+	private void isCaseExist(final Long id){
+
+
+		BASE_URL = mContext.getString(R.string.default_java_server_url);
+
+
+		AuthUser authUser = AuthUser.findLoggedInUser();
+		String token = authUser.getApi_token();
+		String username = authUser.getUsername();
+		String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", username, token).getBytes(), Base64.NO_WRAP);
+
+		InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
+		db = databaseHelper.getWritableDatabase();
+
+		RestAdapter restAdapter = new RestAdapter.Builder()
+				.setEndpoint(BASE_URL).setLogLevel(RestAdapter.LogLevel.FULL)
+				.setClient(new OkClient()).build();
+		myApi = restAdapter.create(MyApi.class);
+
+
+		myApi.isCaseDeleted(basicAuth,id,new Callback<Boolean>() {
+			@Override
+			public void success(Boolean caseResponseVMs, Response response) {
+				System.out.println("success :::: " + caseResponseVMs);
+
+				if(!caseResponseVMs) {
+					List<String> instances = new ArrayList<String>();
+					Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + id, null);
+					System.out.println("cursor ::: " + cursor.getCount());
+
+					while (cursor.moveToNext()) {
+						System.out.println("path :::: " + cursor.getString(4));
+						instances.add(cursor.getString(4));
+					}
+
+					for (String s : instances) {
+						String path = s.substring(0, s.lastIndexOf('/'));
+						File file = new File(path);
+						//Boolean aBoolean = file.delete();
+						System.out.println("deleteDirectory :::: " + s);
+						System.out.println("deleteDirectory :::: " + file);
+						deleteDirectory(file);
+					}
+
+					db.execSQL("delete from instances where caseId = " + id);
+					CaseRecord.deleteAll(CaseRecord.class, "case_id = ?", id + "");
+					((MyCaseActivity) mContext).onResume();
+
+				}else{
+					Toast.makeText(mContext,"Sorry. You can'delete this case.",Toast.LENGTH_LONG).show();
+				}
+
+			}
+
+			@Override
+			public void failure(RetrofitError error) {
+
+				error.printStackTrace();
+
+			}
+		});
+
+
+	}
+
+	public static boolean deleteDirectory(File path) {
+		if( path.exists() ) {
+			File[] files = path.listFiles();
+			if (files == null) {
+				return true;
+			}
+			for(int i=0; i<files.length; i++) {
+				if(files[i].isDirectory()) {
+					deleteDirectory(files[i]);
+				}
+				else {
+					files[i].delete();
+				}
+			}
+		}
+		return( path.delete() );
+	}
 
 }

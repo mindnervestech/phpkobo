@@ -23,6 +23,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,14 +31,21 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.okhttp.OkHttpClient;
 
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.activities.FormEntryActivity;
 import org.koboc.collect.android.activities.InstanceUploaderActivity;
+import org.koboc.collect.android.activities.MyCaseActivity;
 import org.koboc.collect.android.application.Collect;
+import org.koboc.collect.android.application.MyApi;
+import org.koboc.collect.android.database.AuthUser;
 import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.provider.InstanceProvider;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -46,16 +54,27 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.OkClient;
+import retrofit.client.Response;
+
 public class PreCompleteListAdapter extends BaseAdapter {
 
     private LayoutInflater inflater;
     private Context mContext;
     private List<CaseRecord> mItems = new ArrayList<CaseRecord>();
     private RelativeLayout relativeLayout;
-    private SQLiteDatabase db;
+	private MyApi myApi;
+	private String BASE_URL;
+	private static final String DATABASE_NAME = "instances.db";
+	private static final String DATABASE_NAME1 = "forms.db";
+	SQLiteDatabase db;
 
 
-    public PreCompleteListAdapter(Context context, List<CaseRecord> items) {
+
+	public PreCompleteListAdapter(Context context, List<CaseRecord> items) {
         mContext = context;
         mItems=items;
     }
@@ -91,9 +110,8 @@ public class PreCompleteListAdapter extends BaseAdapter {
         TextView textView1= (TextView) convertView.findViewById(R.id.dateText);
         TextView textView2= (TextView) convertView.findViewById(R.id.addressText);
         Button uploadButton = (Button) convertView.findViewById(R.id.upload_button);
+		Button deleteButton = (Button) convertView.findViewById(R.id.deleteButton);
         final CaseRecord item=mItems.get(position);
-
-        System.out.println("adapter::::::::::"+mItems.size());
 
         textView.setText(item.displayId);
 
@@ -111,8 +129,6 @@ public class PreCompleteListAdapter extends BaseAdapter {
 
         textView2.setText(item.address);
 
-        System.out.println("status::::::::::"+item.status);
-
         if(item.status.equals("incomplete") || item.status.equals("precomplete") || item.status.equals("presubmitted")){
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_yellow);
         }
@@ -125,20 +141,19 @@ public class PreCompleteListAdapter extends BaseAdapter {
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_blue);
         }
         Date date1 = new Date();
-        System.out.println("date::::::::"+item.dateCreated);
         SimpleDateFormat myFormat = new SimpleDateFormat("yyyy/mm/dd");
         try {
-            System.out.println("date 1::::::::"+item.dateCreated);
             date1 = sdf.parse(item.dateCreated);
         } catch (ParseException e) {
             e.printStackTrace();
         }
         Date date2 = new Date();
+
         long diff = date2.getTime() - date1.getTime();
-        System.out.println("day difference::::::::::"+TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
-        if(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) > 5) {
+		//Red Color if case is older than 5 days
+        /*if(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) > 5) {
             relativeLayout.setBackgroundResource(R.drawable.rect_border_community_red);
-        }
+        }*/
 
         if(item.status.equals("presubmitted")){
             uploadButton.setVisibility(View.GONE);
@@ -155,13 +170,20 @@ public class PreCompleteListAdapter extends BaseAdapter {
                 Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " +item.caseId+ " and status in (\"complete\",\"submissionFailed\")", null);
 
                 while(cursor.moveToNext()){
-                    System.out.println("instance id::::::::"+Long.parseLong(cursor.getString(0)));
                     if(cursor.getString(1).contains("Pre_"))
                          upload(Long.parseLong(cursor.getString(0)));
                 }
 
             }
         });
+
+
+		deleteButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				showDialog(item.caseId);
+			}
+		});
 
         return convertView;
     }
@@ -199,6 +221,7 @@ public class PreCompleteListAdapter extends BaseAdapter {
                             .getText().toString());*/
         }
     }
+
     private void buildAlertMessageNoInternet() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setMessage("You have to enable Internet Connection to upload form.")
@@ -212,4 +235,109 @@ public class PreCompleteListAdapter extends BaseAdapter {
         final AlertDialog alert = builder.create();
         alert.show();
     }
+
+	private void showDialog(final Long caseId) {
+		final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setMessage("Do you want to delete the case and related forms ?")
+				.setCancelable(false)
+				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+					public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+						isCaseExist(caseId);
+
+					}
+				}).setNegativeButton("No",new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialogInterface, int i) {
+				dialogInterface.dismiss();
+			}
+		});
+		final AlertDialog alert = builder.create();
+		alert.show();
+	}
+
+	private void isCaseExist(final Long id){
+
+
+		BASE_URL = mContext.getString(R.string.default_java_server_url);
+
+
+		AuthUser authUser = AuthUser.findLoggedInUser();
+		String token = authUser.getApi_token();
+		String username = authUser.getUsername();
+		String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", username, token).getBytes(), Base64.NO_WRAP);
+
+		InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
+		db = databaseHelper.getWritableDatabase();
+
+		final OkHttpClient okHttpClient = new OkHttpClient();
+		okHttpClient.setReadTimeout(1000, TimeUnit.MILLISECONDS);
+
+		RestAdapter restAdapter = new RestAdapter.Builder()
+				.setEndpoint(BASE_URL).setLogLevel(RestAdapter.LogLevel.FULL)
+				.setClient(new OkClient(okHttpClient)).build();
+		myApi = restAdapter.create(MyApi.class);
+
+
+		myApi.isCaseDeleted(basicAuth,id,new Callback<Boolean>() {
+			@Override
+			public void success(Boolean caseResponseVMs, Response response) {
+				System.out.println("success :::: "+caseResponseVMs);
+
+				if(!caseResponseVMs) {
+					List<String> instances = new ArrayList<String>();
+					Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + id, null);
+					System.out.println("cursor ::: " + cursor.getCount());
+
+					while (cursor.moveToNext()) {
+						System.out.println("path :::: " + cursor.getString(4));
+						instances.add(cursor.getString(4));
+					}
+
+					for (String s : instances) {
+						String path = s.substring(0, s.lastIndexOf('/'));
+						File file = new File(path);
+						//Boolean aBoolean = file.delete();
+						System.out.println("deleteDirectory :::: " + s);
+						System.out.println("deleteDirectory :::: " + file);
+						deleteDirectory(file);
+					}
+
+					db.execSQL("delete from instances where caseId = " + id);
+					CaseRecord.deleteAll(CaseRecord.class, "case_id = ?", id + "");
+					((MyCaseActivity) mContext).onResume();
+
+				}else{
+					Toast.makeText(mContext, "Sorry. You can'delete this case.", Toast.LENGTH_LONG).show();
+				}
+			}
+
+			@Override
+			public void failure(RetrofitError error) {
+
+				error.printStackTrace();
+
+			}
+		});
+
+
+	}
+
+	public static boolean deleteDirectory(File path) {
+		if( path.exists() ) {
+			System.out.println("path.exists() dir :::: ");
+			File[] files = path.listFiles();
+			if (files == null) {
+				return true;
+			}
+			for(int i=0; i<files.length; i++) {
+				if(files[i].isDirectory()) {
+					deleteDirectory(files[i]);
+				}
+				else {
+					files[i].delete();
+				}
+			}
+		}
+		return( path.delete() );
+	}
 }

@@ -308,6 +308,9 @@ public class LoginActivity extends Activity {
                 System.out.println("basic auth::"+basicAuth);
                 System.out.println("url:::::::::"+response.getUrl());
 
+
+				/************** OLD CODE **************
+
                 //CaseRecord.deleteAll(CaseRecord.class);
                 for(CaseResponseVM crVm : caseVMList){
                     CaseRecord cr = new CaseRecord();
@@ -331,7 +334,54 @@ public class LoginActivity extends Activity {
                         e.printStackTrace();
                     }
                     cr.save();
-                }
+                }*/
+
+				CaseRecord record = new CaseRecord();
+				CaseRecord caseRecord = new CaseRecord();
+
+				List<CaseRecord> caseRecords = caseRecord.listAll(CaseRecord.class);
+
+				System.out.println("in Login Before ::::: "+caseRecord.listAll(CaseRecord.class).size());
+
+				List<CaseRecord> list = record.findWithQuery(CaseRecord.class, "Select * from Case_Record", null);
+				for (CaseResponseVM crVm : caseVMList) {
+					List<CaseRecord> records;
+					// cr = CaseRecord.findById(CaseRecord.class, crVm.id);
+					records = caseRecord.findWithQuery(CaseRecord.class, "Select * from Case_Record where case_id = ?", crVm.id + "");
+					System.out.println("is that case present ::: "+records.size());
+					if (records.size() != 0) {
+						continue;
+						//break;
+					}
+					CaseRecord cr = new CaseRecord();
+					cr.caseId = crVm.id;
+
+					if (cr == null) {
+						cr = new CaseRecord();
+						cr.caseId = crVm.id;
+					}
+					cr.status = crVm.status;
+					cr.latitude = crVm.latitude;
+					cr.longitude = crVm.longitude;
+					cr.displayId = crVm.caseId;
+					//uncomment for new version
+					cr.uid = AuthUser.findLoggedInUser().getUserId();
+
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+					Date d1 = new Date(crVm.dateCreated);
+					Date d2 = new Date(crVm.dateModified);
+					try {
+						cr.dateCreated = sdf.format(d1);
+						cr.dateModified = sdf.format(d2);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					cr.save();
+					System.out.println("saved from api ::: ");
+				}
+
+				System.out.println("in Login Before ::::: "+caseRecord.listAll(CaseRecord.class).size());
+
             }
 
             @Override

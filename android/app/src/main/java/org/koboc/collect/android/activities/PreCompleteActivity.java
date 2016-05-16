@@ -127,7 +127,7 @@ public class PreCompleteActivity extends Activity{
 		//uncomment for new version
         preCompleteList = caseRecord.findWithQuery(CaseRecord.class,"Select * from Case_Record where status in (\"precomplete\") and uid = ?",AuthUser.findLoggedInUser().getUserId()+"");
         System.out.println("preCompleteList::::"+preCompleteList.size());
-        adapter = new PreCompleteListAdapter(getApplicationContext(),preCompleteList);
+        adapter = new PreCompleteListAdapter(PreCompleteActivity.this,preCompleteList);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

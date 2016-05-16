@@ -201,33 +201,37 @@ public class InstanceChooserList extends ListActivity implements LocationListene
             mLatitude=c1.latitude;
 
         }
+
+		System.out.println("mLongitude :::::::::: "+mLongitude);
+		System.out.println("mLatitude :::::::::: "+mLatitude);
+
+
          myFragmentManager = getFragmentManager();
          myMapFragment
                 = (MapFragment)myFragmentManager.findFragmentById(R.id.map);
-        // myMap = myMapFragment.getMap();
+         myMap = myMapFragment.getMap();
 
-        //myMap.setMyLocationEnabled(true);
+        myMap.setMyLocationEnabled(true);
 
-        //myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
        // mLatitude = 19.040208; // gps.getLatitude(); //29.9272;//gps.getLatitude();
        // mLongitude = 72.85085; //gps.getLongitude(); //31.2153;//gps.getLongitude();
-        //LatLng latLng = new LatLng(mLatitude, mLongitude);
+        LatLng latLng = new LatLng(mLatitude, mLongitude);
 
-        //drawMarker(latLng);
-
-
-        //myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        //myMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+        drawMarker(latLng);
 
 
-        /*StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        myMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        myMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+
+
+        StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         sb.append("location=" + mLatitude + "," + mLongitude);
         sb.append("&radius=5000");
         sb.append("&types=" + "police");
         sb.append("&sensor=true");
         sb.append("&key=AIzaSyCRLa4LQZWNQBcjCYcIVYA45i9i8zfClqc");
-*/
         // Creating a new non-ui thread task to download Google place json data
         //PlacesTask placesTask = new PlacesTask();
 

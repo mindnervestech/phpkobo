@@ -86,10 +86,6 @@ public class InstanceListAdapter extends BaseAdapter {
             rootLayout.setBackgroundResource(R.drawable.rect_border_community_red);
         }
 
-        System.out.println("adapter::::::::::"+mItems.size());
-        System.out.println("status::::::::::"+vm.getStatus());
-        System.out.println("subtitle::::::::::"+vm.getSubTitle());
-
         return convertView;
     }
 }

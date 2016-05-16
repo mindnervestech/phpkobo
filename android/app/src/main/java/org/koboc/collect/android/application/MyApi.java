@@ -13,6 +13,7 @@ import retrofit.http.GET;
 import retrofit.http.Header;
 import retrofit.http.POST;
 import retrofit.http.Path;
+import retrofit.http.Query;
 
 /**
  * Created by User on 01-06-2015.
@@ -33,6 +34,8 @@ public interface MyApi {
     @POST("/webapp/getClusterOfSectors/{SID}")
     public void getClusters(@Path("SID")long id,Callback<List<SectorVM>> callback);
 
+	@GET("/webapp/isCaseDeleted")
+	public void isCaseDeleted(@Header("Authorization") String authorization,@Query("id")Long id,Callback<Boolean> callback);
 
 
 
