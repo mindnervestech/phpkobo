@@ -477,22 +477,45 @@ public class ApplicationController {
 						for (int i = 0; i < headerArr.length(); i++) {
 							try {
 								JSONObject rec = headerArr.getJSONObject(i);
-
-								String formLabel = tempForm.getIdString() + "_" + rec.getString("label");
-								String formName = tempForm.getIdString() + "_" + rec.getString("name");
 								
-								//System.out.println(tempForm.getIdString() + "_" + rec.getString("name")+"=");
+								if(rec.getString("name").equals("group_fe2ud57")){
+									JSONArray rec_children = (JSONArray) rec.get("children");
+									System.out.println("children=========================");
+									for (int k=0; k<rec_children.length(); k++) {
+										JSONObject childObj = (JSONObject) rec_children.get(k);
 
-								if (columnLabelHn.size() != 0
-										&& columnLabelHn.contains(formLabel)) {
-								} else {
-									columnLabelHn.add(formLabel);
-								}
+										String formLabel = tempForm.getIdString() + "_" + childObj.getString("label");
+										String formName = tempForm.getIdString() + "_" + childObj.getString("name");
+										if (columnLabelHn.size() != 0
+												&& columnLabelHn.contains(formLabel)) {
+										} else {
+											columnLabelHn.add(formLabel);
+										}
 
-								if (columnNameEng.size() != 0
-										&& columnNameEng.contains(formName)) {
-								} else {
-									columnNameEng.add(formName);
+										if (columnNameEng.size() != 0
+												&& columnNameEng.contains(formName)) {
+										} else {
+											System.out.println(formName);
+											columnNameEng.add(formName);
+										}
+									}
+								}else {
+									String formLabel = tempForm.getIdString() + "_" + rec.getString("label");
+									String formName = tempForm.getIdString() + "_" + rec.getString("name");
+								
+									//System.out.println(tempForm.getIdString() + "_" + rec.getString("name")+"=");
+
+									if (columnLabelHn.size() != 0
+											&& columnLabelHn.contains(formLabel)) {
+									} else {
+										columnLabelHn.add(formLabel);
+									}
+	
+									if (columnNameEng.size() != 0
+											&& columnNameEng.contains(formName)) {
+									} else {
+										columnNameEng.add(formName);
+									}
 								}
 
 							} catch (Exception e) {
@@ -654,7 +677,7 @@ public class ApplicationController {
 				}
 			}
 		}
-		System.out.println(mainMap);
+		//System.out.println(mainMap);
 		int rowCount = 1;
 		for (Map.Entry<String, Map<String, String>> entry : mainMap.entrySet())
 		{
@@ -668,9 +691,15 @@ public class ApplicationController {
 				//System.out.println("--------"+colname+"------");
 				Map<String,String> innermap = entry.getValue();
 				for (Map.Entry<String, String> currentInnermap : innermap.entrySet()){
-					//System.out.println(currentInnermap.getKey());
-					if(currentInnermap.getKey().equals(colname)){
-						
+					System.out.println("key "+currentInnermap.getKey());
+					String currentInnerKey = currentInnermap.getKey();
+					if(currentInnerKey.contains("fe2ud57")){
+						currentInnerKey = myProps.getProperty(currentInnerKey);
+						System.out.println("modified "+currentInnerKey);
+					}
+					if(currentInnerKey!=null && currentInnerKey.equals(colname)){
+						//System.out.println(currentInnermap.getKey());
+						//System.out.println("========"+currentInnermap.getValue().replaceAll("_", " "));
 						row.createCell(colCount).setCellValue(currentInnermap.getValue().replaceAll("_", " "));
 						break;
 					}
