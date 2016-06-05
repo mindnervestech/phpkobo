@@ -42,14 +42,17 @@ if TESTING_MODE:
 
 # include the kobocat-template directory
 TEMPLATE_OVERRIDE_ROOT_DIR = os.path.join(PROJECT_ROOT, '..', '..', 'kobocat-template')
+print(TEMPLATE_OVERRIDE_ROOT_DIR)
 TEMPLATE_DIRS = ( os.path.join(PROJECT_ROOT, TEMPLATE_OVERRIDE_ROOT_DIR, 'templates'), ) + TEMPLATE_DIRS
+print(TEMPLATE_DIRS)
 STATICFILES_DIRS += ( os.path.join(PROJECT_ROOT, TEMPLATE_OVERRIDE_ROOT_DIR, 'static'), )
+print(STATICFILES_DIRS)
 
-KOBOFORM_SERVER=os.environ.get("KOBOFORM_SERVER", "localhost")
+KOBOFORM_SERVER=os.environ.get("KOBOFORM_SERVER", "li855-46.members.linode.com")
 KOBOFORM_SERVER_PORT=os.environ.get("KOBOFORM_SERVER_PORT", "8000")
 KOBOFORM_SERVER_PROTOCOL=os.environ.get("KOBOFORM_SERVER_PROTOCOL", "http")
 KOBOFORM_LOGIN_AUTOREDIRECT=True
-KOBOFORM_URL=os.environ.get("KOBOFORM_URL", "http://localhost:8000")
+KOBOFORM_URL=os.environ.get("KOBOFORM_URL", "http://li855-46.members.linode.com:8000")
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'onadata.koboform.context_processors.koboform_integration',
