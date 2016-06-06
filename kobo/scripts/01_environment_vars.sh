@@ -54,15 +54,15 @@ export SERVER_IP=${SERVER_IP:-"127.0.0.1"}
 # deployment / server details
 
 # the following variable should be overridden for non-localhost deployments
-export KOBOFORM_URL=${KOBOFORM_URL:-"http://localhost:8000"}
+export KOBOFORM_URL=${KOBOFORM_URL:-"http://li855-46.members.linode.com:8000"}
 
 export KOBOFORM_SERVER_PORT=${KOBOFORM_SERVER_PORT:-"8000"}
 
 # the following variable should be overridden for non-localhost deployments
-export KOBOCAT_URL=${KOBOCAT_URL:-"http://localhost:8001"}
+export KOBOCAT_URL=${KOBOCAT_URL:-"http://li855-46.members.linode.com:8001"}
 
 export KOBOCAT_SERVER_PORT=${KOBOCAT_SERVER_PORT:-"8001"}
-export KOBOCAT_INTERNAL_URL=${KOBOCAT_INTERNAL_URL:-"http://localhost:8001"}
+export KOBOCAT_INTERNAL_URL=${KOBOCAT_INTERNAL_URL:-"http://li855-46.members.linode.com:8001"}
 export ENKETO_EXPRESS_SERVER_PORT=${ENKETO_EXPRESS_SERVER_PORT:-"8005"}
 
 # export DIST_KOBO_DEVEL=${DIST_KOBO_DEVEL:-"dist-kobo-devel"}
@@ -81,7 +81,7 @@ export KOBOFORM_BRANCH=${KOBOFORM_BRANCH:-"master"}
 export KOBOFORM_PATH=${KOBOFORM_PATH:-"$SRC_DIR/koboform"}
 
 export PSQL_ADMIN=${PSQL_ADMIN:-"postgres"}
-export KOBO_PSQL_DB_NAME=${KOBO_PSQL_DB_NAME:-"kobotoolbox"}
+export KOBO_PSQL_DB_NAME=${KOBO_PSQL_DB_NAME:-"kobotoolbox2"}
 export KOBO_PSQL_DB_USER=${KOBO_PSQL_DB_USER:-"kobo"}
 export KOBO_PSQL_DB_PASS=${KOBO_PSQL_DB_PASS:-"kobo"}
 export DATABASE_SERVER_IP=${DATABASE_SERVER_IP:-"localhost"}
@@ -96,13 +96,13 @@ export ENKETO_EXPRESS_UPDATE_REPO=${ENKETO_EXPRESS_UPDATE_REPO:-"false"}
 
 # For KoBoForm.
 # the following variable should be overridden for non-localhost deployments
-export ENKETO_SERVER=${ENKETO_SERVER:-"http://localhost:8005"}
+export ENKETO_SERVER=${ENKETO_SERVER:-"http://li855-46.members.linode.com:8005"}
 
 export ENKETO_PREVIEW_URI=${ENKETO_PREVIEW_URI:-"/preview"}
 
 # For KoBoCat.
 # the following variable should be overridden for non-localhost deployments
-export ENKETO_URL=${ENKETO_URL:-"http://localhost:8005"}
+export ENKETO_URL=${ENKETO_URL:-"http://li855-46.members.linode.com:8005"}
 export ENKETO_API_ROOT=${ENKETO_API_ROOT:-"/api/v2"}
 export ENKETO_OFFLINE_SURVEYS=${ENKETO_OFFLINE_SURVEYS:-"True"}
 export ENKETO_API_ENDPOINT_PREVIEW=${ENKETO_API_ENDPOINT_PREVIEW:-"/preview"}
