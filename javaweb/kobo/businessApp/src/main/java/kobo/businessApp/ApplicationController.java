@@ -443,16 +443,11 @@ public class ApplicationController {
 			@RequestParam ("consult") Integer consult,
 			@RequestParam ("sangini") Integer sangini) {
 		
-		//System.out.println(myProps.getProperty("hello"));
-		
-		/* */
-		
-		
 		String sequeenceForm[] = { "new_form", 
-				"pre_rosenberg_self_esteem",
+				"pre_sneha_program_on_preventio",
 				"pre_police_intervention", 
 				"pre_screening_questionnaire",
-				"pre_sneha_program_on_preventio", 
+				"pre_rosenberg_self_esteem",
 				"pre_empowerment",
 				"post_screening_questionnaire", 
 				"post_rosenberg_self_esteem",
@@ -478,12 +473,39 @@ public class ApplicationController {
 							try {
 								JSONObject rec = headerArr.getJSONObject(i);
 								
-								if(rec.getString("name").equals("group_fe2ud57")){
+								if(rec.getString("name").equals("group_lh92g49") || rec.getString("name").equals("group_if9kv81") || rec.getString("name").equals("group_vy3xo71") || rec.getString("name").equals("group_xw13n72") || rec.getString("name").equals("group_mc46c32") || rec.getString("name").equals("group_kk5pj32") || rec.getString("name").equals("group_pt4pq54") || rec.getString("name").equals("group_yd3xa05") || rec.getString("name").equals("group_fi8ft37")){
 									JSONArray rec_children = (JSONArray) rec.get("children");
 									System.out.println("children=========================");
 									for (int k=0; k<rec_children.length(); k++) {
 										JSONObject childObj = (JSONObject) rec_children.get(k);
+										
+										//************for inner groups********************
+										if(childObj.getString("name").contains("group_yd3xa05") || childObj.getString("name").contains("group_xw13n72")){
+											JSONArray rec_subchildren = (JSONArray) childObj.get("children");
+											/*System.out.println(rec_subchildren.toString());
+											if(childObj.getString("name").contains("group_xw13n72")){
+												rec_subchildren = (JSONArray) ((JSONObject) childObj.get("children")).get("children");
+											}*/
+											for (int m=0; m<rec_subchildren.length(); m++) {
+												JSONObject subchildObj = (JSONObject) rec_subchildren.get(m);
+												String formLabel = tempForm.getIdString() + "_" + subchildObj.getString("label");
+												String formName = tempForm.getIdString() + "_" + subchildObj.getString("name");
+												if (columnLabelHn.size() != 0
+														&& columnLabelHn.contains(formLabel)) {
+												} else {
+													columnLabelHn.add(formLabel);
+												}
 
+												if (columnNameEng.size() != 0
+														&& columnNameEng.contains(formName)) {
+												} else {
+													System.out.println(formName);
+													columnNameEng.add(formName);
+												}
+											}
+										}
+										//********End of inner group*************
+										
 										String formLabel = tempForm.getIdString() + "_" + childObj.getString("label");
 										String formName = tempForm.getIdString() + "_" + childObj.getString("name");
 										if (columnLabelHn.size() != 0
@@ -660,6 +682,12 @@ public class ApplicationController {
 						    		//System.out.println(key);
 						    		//System.out.println(jObject.getString(key));
 						    		try{
+						    			String temp = preKeyValue+"_"+key;
+						    			if(temp.contains("group_pt4pq54") || temp.contains("group_xw13n72")|| temp.contains("group_kk5pj32") || temp.contains("group_mc46c32") || temp.contains("new_form_group_lh92g49") || temp.contains("new_form_group_if9kv81")){
+						    				//System.out.println(myProps.getProperty("hello"));
+						    				caseMap.put(myProps.getProperty(preKeyValue+"_"+key), jObject.getString(key));
+						    				
+						    			}else
 						    			caseMap.put(preKeyValue+"_"+key, jObject.getString(key));
 						    		}
 						    		catch(Exception e){
@@ -693,11 +721,16 @@ public class ApplicationController {
 				for (Map.Entry<String, String> currentInnermap : innermap.entrySet()){
 					System.out.println("key "+currentInnermap.getKey());
 					String currentInnerKey = currentInnermap.getKey();
-					if(currentInnerKey.contains("fe2ud57")){
+					//System.out.println("modified "+currentInnerKey);
+					if(currentInnerKey != null && ("fe2ud57").contains(currentInnerKey)){
 						currentInnerKey = myProps.getProperty(currentInnerKey);
-						System.out.println("modified "+currentInnerKey);
+						
 					}
-					if(currentInnerKey!=null && currentInnerKey.equals(colname)){
+					if(currentInnerKey!=null && currentInnerKey.equals("new_form__")){
+						row.createCell(colCount).setCellValue(currentInnermap.getValue().replaceAll("_", " "));
+						break;
+	    			}
+					else if(currentInnerKey!=null && currentInnerKey.contains(colname)){
 						//System.out.println(currentInnermap.getKey());
 						//System.out.println("========"+currentInnermap.getValue().replaceAll("_", " "));
 						row.createCell(colCount).setCellValue(currentInnermap.getValue().replaceAll("_", " "));
