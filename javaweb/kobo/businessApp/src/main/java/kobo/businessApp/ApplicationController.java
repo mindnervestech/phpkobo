@@ -726,10 +726,10 @@ public class ApplicationController {
 						currentInnerKey = myProps.getProperty(currentInnerKey);
 						
 					}
-					if(currentInnerKey!=null && currentInnerKey.equals("new_form__")){
+					/*if(currentInnerKey!=null && currentInnerKey.equals("new_form__")){
 						row.createCell(colCount).setCellValue(currentInnermap.getValue().replaceAll("_", " "));
 						break;
-	    			}
+	    			}*/
 					else if(currentInnerKey!=null && currentInnerKey.contains(colname)){
 						//System.out.println(currentInnermap.getKey());
 						//System.out.println("========"+currentInnermap.getValue().replaceAll("_", " "));
