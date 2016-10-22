@@ -30,6 +30,9 @@ import kobo.entities.Sector;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
@@ -472,15 +475,15 @@ public class ApplicationController {
 						for (int i = 0; i < headerArr.length(); i++) {
 							try {
 								JSONObject rec = headerArr.getJSONObject(i);
-								
-								if(rec.getString("name").equals("group_lh92g49") || rec.getString("name").equals("group_if9kv81") || rec.getString("name").equals("group_vy3xo71") || rec.getString("name").equals("group_xw13n72") || rec.getString("name").equals("group_mc46c32") || rec.getString("name").equals("group_kk5pj32") || rec.getString("name").equals("group_pt4pq54") || rec.getString("name").equals("group_yd3xa05") || rec.getString("name").equals("group_fi8ft37")){
+								//
+								if(rec.getString("name").equals("group_fy83z32") || rec.getString("name").equals("group_bp1ga51") || rec.getString("name").equals("group_zm4kh27") || rec.getString("name").equals("group_cf8gh38") || rec.getString("name").equals("group_jp4we63") || rec.getString("name").equals("group_ab8np57") || rec.getString("name").equals("group_kg2ry91") || rec.getString("name").equals("group_fe2ud57") || rec.getString("name").equals("group_lh92g49") || rec.getString("name").equals("group_if9kv81") || rec.getString("name").equals("group_vy3xo71") || rec.getString("name").equals("group_xw13n72") || rec.getString("name").equals("group_mc46c32") || rec.getString("name").equals("group_kk5pj32") || rec.getString("name").equals("group_pt4pq54") || rec.getString("name").equals("group_yd3xa05") || rec.getString("name").equals("group_fi8ft37")){
 									JSONArray rec_children = (JSONArray) rec.get("children");
 									System.out.println("children=========================");
 									for (int k=0; k<rec_children.length(); k++) {
 										JSONObject childObj = (JSONObject) rec_children.get(k);
 										
 										//************for inner groups********************
-										if(childObj.getString("name").contains("group_yd3xa05") || childObj.getString("name").contains("group_xw13n72")){
+										if(childObj.getString("name").contains("group_kc4mu43") || childObj.getString("name").contains("group_yd3xa05") || childObj.getString("name").contains("group_xw13n72")){
 											JSONArray rec_subchildren = (JSONArray) childObj.get("children");
 											/*System.out.println(rec_subchildren.toString());
 											if(childObj.getString("name").contains("group_xw13n72")){
@@ -550,12 +553,12 @@ public class ApplicationController {
 			}
 		}
 		
-		String filename = "/home/kobo/NewExcelFile.xls" ;
+		String filename = "/home/kobo/NewExcelFile.xlsx" ;
 		//String filename = "d:/NewExcelFile.xls" ;
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        HSSFSheet sheet = workbook.createSheet("FirstSheet");  
+		XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("FirstSheet");  
 
-        HSSFRow rowhead = sheet.createRow((short)0);
+        XSSFRow rowhead = sheet.createRow((short)0);
         int i = 1;
     	rowhead.createCell(0).setCellValue("Case Id");
         for(String name : columnNameEng){
@@ -683,7 +686,7 @@ public class ApplicationController {
 						    		//System.out.println(jObject.getString(key));
 						    		try{
 						    			String temp = preKeyValue+"_"+key;
-						    			if(temp.contains("group_pt4pq54") || temp.contains("group_xw13n72")|| temp.contains("group_kk5pj32") || temp.contains("group_mc46c32") || temp.contains("new_form_group_lh92g49") || temp.contains("new_form_group_if9kv81")){
+						    			if(temp.contains("group_fy83z32") || temp.contains("group_bp1ga51") || temp.contains("group_zm4kh27") || temp.contains("group_cf8gh38") || temp.contains("group_jp4we63") || temp.contains("group_ab8np57") || temp.contains("group_kg2ry91") || temp.contains("group_fe2ud57") || temp.contains("group_pt4pq54") || temp.contains("group_xw13n72")|| temp.contains("group_kk5pj32") || temp.contains("group_mc46c32") || temp.contains("new_form_group_lh92g49") || temp.contains("new_form_group_if9kv81")){
 						    				//System.out.println(myProps.getProperty("hello"));
 						    				caseMap.put(myProps.getProperty(preKeyValue+"_"+key), jObject.getString(key));
 						    				
@@ -709,7 +712,7 @@ public class ApplicationController {
 		int rowCount = 1;
 		for (Map.Entry<String, Map<String, String>> entry : mainMap.entrySet())
 		{
-			HSSFRow row = sheet.createRow((short)rowCount);
+			XSSFRow row = sheet.createRow((short)rowCount);
 			rowCount++;
 			String tempval[] = entry.getKey().split("\\#");
 			row.createCell(0).setCellValue(tempval[0].replaceAll("_", " "));
@@ -719,18 +722,18 @@ public class ApplicationController {
 				//System.out.println("--------"+colname+"------");
 				Map<String,String> innermap = entry.getValue();
 				for (Map.Entry<String, String> currentInnermap : innermap.entrySet()){
-					System.out.println("key "+currentInnermap.getKey());
+					//System.out.println("key "+currentInnermap.getKey());
 					String currentInnerKey = currentInnermap.getKey();
 					//System.out.println("modified "+currentInnerKey);
-					if(currentInnerKey != null && ("fe2ud57").contains(currentInnerKey)){
+					/*if(currentInnerKey != null && ("fe2ud57").contains(currentInnerKey)){
 						currentInnerKey = myProps.getProperty(currentInnerKey);
 						
-					}
+					}*/
 					/*if(currentInnerKey!=null && currentInnerKey.equals("new_form__")){
 						row.createCell(colCount).setCellValue(currentInnermap.getValue().replaceAll("_", " "));
 						break;
 	    			}*/
-					else if(currentInnerKey!=null && currentInnerKey.contains(colname)){
+					if(currentInnerKey!=null && currentInnerKey.equals(colname)){
 						//System.out.println(currentInnermap.getKey());
 						//System.out.println("========"+currentInnermap.getValue().replaceAll("_", " "));
 						row.createCell(colCount).setCellValue(currentInnermap.getValue().replaceAll("_", " "));
@@ -755,11 +758,11 @@ public class ApplicationController {
         } catch(IOException e) {
         	e.printStackTrace();
         }
-		File f = new File("/home/kobo/NewExcelFile.xls");
+		File f = new File("/home/kobo/NewExcelFile.xlsx");
         //File f = new File("d:/NewExcelFile.xls");
         System.out.println("Your excel file has been generated!");
-        response.setContentType("apphlication/xls");
-        response.setHeader("Content-Disposition", "attachment;filename=CaseList.xls"); 
+        response.setContentType("apphlication/xlsx");
+        response.setHeader("Content-Disposition", "attachment;filename=CaseList.xlsx"); 
         
         return new FileSystemResource(f);
 		
