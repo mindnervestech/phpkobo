@@ -198,9 +198,9 @@ public class DataManagerList extends ListActivity implements
 			mDeleteInstancesTask.setContentResolver(getContentResolver());
 			mDeleteInstancesTask.setDeleteListener(this);
 
-            System.out.println("mSelected execute = "+mSelected.toArray(new Long[mSelected.size()]));
-            System.out.println("mSelected toArray = "+new Long[mSelected.size()]);
-            System.out.println("mSelected size = "+mSelected.size());
+            //System.out.println("mSelected execute = "+mSelected.toArray(new Long[mSelected.size()]));
+            //System.out.println("mSelected toArray = "+new Long[mSelected.size()]);
+            //System.out.println("mSelected size = "+mSelected.size());
 
 			mDeleteInstancesTask.execute(mSelected.toArray(new Long[mSelected
 					.size()]));
@@ -217,6 +217,7 @@ public class DataManagerList extends ListActivity implements
 		// get row id from db
 		Cursor c = (Cursor) getListAdapter().getItem(position);
 		long k = c.getLong(c.getColumnIndex(InstanceColumns._ID));
+		//c.close();
 
 		// add/remove from selected list
 		if (mSelected.contains(k))

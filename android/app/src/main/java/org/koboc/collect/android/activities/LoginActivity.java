@@ -7,10 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -26,10 +23,6 @@ import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.model.CaseResponseVM;
 import org.koboc.collect.android.model.UserVM;
 import org.koboc.collect.android.preferences.PreferencesActivity;
-import org.koboc.collect.android.provider.FormsProvider;
-import org.koboc.collect.android.provider.FormsProviderAPI;
-import org.koboc.collect.android.provider.InstanceProvider;
-import org.koboc.collect.android.tasks.DeleteFormsTask;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -55,8 +48,8 @@ public class LoginActivity extends Activity {
     private SharedPreferences.Editor editor;
     private static final String DATABASE_NAME = "instances.db";
     private static final String DATABASE_NAME1 = "forms.db";
-    SQLiteDatabase db;
-    Cursor cursor1;
+    //SQLiteDatabase db;
+    //Cursor cursor1;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +74,7 @@ public class LoginActivity extends Activity {
 
 
         if(channel){
-            System.out.println("hindi..");
+            //System.out.println("hindi..");
             Locale myLocale = new Locale("hn");
             Resources res = getResources();
             DisplayMetrics dm = res.getDisplayMetrics();
@@ -96,7 +89,7 @@ public class LoginActivity extends Activity {
             Configuration conf = res.getConfiguration();
             conf.locale = myLocale;
             res.updateConfiguration(conf, dm);
-            System.out.println("english..");
+            //System.out.println("english..");
             languageButton.setText("हिंदी");
         }
         
@@ -108,17 +101,17 @@ public class LoginActivity extends Activity {
 			List<CaseRecord> caseRecords1 = record.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where uid = null");
 			List<CaseRecord> caseRecords2 = record.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where uid = 0");
 
-			System.out.println("caseRecords1 ::::: "+caseRecords1.size());
-			System.out.println("caseRecords2 ::::: "+caseRecords2.size());
+			//System.out.println("caseRecords1 ::::: "+caseRecords1.size());
+			//System.out.println("caseRecords2 ::::: "+caseRecords2.size());
 
 
 			List<CaseRecord> lists = record.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record");
 			for(CaseRecord c : lists) {
-				System.out.println("userId ::::: "+c.uid);
-				System.out.println("authUser.getUserId() ::::: "+authUser.getUserId());
+				//System.out.println("userId ::::: "+c.uid);
+				//System.out.println("authUser.getUserId() ::::: "+authUser.getUserId());
 
 				if(c.uid == 0){
-					System.out.println("saved ::::: ");
+					//System.out.println("saved ::::: ");
 					c.uid = authUser.getUserId();
 				    c.save();
 				}
@@ -149,14 +142,14 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View view) {
                 final String basicAuth = "Basic " + Base64.encodeToString(String.format("%s:%s", userEditText.getText().toString(), passwordEditText.getText().toString()).getBytes(), Base64.NO_WRAP);
-                System.out.println("auth:::"+basicAuth);
+                //System.out.println("auth:::"+basicAuth);
 
                 if(userEditText.getText().toString() != null && !userEditText.getText().toString().isEmpty() && passwordEditText.getText().toString() != null && !passwordEditText.getText().toString().isEmpty()) {
                     myApi.Login(basicAuth, new Callback<UserVM>() {
                         @Override
                         public void success(UserVM userVM, Response response) {
-                            System.out.println("url::::"+response.getUrl());
-                            System.out.println("role::::"+ userVM.getGroups().get(0));
+                            //System.out.println("url::::"+response.getUrl());
+                           // System.out.println("role::::"+ userVM.getGroups().get(0));
 
                             AuthUser user = new AuthUser();
                             user.setApi_token(userVM.getApi_token());
@@ -242,11 +235,11 @@ public class LoginActivity extends Activity {
 							CaseRecord record = new CaseRecord();
 							List<CaseRecord> lists = record.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record");
 							for(CaseRecord c : lists) {
-								System.out.println("userId ::::: "+c.uid);
-								System.out.println("authUser.getUserId() ::::: "+userVM.getId());
+								//System.out.println("userId ::::: "+c.uid);
+								//System.out.println("authUser.getUserId() ::::: "+userVM.getId());
 
 								if(c.uid == 0){
-									System.out.println("saved ::::: ");
+								//	System.out.println("saved ::::: ");
 									c.uid = userVM.getId();
 									c.save();
 								}
@@ -305,8 +298,8 @@ public class LoginActivity extends Activity {
             @Override
             public void success(List<CaseResponseVM> caseVMList, Response response) {
 
-                System.out.println("basic auth::"+basicAuth);
-                System.out.println("url:::::::::"+response.getUrl());
+                //System.out.println("basic auth::"+basicAuth);
+                //System.out.println("url:::::::::"+response.getUrl());
 
 
 				/************** OLD CODE **************
@@ -341,14 +334,14 @@ public class LoginActivity extends Activity {
 
 				List<CaseRecord> caseRecords = caseRecord.listAll(CaseRecord.class);
 
-				System.out.println("in Login Before ::::: "+caseRecord.listAll(CaseRecord.class).size());
+				//System.out.println("in Login Before ::::: "+caseRecord.listAll(CaseRecord.class).size());
 
 				List<CaseRecord> list = record.findWithQuery(CaseRecord.class, "Select * from Case_Record", null);
 				for (CaseResponseVM crVm : caseVMList) {
 					List<CaseRecord> records;
 					// cr = CaseRecord.findById(CaseRecord.class, crVm.id);
 					records = caseRecord.findWithQuery(CaseRecord.class, "Select * from Case_Record where case_id = ?", crVm.id + "");
-					System.out.println("is that case present ::: "+records.size());
+				//	System.out.println("is that case present ::: "+records.size());
 					if (records.size() != 0) {
 						continue;
 						//break;
@@ -377,10 +370,10 @@ public class LoginActivity extends Activity {
 						e.printStackTrace();
 					}
 					cr.save();
-					System.out.println("saved from api ::: ");
+					//System.out.println("saved from api ::: ");
 				}
 
-				System.out.println("in Login Before ::::: "+caseRecord.listAll(CaseRecord.class).size());
+				//System.out.println("in Login Before ::::: "+caseRecord.listAll(CaseRecord.class).size());
 
             }
 

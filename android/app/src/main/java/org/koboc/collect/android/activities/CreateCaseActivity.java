@@ -125,7 +125,7 @@ public class CreateCaseActivity extends Activity {
         final String createdDate = sdf.format(new Date());
         CaseVM caseVM = new CaseVM(id,caseId, createdDate, createdDate, addressString,"External", 0, 0);
 
-        System.out.println("sent data ::: "+createdDate);
+        //System.out.println("sent data ::: "+createdDate);
 
         myApi.postCase(basicAuth, caseVM, new Callback<CaseResponseVM>() {
             @Override

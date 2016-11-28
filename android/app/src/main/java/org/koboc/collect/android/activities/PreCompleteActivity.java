@@ -61,8 +61,9 @@ public class PreCompleteActivity extends Activity{
 		List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ? and uid = ?","complete", AuthUser.findLoggedInUser().getUserId()+"");
         //List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status != ?","complete");
 
-        System.out.println("pre list sized  :: "+list.size());
+        //System.out.println("pre list sized  :: "+list.size());
         int i=0;
+		int  Post_formCount = DatabaseUtility.getPost_formCount();
         for(CaseRecord record : list){
 
             if(!record.status.equals("presubmitted"))
@@ -73,8 +74,8 @@ public class PreCompleteActivity extends Activity{
 
 				//uncomment for new version
                 List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where Case_Id = ? and uid = ?",record.caseId+"",AuthUser.findLoggedInUser().getUserId()+"");
-                System.out.println("Case record size::::"+caseRecords.size());
-                System.out.println("Precomplete set .. "+caseRecords.size());
+                //System.out.println("Case record size::::"+caseRecords.size());
+                //System.out.println("Precomplete set .. "+caseRecords.size());
                 CaseRecord caseRecord1 = caseRecords.get(0);
                 caseRecord1.status = "precomplete";
                 caseRecord1.save();
@@ -110,23 +111,29 @@ public class PreCompleteActivity extends Activity{
 
 
             //post forms
-            System.out.println("post form count:::"+DatabaseUtility.getPre_formCount());
-            System.out.println("post instance count:::"+DatabaseUtility.getPre_InstanceCount(record.caseId + ""));
-            if(DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(record.caseId+"")){
+            //System.out.println("post form count:::"+DatabaseUtility.getPre_formCount());
+            //System.out.println("post instance count:::"+DatabaseUtility.getPre_InstanceCount(record.caseId + ""));
+            if(Post_formCount == DatabaseUtility.getPost_InstanceCount(record.caseId+"")){
                 Cursor cursor = DatabaseUtility.getPost_Instances(record.caseId+"");
-                while(cursor.moveToNext()){
-                    if(cursor.getString(7).equals("complete")){
-                        postFlag = true;
-                    }
-                }
-            }
+                try {
+					while (cursor.moveToNext()) {
+						if (cursor.getString(7).equals("complete")) {
+							postFlag = true;
+						}
+					}
+				} finally {
+					if(cursor != null) {
+						cursor.close();
+					}
+				}
+			}
 
         }
 
        // preCompleteList = caseRecord.findWithQuery(CaseRecord.class,"Select * from Case_Record where status in (\"precomplete\")");
 		//uncomment for new version
         preCompleteList = caseRecord.findWithQuery(CaseRecord.class,"Select * from Case_Record where status in (\"precomplete\") and uid = ?",AuthUser.findLoggedInUser().getUserId()+"");
-        System.out.println("preCompleteList::::"+preCompleteList.size());
+        //System.out.println("preCompleteList::::"+preCompleteList.size());
         adapter = new PreCompleteListAdapter(PreCompleteActivity.this,preCompleteList);
         listView.setAdapter(adapter);
 
@@ -176,19 +183,26 @@ public class PreCompleteActivity extends Activity{
     }
 
     private boolean isAllComplete(String id){
-        Cursor cursor = DatabaseUtility.getPre_Instances(id);
-        System.out.println("isAllComplete call...");
-        if(cursor.getCount() == 0){
-            return false;
-        }else if(DatabaseUtility.getPre_formCount() == DatabaseUtility.getPre_InstanceCount(id)) {
-            while (cursor.moveToNext()) {
-                if (!cursor.getString(7).equals("complete")) {
-                    return false;
-                }
-            }
-        }else {
-            return false;
-        }
-        return true;
+
+			Cursor cursor = DatabaseUtility.getPre_Instances(id);
+		try {
+			//System.out.println("isAllComplete call...");
+			if (cursor.getCount() == 0) {
+				return false;
+			} else if (DatabaseUtility.getPre_formCount() == DatabaseUtility.getPre_InstanceCount(id)) {
+				while (cursor.moveToNext()) {
+					if (!cursor.getString(7).equals("complete")) {
+						return false;
+					}
+				}
+			} else {
+				return false;
+			}
+			return true;
+		}finally {
+			if(cursor != null) {
+				cursor.close();
+			}
+		}
     }
 }

@@ -16,16 +16,33 @@
 package org.koboc.collect.android.activities;
 import android.app.TabActivity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.database.AuthUser;
+import org.koboc.collect.android.database.CaseRecord;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
 
 /**
  * Modified from the FingerPaint example found in The Android Open Source
@@ -174,5 +191,72 @@ public class TabsActivity extends TabActivity implements TabHost.OnTabChangeList
         startActivity(intent);
         finish();
     }
+
+	public void navBackUp(View v){
+			File exportDir = new File(Environment.getExternalStorageDirectory()
+					+ File.separator + "odk", "");
+			if (!exportDir.exists())
+			{
+				exportDir.mkdirs();
+			}
+			File file = new File(exportDir, "AllCases.csv");
+
+			try
+			{
+				file.createNewFile();
+				CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
+
+				for(CaseRecord record : CaseRecord.listAll(CaseRecord.class)){
+					String arrStr[] ={record.longitude+"",record.latitude+"", record.address,record.displayId,record.caseId+"",record.uid+"",record.status,record.dateCreated,record.dateModified,record.isSent+""};
+					csvWrite.writeNext(arrStr);
+				}
+				csvWrite.close();
+
+				Toast.makeText(getApplicationContext(),"Backup completed successfully !",Toast.LENGTH_LONG).show();
+			}
+
+			catch(Exception sqlEx)
+			{
+				Toast.makeText(getApplicationContext(),"Backup failed.Try again.",Toast.LENGTH_LONG).show();
+				Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
+			}
+
+	}
+
+	public void navRestore(View v) {
+
+		File exportDir = new File(Environment.getExternalStorageDirectory()
+				+ File.separator + "odk", "");
+		File file = new File(exportDir, "AllCases.csv");
+
+		try {
+			CSVReader csvReader = new CSVReader(new InputStreamReader(new FileInputStream(file)));
+			String[] strings = csvReader.readNext();
+
+			CaseRecord record = new CaseRecord();
+
+			record.longitude = Double.parseDouble(strings[0]);
+			record.latitude = Double.parseDouble(strings[1]);
+			record.address = strings[2];
+			record.displayId = strings[3];
+			record.caseId = Long.parseLong(strings[4]);
+			record.uid = Long.parseLong(strings[5]);
+			record.status = strings[6];
+			record.dateCreated = strings[7];
+			record.dateModified = strings[8];
+			record.isSent = Boolean.parseBoolean(strings[9]);
+
+			record.save();
+
+			Toast.makeText(getApplicationContext(),"Backup restored successfully !",Toast.LENGTH_LONG).show();
+
+		} catch (Exception e) {
+			Toast.makeText(getApplicationContext(),"Backup restored failed, Try again !",Toast.LENGTH_LONG).show();
+			e.printStackTrace();
+		}
+
+
+	}
+
 
 }

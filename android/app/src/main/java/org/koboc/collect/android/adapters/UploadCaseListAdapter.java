@@ -161,42 +161,55 @@ public class UploadCaseListAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 Collect.getInstance().setCaseId(item.caseId+"");
+				System.out.println("click instance :::::::");
 
                 if (AuthUser.findLoggedInUser().getRole().equals("consultant")) {
                     //if(DatabaseUtility.getPost_InstanceCount(item.caseId+"") == DatabaseUtility.getPost_formCount()){
-                    System.out.println("logged user is consultant :::::::");
+                    //System.out.println("logged user is consultant :::::::");
                     Cursor cursor  = DatabaseUtility.getPost_InstancesForUpload(item.caseId+"");
-                    System.out.println("Post instance :::::::"+cursor.getCount());
-                    Collect.getInstance().formType = "presubmit";
-                    if(cursor.getCount() == 0){
-                        Toast.makeText(mContext,"Please fill all the Forms",Toast.LENGTH_LONG).show();
-                    }
+					try {
+						System.out.println("Post instance :::::::" + cursor.getCount());
+						Collect.getInstance().formType = "presubmit";
+						if (cursor.getCount() == 0) {
+							Toast.makeText(mContext, "Please fill all the Forms", Toast.LENGTH_LONG).show();
+						}
 
-                    while(cursor.moveToNext()) {
-                        System.out.println("isAllComplete(item.caseId) :::::::"+isAllComplete(item.caseId+""));
-                        if (isAllComplete(item.caseId + "")) {
-                            System.out.println("isAllComplete:::::::::::");
-                            System.out.println("getString(1) :::::::::::"+cursor.getString(1));
-                            System.out.println("getString(9):::::::::::"+cursor.getString(9));
-                            System.out.println("item case id :::::::::::"+item.caseId);
-                            if (cursor.getString(1).contains("Post_") && cursor.getString(9).equals(item.caseId))
-                                System.out.println("near to upload ::::::"+cursor.getString(0));
-                                upload(Long.parseLong(cursor.getString(0)));
+						while (cursor.moveToNext()) {
+							System.out.println("isAllComplete(item.caseId) :::::::" + isAllComplete(item.caseId + ""));
+							if (isAllComplete(item.caseId + "")) {
+							//	System.out.println("isAllComplete:::::::::::");
+								System.out.println("getString(1) :::::::::::" + cursor.getString(1));
+								System.out.println("getString(9):::::::::::" + cursor.getString(9));
+								System.out.println("item case id :::::::::::" + item.caseId);
+								if (cursor.getString(1).contains("Post_") && cursor.getString(9).equals(item.caseId))
+									System.out.println("near to upload ::::::" + cursor.getString(0));
+								upload(Long.parseLong(cursor.getString(0)));
 
-                        } else {
-                            Toast.makeText(mContext, "Please fill all the Forms", Toast.LENGTH_LONG).show();
-                            break;
-                        }
-                    }
-                    //}
+							} else {
+								Toast.makeText(mContext, "Please fill all the Forms", Toast.LENGTH_LONG).show();
+								break;
+							}
+						}
+					}finally {
+						if(cursor != null) {
+							cursor.close();
+						}
+					}
+					//}
                 } else {
                     Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + item.caseId, null);
-                    while (cursor.moveToNext()) {
-                        if (cursor.getString(7).equals("complete") || cursor.getString(7).equals("submissionFailed")) {
-                            upload(Long.parseLong(cursor.getString(0)));
-                        }
+                    try {
+						while (cursor.moveToNext()) {
+							if (cursor.getString(7).equals("complete") || cursor.getString(7).equals("submissionFailed")) {
+								upload(Long.parseLong(cursor.getString(0)));
+							}
 
-                    }
+						}
+					}finally {
+						if(cursor != null) {
+							cursor.close();
+						}
+					}
 
                 }
             }
@@ -237,37 +250,49 @@ public class UploadCaseListAdapter extends BaseAdapter {
 
     private boolean isAllComplete(String id){
         Cursor cursor = DatabaseUtility.getPost_Instances(id);
-        if(cursor.getCount() == 0){
-            return false;
-        }else if(DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(id)){
-        while(cursor.moveToNext()) {
-            if (cursor.getString(7).equals("incomplete")) {
-                return false;
-            }
-         }
-        }else{
-            return false;
-        }
-        return true;
-    }
+        try {
+			if (cursor.getCount() == 0) {
+				return false;
+			} else if (DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(id)) {
+				while (cursor.moveToNext()) {
+					if (cursor.getString(7).equals("incomplete")) {
+						return false;
+					}
+				}
+			} else {
+				return false;
+			}
+			return true;
+		}finally {
+			if(cursor != null) {
+				cursor.close();
+			}
+		}
+	}
 
     private boolean isPostUploaded(String id){
         Cursor cursor = DatabaseUtility.getPost_Instances(id);
-        if(cursor.getCount() == 0){
-            return false;
-        }else if(DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(id)){
-            while(cursor.moveToNext()) {
-                if (!cursor.getString(7).equals("submitted")) {
-                    return false;
-                }
-            }
-        }else{
-            return false;
-        }
-        return true;
-    }
+        try {
+			if (cursor.getCount() == 0) {
+				return false;
+			} else if (DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(id)) {
+				while (cursor.moveToNext()) {
+					if (!cursor.getString(7).equals("submitted")) {
+						return false;
+					}
+				}
+			} else {
+				return false;
+			}
+			return true;
+		}finally {
+			if(cursor != null) {
+				cursor.close();
+			}
+		}
+	}
     private void upload(Long id){
-        System.out.println("in upload ::::::");
+        //System.out.println("in upload ::::::");
         boolean mobileDataEnabled = false; // Assume disabled
         ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -358,30 +383,36 @@ public class UploadCaseListAdapter extends BaseAdapter {
 		myApi.isCaseDeleted(basicAuth,id,new Callback<Boolean>() {
 			@Override
 			public void success(Boolean caseResponseVMs, Response response) {
-				System.out.println("success :::: " + caseResponseVMs);
+				//System.out.println("success :::: " + caseResponseVMs);
 
-				if(!caseResponseVMs) {
+				if(caseResponseVMs) {
 					List<String> instances = new ArrayList<String>();
 					Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + id, null);
-					System.out.println("cursor ::: " + cursor.getCount());
+					try {
+						//System.out.println("cursor ::: " + cursor.getCount());
 
-					while (cursor.moveToNext()) {
-						System.out.println("path :::: " + cursor.getString(4));
-						instances.add(cursor.getString(4));
+						while (cursor.moveToNext()) {
+							//System.out.println("path :::: " + cursor.getString(4));
+							instances.add(cursor.getString(4));
+						}
+					}finally {
+						if(cursor != null) {
+							cursor.close();
+						}
 					}
 
 					for (String s : instances) {
 						String path = s.substring(0, s.lastIndexOf('/'));
 						File file = new File(path);
 						//Boolean aBoolean = file.delete();
-						System.out.println("deleteDirectory :::: " + s);
-						System.out.println("deleteDirectory :::: " + file);
+						//System.out.println("deleteDirectory :::: " + s);
+						//System.out.println("deleteDirectory :::: " + file);
 						deleteDirectory(file);
 					}
 
 					db.execSQL("delete from instances where caseId = " + id);
 					CaseRecord.deleteAll(CaseRecord.class, "case_id = ?", id + "");
-					((MyCaseActivity) mContext).onResume();
+					((SubmittedCaseActivity) mContext).onResume();
 
 				}else{
 					Toast.makeText(mContext,"Sorry. You can'delete this case.",Toast.LENGTH_LONG).show();

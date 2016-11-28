@@ -199,23 +199,26 @@ public class CaseListAdapter extends BaseAdapter {
 		myApi.isCaseDeleted(basicAuth,id,new Callback<Boolean>() {
 			@Override
 			public void success(Boolean caseResponseVMs, Response response) {
-				System.out.println("success :::: "+caseResponseVMs);
+				//System.out.println("success :::: "+caseResponseVMs);
 
-				if(!caseResponseVMs) {
+				if(caseResponseVMs) {
 					List<String> instances = new ArrayList<String>();
 					Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + id, null);
-					System.out.println("cursor ::: " + cursor.getCount());
+					//System.out.println("cursor ::: " + cursor.getCount());
 
 					while (cursor.moveToNext()) {
-						System.out.println("path :::: " + cursor.getString(4));
+						//System.out.println("path :::: " + cursor.getString(4));
 						instances.add(cursor.getString(4));
+					}
+					if(cursor != null) {
+						cursor.close();
 					}
 					for (String s : instances) {
 						String path = s.substring(0, s.lastIndexOf('/'));
 						File file = new File(path);
 						//Boolean aBoolean = file.delete();
-						System.out.println("deleteDirectory :::: " + s);
-						System.out.println("deleteDirectory :::: " + file);
+						//System.out.println("deleteDirectory :::: " + s);
+						//System.out.println("deleteDirectory :::: " + file);
 						deleteDirectory(file);
 					}
 					db.execSQL("delete from instances where caseId = " + id);
@@ -242,14 +245,14 @@ public class CaseListAdapter extends BaseAdapter {
 
 	public static boolean deleteDirectory(File path) {
 		if( path.exists() ) {
-			System.out.println("deleteDirectory :::: ");
+			//System.out.println("deleteDirectory :::: ");
 			File[] files = path.listFiles();
-			System.out.println("deleteDirectory files:::: "+files.length);
+			//System.out.println("deleteDirectory files:::: "+files.length);
 			if (files == null) {
 				return true;
 			}
 			for(int i=0; i<files.length; i++) {
-				System.out.println("isDirectory :::: "+files[i].isDirectory());
+			//	System.out.println("isDirectory :::: "+files[i].isDirectory());
 				if(files[i].isDirectory()) {
 					deleteDirectory(files[i]);
 				}

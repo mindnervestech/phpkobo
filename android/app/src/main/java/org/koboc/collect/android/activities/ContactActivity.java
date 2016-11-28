@@ -67,7 +67,7 @@ public class ContactActivity extends Activity {
                     }
                 }
 
-                System.out.println("contact size::::::::"+contactVMs.size());
+                //System.out.println("contact size::::::::"+contactVMs.size());
 
                         if(contactVMs.size() > 0)
                             fillTable();
@@ -167,7 +167,7 @@ public class ContactActivity extends Activity {
             imageLayout1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    System.out.println("Number::::"+label_weight_kg.getText().toString());
+                    //System.out.println("Number::::"+label_weight_kg.getText().toString());
                     Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + label_weight_kg.getText().toString()));
                     startActivity(intent);
 

@@ -203,7 +203,7 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
-							System.out.println("error :::::::::::: 5");
+							//System.out.println("error :::::::::::: 5");
 							sendMail("akshaythakar42@gmail.com", "Kobo Exception", e.toString());
                             mResults.put(id, fail + urlString + " " + e.toString());
                             cv.put(InstanceColumns.STATUS,
@@ -232,7 +232,7 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                 }
             } catch (ClientProtocolException e) {
                 e.printStackTrace();
-				System.out.println("error :::::::::::: 4");
+				//System.out.println("error :::::::::::: 4");
 				sendMail("akshaythakar42@gmail.com", "Kobo Exception", e.toString());
                 Log.e(t, e.toString());
                 WebUtils.clearHttpConnectionManager();
@@ -252,7 +252,7 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 Log.e(t, e.toString());
-				System.out.println("error :::::::::::: 3");
+				//System.out.println("error :::::::::::: 3");
 				sendMail("akshaythakar42@gmail.com", "Kobo Exception", e.toString());
                 WebUtils.clearHttpConnectionManager();
                 mResults.put(id, fail + e.toString() + " :: Network Connection Failed");
@@ -263,7 +263,7 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                 e.printStackTrace();
                 Log.e(t, e.toString());
                 WebUtils.clearHttpConnectionManager();
-				System.out.println("error :::::::::::: 2");
+				//System.out.println("error :::::::::::: 2");
 				sendMail("akshaythakar42@gmail.com", "Kobo Exception", e.toString());
                 mResults.put(id, fail + "Connection Timeout");
                 cv.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_SUBMISSION_FAILED);
@@ -274,7 +274,7 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                 Log.e(t, e.toString());
                 WebUtils.clearHttpConnectionManager();
 
-				System.out.println("generic exception 2::::: ");
+				//System.out.println("generic exception 2::::: ");
 
 
 				StringWriter errors = new StringWriter();
@@ -508,7 +508,7 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                 }
             } catch (Exception e) {
 
-				System.out.println("generic exception 1::::: ");
+				//System.out.println("generic exception 1::::: ");
 
 				StringWriter errors = new StringWriter();
 				e.printStackTrace(new PrintWriter(errors));
@@ -608,7 +608,7 @@ public class InstanceUploaderTask extends AsyncTask<Long, Integer, HashMap<Strin
                         String status = role.equalsIgnoreCase("sangini") ?
                                 "Submitted":form_id.toLowerCase().contains("pre_")?"Complete":"Closed";
 
-						System.out.println("error :::::::::::: 1");
+						//System.out.println("error :::::::::::: 1");
 					//	sendMail("akshaythakar42@gmail.com", "Kobo Exception", status);
 
 

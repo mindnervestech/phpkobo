@@ -61,40 +61,51 @@ public class SubmittedCaseActivity extends Activity{
 
         SQLiteDatabase database = databaseHelper.getWritableDatabase();
         Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
+		try {
+			while (cursor1.moveToNext()) {
+				if (cursor1.getString(7).equals("submitted")) {
+					for (CaseRecord item : caseRecords) {
+						//System.out.println("Checking ::::: " + item.status);
+						//System.out.println("Checking  item Id ::::: " + cursor1.getLong(9));
+						//System.out.println("Checking Id ::::: " + cursor1.getLong(9));
+						if (cursor1.getLong(9) == item.caseId) {
+						//	System.out.println("Changed ::::: ");
+							item.isSent = true;
+							item.save();
+						}
 
-        while(cursor1.moveToNext()){
-            if(cursor1.getString(7).equals("submitted")){
-                for (CaseRecord item:caseRecords){
-                    System.out.println("Checking ::::: "+item.status);
-                    System.out.println("Checking  item Id ::::: "+cursor1.getLong(9));
-                    System.out.println("Checking Id ::::: "+cursor1.getLong(9));
-                    if (cursor1.getLong(9) == item.caseId) {
-                        System.out.println("Changed ::::: ");
-                        item.isSent = true;
-                        item.save();
-                    }
-
-                    if(AuthUser.findLoggedInUser().getRole().contains("consulatnt")) {
-                        if (DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(item.caseId + "")) {
-                            Cursor cursor2 = DatabaseUtility.getPost_Instances(item.caseId+"");
-                            if (cursor2.getString(7).equals("submitted") && cursor2.getString(1).contains("Post_")) {
-                                item.status = "postsubmitted";
-                                item.isSent = true;
-                                item.save();
-                            } else if (cursor2.getString(7).equals("incomplete") && cursor2.getString(1).contains("Post_")) {
-                                item.status = "presubmitted";
-                                item.isSent = false;
-                                item.save();
-                            } else {
-                                item.status = "postcomplete";
-                                item.isSent = false;
-                                item.save();
-                            }
-                        }
-                    }
-                }
-            }
-        }
+						if (AuthUser.findLoggedInUser().getRole().contains("consulatnt")) {
+							if (DatabaseUtility.getPost_formCount() == DatabaseUtility.getPost_InstanceCount(item.caseId + "")) {
+								Cursor cursor2 = DatabaseUtility.getPost_Instances(item.caseId + "");
+								try {
+									if (cursor2.getString(7).equals("submitted") && cursor2.getString(1).contains("Post_")) {
+										item.status = "postsubmitted";
+										item.isSent = true;
+										item.save();
+									} else if (cursor2.getString(7).equals("incomplete") && cursor2.getString(1).contains("Post_")) {
+										item.status = "presubmitted";
+										item.isSent = false;
+										item.save();
+									} else {
+										item.status = "postcomplete";
+										item.isSent = false;
+										item.save();
+									}
+								} finally {
+									if(cursor2 != null) {
+										cursor2.close();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}finally {
+			if(cursor1 != null) {
+				cursor1.close();
+			}
+		}
 
         adapter=new UploadCaseListAdapter(SubmittedCaseActivity.this,caseRecords);
         listView.setAdapter(adapter);
@@ -123,7 +134,7 @@ public class SubmittedCaseActivity extends Activity{
         InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
 
         SQLiteDatabase database = databaseHelper.getWritableDatabase();
-        Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
+        //Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
 
        /* while(cursor1.moveToNext()){
             if(cursor1.getString(7).equals("submitted")){
@@ -152,7 +163,7 @@ public class SubmittedCaseActivity extends Activity{
         InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
 
         SQLiteDatabase database = databaseHelper.getWritableDatabase();
-        Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
+        //Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
 
         CaseRecord recordTest = new CaseRecord();
         //System.out.println("Testing ::::::::: "+recordTest.findWithQuery(CaseRecord.class,"Select * from Case_Record where case_Id = "+Collect.getInstance().getCaseId() ).size());
@@ -182,7 +193,7 @@ public class SubmittedCaseActivity extends Activity{
 		InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
 
 		SQLiteDatabase database = databaseHelper.getWritableDatabase();
-		Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
+		//Cursor cursor1 = database.rawQuery("SELECT * FROM instances " , null);
 
 		CaseRecord recordTest = new CaseRecord();
 		//System.out.println("Testing ::::::::: "+recordTest.findWithQuery(CaseRecord.class,"Select * from Case_Record where case_Id = "+Collect.getInstance().getCaseId() ).size());

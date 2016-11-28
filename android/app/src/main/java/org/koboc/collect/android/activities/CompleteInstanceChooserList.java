@@ -112,18 +112,18 @@ public class CompleteInstanceChooserList extends ListActivity implements Locatio
         // render total instance view
         SimpleCursorAdapter instances =
             new SimpleCursorAdapter(this, R.layout.two_item, c, data, view);
-        System.out.println("save form size::"+c.getCount());
+        //System.out.println("save form size::"+c.getCount());
         setListAdapter(instances);
 
         final CaseRecord caseRecord=new CaseRecord();
         List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where case_Id = ?",Collect.getInstance().getCaseId());
-        System.out.println("total cases::"+caseRecords.size());
+       // System.out.println("total cases::"+caseRecords.size());
 
         if(Collect.getInstance().getCaseId()==null){
 
         }
         for(CaseRecord c1:caseRecords){
-            System.out.println("total cases status::"+c1.status);
+            //System.out.println("total cases status::"+c1.status);
             mLongitude=c1.longitude;
             mLatitude=c1.latitude;
         }
@@ -214,7 +214,7 @@ public class CompleteInstanceChooserList extends ListActivity implements Locatio
             	return;
             }
             // caller wants to view/edit a form, so launch formentryactivity
-            System.out.println("instanceUri::::"+instanceUri);
+            //System.out.println("instanceUri::::"+instanceUri);
             startActivity(new Intent(Intent.ACTION_EDIT, instanceUri));
         }
         finish();
@@ -332,7 +332,7 @@ public class CompleteInstanceChooserList extends ListActivity implements Locatio
                 places = placeJsonParser.parse(jObject);
 
             } catch (Exception e) {
-                Log.d("Exception", e.toString());
+               // Log.d("Exception", e.toString());
             }
             return places;
         }
@@ -413,7 +413,7 @@ public class CompleteInstanceChooserList extends ListActivity implements Locatio
             br.close();
 
         } catch (Exception e) {
-            //Log.d("Exception while downloading url", e.toString());
+            Log.d("Exception while downloading url", e.toString());
         } finally {
             iStream.close();
             urlConnection.disconnect();

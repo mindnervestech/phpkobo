@@ -219,7 +219,7 @@ public class InstanceProvider extends ContentProvider {
     private void doCaseToFormBinding(String status) {
 
         final List<CaseRecord> caseRecords=CaseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where case_Id = ?",Collect.getInstance().getCaseId());
-        System.out.println("size:::"+caseRecords.size());
+        //System.out.println("size:::"+caseRecords.size());
         for(CaseRecord caseRecord1:caseRecords){
             caseRecord1.status=status;
             caseRecord1.save();
@@ -387,62 +387,62 @@ public class InstanceProvider extends ContentProvider {
         return count;
     }
     private void updateCaseToFormBinding(String status) {
-        System.out.println("update status:::"+status);
+        //System.out.println("update status:::"+status);
         CaseRecord caseRecord = new CaseRecord();
         final List<CaseRecord> caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where case_id = ?", Collect.getInstance().getCaseId());
-        System.out.println("size:::" + caseRecords.size());
-        System.out.println("case id : " + Collect.getInstance().getCaseId());
+        //System.out.println("size:::" + caseRecords.size());
+        //System.out.println("case id : " + Collect.getInstance().getCaseId());
         CaseRecord caseRecord1 = caseRecords.get(0);
-        System.out.println("size:::" + caseRecords.get(0).status);
+        //System.out.println("size:::" + caseRecords.get(0).status);
 
-        System.out.println("pre check status:::"+caseRecord1.status);
+        //System.out.println("pre check status:::"+caseRecord1.status);
 
         if(AuthUser.findLoggedInUser().getRole().equals("sangini")){
-            System.out.println("update for sangini..");
+            //System.out.println("update for sangini..");
                 if(status.equals("submitted")) {
-                    System.out.println("submitted case id :::"+caseRecord1.caseId);
-                    System.out.println("update for submitted sangini..");
+              //      System.out.println("submitted case id :::"+caseRecord1.caseId);
+               //     System.out.println("update for submitted sangini..");
                     caseRecord1.status = "submitted";
                     caseRecord1.save();
                 }else if(status.equals("incomplete")){
-                    System.out.println("update for incomplete sangini..");
+                //    System.out.println("update for incomplete sangini..");
                     caseRecord1.status = "incomplete";
                     caseRecord1.save();
                 }else{
-                    System.out.println("update for complete sangini..");
+                    //System.out.println("update for complete sangini..");
                     caseRecord1.status = "complete";
                     caseRecord1.save();
                 }
-            System.out.println("status:::" + caseRecords.get(0).status);
+           // System.out.println("status:::" + caseRecords.get(0).status);
         }else {
-            System.out.println("update for consultant..");
+           // System.out.println("update for consultant..");
             if(status.equals("submissionFailed")){
-                System.out.println("collect status:::" +Collect.getInstance().formType );
+            //    System.out.println("collect status:::" +Collect.getInstance().formType );
                 if(caseRecord1.status.equals("presubmitted") && Collect.getInstance().formType.equals("precomplete")) {
-                    System.out.println("update for consultant submissionFailed..precomplete");
+              //      System.out.println("update for consultant submissionFailed..precomplete");
                     caseRecord1.status = "precomplete";
                     caseRecord1.save();
                 }else if(caseRecord1.status.equals("presubmitted") && Collect.getInstance().formType.equals("presubmit")){
-                    System.out.println("update for consultant submissionFailed.. presubmit");
+                //    System.out.println("update for consultant submissionFailed.. presubmit");
                     caseRecord1.status = "presubmitted";
                     caseRecord1.save();
                 }
             }else if (status.equals("submitted") || caseRecord1.status.equals("presubmitted")) {
                 if (caseRecord1.status.equals("precomplete") || caseRecord1.status.equals("presubmitted")) {
-                    System.out.println("update for consultant presubmitted..");
+                //    System.out.println("update for consultant presubmitted..");
                     caseRecord1.status = "presubmitted";
                     caseRecord1.save();
                 }else {
-                    System.out.println("update for consultant complete..");
+                //    System.out.println("update for consultant complete..");
                     caseRecord1.status = "complete";
                     caseRecord1.save();
-                    System.out.println("updated:::");
+                //    System.out.println("updated:::");
                 }
             } else if (status.equals("incomplete") || status.equals("complete")) {
-                System.out.println("update for consultant incomplete..");
+             //   System.out.println("update for consultant incomplete..");
                 caseRecord1.status = "incomplete";
                 caseRecord1.save();
-                System.out.println("updated:::");
+             //   System.out.println("updated:::");
             }
         }
     }
@@ -482,8 +482,11 @@ public class InstanceProvider extends ContentProvider {
             } while (cursor.moveToNext());
         }
 
-        cursor.close();
-        db.close();
+		if(cursor != null) {
+			cursor.close();
+		}
+
+		db.close();
         return labels.size();
     }
 

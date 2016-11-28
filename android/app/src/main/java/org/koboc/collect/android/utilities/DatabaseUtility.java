@@ -43,51 +43,75 @@ public class DatabaseUtility {
 
     public static int getPre_formCount(){
         database = databaseHelperForm.getWritableDatabase();
-        formsCursor = database.rawQuery("SELECT * FROM forms" , null);
-        int i = 0;
-        while(formsCursor.moveToNext()){
-            if(formsCursor.getString(1).contains("Pre_") || formsCursor.getString(1).startsWith("pre_")){
-                i++;
-            }
-        }
-        return i;
+		Cursor formsCursor = database.rawQuery("SELECT * FROM forms" , null);
+        try {
+			int i = 0;
+			while(formsCursor.moveToNext()){
+				if(formsCursor.getString(1).contains("Pre_") || formsCursor.getString(1).startsWith("pre_")){
+					i++;
+				}
+			}
+			return i;
+		}finally{
+			if(formsCursor != null) {
+				formsCursor.close();
+			}
+		}
     }
 
     public static int getPost_formCount(){
         database = databaseHelperForm.getWritableDatabase();
-        formsCursor = database.rawQuery("SELECT * FROM forms" , null);
-        int i = 0;
-        while(formsCursor.moveToNext()){
-            if(formsCursor.getString(1).contains("Post_") || formsCursor.getString(1).startsWith("post_")){
-                i++;
-            }
-        }
-        return i;
+		Cursor formsCursor = database.rawQuery("SELECT * FROM forms" , null);
+        try {
+			int i = 0;
+			while (formsCursor.moveToNext()) {
+				if (formsCursor.getString(1).contains("Post_") || formsCursor.getString(1).startsWith("post_")) {
+					i++;
+				}
+			}
+			return i;
+		}finally{
+			if(formsCursor != null) {
+				formsCursor.close();
+			}
+		}
     }
 
     public static int getPost_InstanceCount(String id){
         database = databaseHelperInstance.getWritableDatabase();
-        instanceCursor = database.rawQuery("SELECT * FROM instances where caseId = "+id , null);
-        int i = 0;
-        while(instanceCursor.moveToNext()){
-            if(instanceCursor.getString(1).contains("Post_") || instanceCursor.getString(1).startsWith("post_")){
-                i++;
-            }
-        }
-        return i;
-    }
+		Cursor instanceCursor = database.rawQuery("SELECT * FROM instances where caseId = "+id , null);
+        try {
+			int i = 0;
+			while (instanceCursor.moveToNext()) {
+				if (instanceCursor.getString(1).contains("Post_") || instanceCursor.getString(1).startsWith("post_")) {
+					i++;
+				}
+			}
+			return i;
+		} finally {
+			if(instanceCursor != null) {
+				instanceCursor.close();
+			}
+		}
+	}
 
     public static int getPre_InstanceCount(String id){
         database = databaseHelperInstance.getWritableDatabase();
-        instanceCursor = database.rawQuery("SELECT * FROM instances where caseId = "+ id, null);
-        int i = 0;
-        while(instanceCursor.moveToNext()){
-            if(instanceCursor.getString(1).contains("Pre_") || instanceCursor.getString(1).startsWith("pre_")){
-                i++;
-            }
-        }
-        return i;
-    }
+        Cursor instanceCursor = database.rawQuery("SELECT * FROM instances where caseId = "+ id, null);
+        try {
+			int i = 0;
+			while (instanceCursor.moveToNext()) {
+				if (instanceCursor.getString(1).contains("Pre_") || instanceCursor.getString(1).startsWith("pre_")) {
+					i++;
+				}
+			}
+			return i;
+		}finally {
+			if(instanceCursor != null) {
+				instanceCursor.close();
+			}
+		}
+	}
 
     public static Cursor getPre_Instances(String id){
         database = databaseHelperInstance.getWritableDatabase();

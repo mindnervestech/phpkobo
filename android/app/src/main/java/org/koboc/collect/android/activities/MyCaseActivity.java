@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.squareup.okhttp.OkHttpClient;
@@ -59,11 +60,12 @@ public class MyCaseActivity extends Activity {
     private static final String DATABASE_NAME1 = "forms.db";
     private static final String Tag = "MyCaseActivity";
     SQLiteDatabase db;
-    Cursor cursor1;
+    //Cursor cursor1;
     private MyApi myApi;
     private String BASE_URL;
     private AuthUser user;
     private List<CaseRecord> caseRecords,list1;
+	ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,26 +73,27 @@ public class MyCaseActivity extends Activity {
         setContentView(R.layout.my_case_layout);
 
         listView = (ListView) findViewById(R.id.caseList);
+		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         //Database helper instance
         InstanceProvider.DatabaseHelper databaseHelper = new InstanceProvider.DatabaseHelper(DATABASE_NAME);
         FormsProvider.DatabaseHelper databaseHelper1 = new FormsProvider.DatabaseHelper("forms.db");
         db = databaseHelper.getWritableDatabase();
 
-        Cursor instanceCursor = db.rawQuery("SELECT * FROM instances", null);
-        Log.d(Tag,"total Instances :: "+instanceCursor.getCount());
+        //Cursor instanceCursor = db.rawQuery("SELECT * FROM instances", null);
+        //Log.d(Tag,"total Instances :: "+instanceCursor.getCount());
 
         //Form Table Query
-        SQLiteDatabase database = databaseHelper1.getWritableDatabase();
-        cursor1 = database.rawQuery("SELECT * FROM forms", null);
+        //SQLiteDatabase database = databaseHelper1.getWritableDatabase();
+       //Cursor cursor1 = database.rawQuery("SELECT * FROM forms", null);
 
         user = AuthUser.findLoggedInUser();
         if (user.getRole().contains("consultant")) {
             // getConsultantCase();
         }
 
-        long cnt = CaseRecord.count(CaseRecord.class, null, null);
-        Log.d(Tag,"total Cases in sugar :: "+cnt);
+        //long cnt = CaseRecord.count(CaseRecord.class, null, null);
+        //Log.d(Tag,"total Cases in sugar :: "+cnt);
 
        // CaseRecord record = new CaseRecord();
       // List<CaseRecord> list = new ArrayList<>();
@@ -101,20 +104,28 @@ public class MyCaseActivity extends Activity {
         caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where status in (\"incomplete\",\"new\",\"\") and uid = "+AuthUser.findLoggedInUser().getUserId());
         //caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where status in (\"incomplete\",\"new\",\"\") ");
 
-        for (CaseRecord item : caseRecords) {
+
+		//commented by Akshay on 28-nov to fasten the tab click event
+      /*  for (CaseRecord item : caseRecords) {
             //Instance Table Query
             Boolean isComplete = false;
             Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + item.caseId, null);
-            if (cursor.getCount() == 0) {
-				//Uncomment foe new versionm
-                List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ? and uid = ?", item.caseId + "",AuthUser.findLoggedInUser().getUserId()+"");
-               // List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ?", item.caseId + "");
-                CaseRecord record = new CaseRecord();
-                record = list.get(0);
-                record.status = "new";
-                record.save();
-            }
-        }
+            try {
+				if (cursor.getCount() == 0) {
+					//Uncomment foe new versionm
+					List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ? and uid = ?", item.caseId + "", AuthUser.findLoggedInUser().getUserId() + "");
+					// List<CaseRecord> list = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ?", item.caseId + "");
+					CaseRecord record = new CaseRecord();
+					record = list.get(0);
+					record.status = "new";
+					record.save();
+				}
+			}finally{
+				if(cursor != null) {
+					cursor.close();
+				}
+			}
+        }*/
 
         adapter = new CaseListAdapter(MyCaseActivity.this, caseRecords);
         listView.setAdapter(adapter);
@@ -155,7 +166,8 @@ public class MyCaseActivity extends Activity {
     public void onResume() {
         super.onResume();
 
-        for (CaseRecord item : caseRecords) {
+		//commented by Akshay on 28-nov to fasten the tab click event
+        /*for (CaseRecord item : caseRecords) {
             //Instance Table Query
             Boolean isComplete = false;
             Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + item.caseId, null);
@@ -170,14 +182,17 @@ public class MyCaseActivity extends Activity {
 					record.save();
 				}
             }
-
+			if(cursor != null) {
+				cursor.close();
+			}
 
 			BASE_URL = getApplicationContext().getString(R.string.default_java_server_url);
 
 			RestAdapter restAdapter = new RestAdapter.Builder()
 					.setEndpoint(BASE_URL).setLogLevel(RestAdapter.LogLevel.FULL)
 					.setClient(new OkClient()).build();
-			myApi = restAdapter.create(MyApi.class);        }
+			myApi = restAdapter.create(MyApi.class);
+		}*/
 
         //caseRecords = caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record where status in (\"incomplete\",\"new\")");
 
@@ -216,6 +231,7 @@ public class MyCaseActivity extends Activity {
 
     public void getConsultantCase() {
 
+		progressBar.setVisibility(View.VISIBLE);
 
         AuthUser authUser = AuthUser.findLoggedInUser();
         String token = authUser.getApi_token();
@@ -238,7 +254,7 @@ public class MyCaseActivity extends Activity {
             public void success(List<CaseResponseVM> caseVMList, Response response) {
                 //CaseRecord.deleteAll(CaseRecord.class);
 
-				System.out.println("Before ::::: "+caseRecord.listAll(CaseRecord.class).size());
+				//System.out.println("Before ::::: "+caseRecord.listAll(CaseRecord.class).size());
 
                 CaseRecord record = new CaseRecord();
                 List<CaseRecord> list = record.findWithQuery(CaseRecord.class, "Select * from Case_Record", null);
@@ -246,7 +262,7 @@ public class MyCaseActivity extends Activity {
                     List<CaseRecord> records;
                     // cr = CaseRecord.findById(CaseRecord.class, crVm.id);
                     records = caseRecord.findWithQuery(CaseRecord.class, "Select * from Case_Record where case_id = ?", crVm.id + "");
-					System.out.println("is that case present ::: "+records.size());
+					//System.out.println("is that case present ::: "+records.size());
                     if (records.size() != 0) {
                         continue;
 						//break;
@@ -275,7 +291,7 @@ public class MyCaseActivity extends Activity {
                         e.printStackTrace();
                     }
                     cr.save();
-					System.out.println("saved from api ::: ");
+					//System.out.println("saved from api ::: ");
                 }
 
                 for (CaseRecord item : caseRecords) {
@@ -287,11 +303,17 @@ public class MyCaseActivity extends Activity {
                         List<CaseRecord> list1 = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ? and uid = ? ", item.caseId + "",AuthUser.findLoggedInUser().getUserId()+"");
                       //  List<CaseRecord> list1 = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where Case_Id = ? ", item.caseId + "");
                         CaseRecord record1 = new CaseRecord();
-                        record1 = list1.get(0);
-                        record1.status = "new";
-                        record1.save();
-						System.out.println("saved if no instance ::");
+
+						if(list1.size() > 0 ) {
+							record1 = list1.get(0);
+							record1.status = "new";
+							record1.save();
+						}
+						//System.out.println("saved if no instance ::");
                     }
+					if(cursor != null) {
+						cursor.close();
+					}
                 }
                 // caseRecords.clear();
 
@@ -299,17 +321,19 @@ public class MyCaseActivity extends Activity {
 				//uncomment for new version
                 caseRecords = caseRecord.findWithQuery(CaseRecord.class, "SELECT * FROM Case_Record where status not in (\"presubmitted\",\"precomplete\",\"complete\") and uid = ?" ,AuthUser.findLoggedInUser().getUserId()+"");
                // adapter.notifyDataSetChanged();
-                adapter = new CaseListAdapter(getApplicationContext(),caseRecords);
+                adapter = new CaseListAdapter(MyCaseActivity.this,caseRecords);
                 listView.setAdapter(adapter);
 
+				progressBar.setVisibility(View.GONE);
 
-				System.out.println("After ::::: "+caseRecord.listAll(CaseRecord.class).size());
+				//System.out.println("After ::::: "+caseRecord.listAll(CaseRecord.class).size());
 
             }
 
             @Override
             public void failure(RetrofitError error) {
                 //TODO : Handle null pointer here
+				progressBar.setVisibility(View.GONE);
                 Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.failuremsg), Toast.LENGTH_LONG).show();
                 error.printStackTrace();
             }

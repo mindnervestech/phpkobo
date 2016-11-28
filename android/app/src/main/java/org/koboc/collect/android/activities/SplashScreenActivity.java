@@ -57,8 +57,8 @@ public class SplashScreenActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        System.out.println("in splash  AuthUser:::::::::::::::"+ AuthUser.listAll(AuthUser.class).size());
-        System.out.println("in splash  CaseRecord:::::::::::::::"+ CaseRecord.listAll(CaseRecord.class).size());
+        //System.out.println("in splash  AuthUser:::::::::::::::"+ AuthUser.listAll(AuthUser.class).size());
+        //System.out.println("in splash  CaseRecord:::::::::::::::"+ CaseRecord.listAll(CaseRecord.class).size());
 
         /*CaseRecord record = new CaseRecord();
         record.caseId = 1446195311;

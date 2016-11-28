@@ -22,8 +22,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
-import org.koboc.collect.android.R;
 import org.koboc.collect.android.database.CaseRecord;
+import org.koboc.collect.android.R;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -111,8 +111,8 @@ public class NearstLocation extends FragmentActivity implements LocationListener
             final List<CaseRecord> caseRecords=caseRecord.findWithQuery(CaseRecord.class,"SELECT * FROM Case_Record");
 
             for (CaseRecord item:caseRecords){
-                System.out.println("long::::"+item.longitude);
-                System.out.println("latt::::"+item.latitude);
+                //System.out.println("long::::"+item.longitude);
+                //System.out.println("latt::::"+item.latitude);
 
 
 

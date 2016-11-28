@@ -858,7 +858,7 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                 return startView;
             case FormEntryController.EVENT_END_OF_FORM:
 
-                System.out.println("upLoad and exit clicked:::::::::::::::::::");
+                //System.out.println("upLoad and exit clicked:::::::::::::::::::");
 
                 View endView = View.inflate(this, R.layout.form_entry_end, null);
                 ((TextView) endView.findViewById(R.id.description)).setText(getString(
@@ -1554,7 +1554,7 @@ public class FormEntryActivity extends Activity implements AnimationListener,
                 }).create();
         mAlertDialog.show();
     }else{
-            System.out.println("ok dialog called::::::::::::");
+            //System.out.println("ok dialog called::::::::::::");
             AlertDialog alertDialog = new AlertDialog.Builder(this)
                     .setIcon(android.R.drawable.ic_dialog_info)
                     .setTitle(
@@ -1890,7 +1890,7 @@ public class FormEntryActivity extends Activity implements AnimationListener,
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                System.out.println("createQuitDialog:::::::::::::::::::::");
+                //System.out.println("createQuitDialog:::::::::::::::::::::");
                 Collect.getInstance().getActivityLogger()
                         .logInstanceAction(this, "onKeyDown.KEYCODE_BACK", "quit");
                 createQuitDialog();
@@ -2402,15 +2402,15 @@ public class FormEntryActivity extends Activity implements AnimationListener,
         try {
             c = getContentResolver().query(InstanceColumns.CONTENT_URI, null,
                     selection, selectionArgs, null);
-            System.out.println("cursor::::::::::::1:::"+c.getCount());
+            //System.out.println("cursor::::::::::::1:::"+c.getCount());
             if (c != null && c.getCount() > 0) {
                 c.moveToFirst();
                 String status = c.getString(c
                         .getColumnIndex(InstanceColumns.STATUS));
-                System.out.println("status:::"+status);
+            //    System.out.println("status:::"+status);
                 if (InstanceProviderAPI.STATUS_SUBMITTED.compareTo(status) == 0) {
                     //complete = true;
-                    System.out.println("done:::");
+            //        System.out.println("done:::");
                     return false;
                 }
             }

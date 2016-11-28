@@ -39,6 +39,7 @@ import org.koboc.collect.android.R;
 import org.koboc.collect.android.activities.FormEntryActivity;
 import org.koboc.collect.android.activities.InstanceUploaderActivity;
 import org.koboc.collect.android.activities.MyCaseActivity;
+import org.koboc.collect.android.activities.PreCompleteActivity;
 import org.koboc.collect.android.application.Collect;
 import org.koboc.collect.android.application.MyApi;
 import org.koboc.collect.android.database.AuthUser;
@@ -173,6 +174,9 @@ public class PreCompleteListAdapter extends BaseAdapter {
                     if(cursor.getString(1).contains("Pre_"))
                          upload(Long.parseLong(cursor.getString(0)));
                 }
+				if(cursor != null) {
+					cursor.close();
+				}
 
             }
         });
@@ -281,30 +285,37 @@ public class PreCompleteListAdapter extends BaseAdapter {
 		myApi.isCaseDeleted(basicAuth,id,new Callback<Boolean>() {
 			@Override
 			public void success(Boolean caseResponseVMs, Response response) {
-				System.out.println("success :::: "+caseResponseVMs);
+				//System.out.println("success :::: "+caseResponseVMs);
 
-				if(!caseResponseVMs) {
+				if(caseResponseVMs) {
 					List<String> instances = new ArrayList<String>();
-					Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + id, null);
-					System.out.println("cursor ::: " + cursor.getCount());
 
-					while (cursor.moveToNext()) {
-						System.out.println("path :::: " + cursor.getString(4));
-						instances.add(cursor.getString(4));
+					Cursor cursor = db.rawQuery("SELECT * FROM instances where caseId = " + id, null);
+				//	System.out.println("cursor ::: " + cursor.getCount());
+
+					try {
+						while (cursor.moveToNext()) {
+							//System.out.println("path :::: " + cursor.getString(4));
+							instances.add(cursor.getString(4));
+						}
+					}finally {
+						if(cursor != null) {
+							cursor.close();
+						}
 					}
 
 					for (String s : instances) {
 						String path = s.substring(0, s.lastIndexOf('/'));
 						File file = new File(path);
 						//Boolean aBoolean = file.delete();
-						System.out.println("deleteDirectory :::: " + s);
-						System.out.println("deleteDirectory :::: " + file);
+						//System.out.println("deleteDirectory :::: " + s);
+						//System.out.println("deleteDirectory :::: " + file);
 						deleteDirectory(file);
 					}
 
 					db.execSQL("delete from instances where caseId = " + id);
 					CaseRecord.deleteAll(CaseRecord.class, "case_id = ?", id + "");
-					((MyCaseActivity) mContext).onResume();
+					((PreCompleteActivity) mContext).onResume();
 
 				}else{
 					Toast.makeText(mContext, "Sorry. You can'delete this case.", Toast.LENGTH_LONG).show();
@@ -324,7 +335,7 @@ public class PreCompleteListAdapter extends BaseAdapter {
 
 	public static boolean deleteDirectory(File path) {
 		if( path.exists() ) {
-			System.out.println("path.exists() dir :::: ");
+			//System.out.println("path.exists() dir :::: ");
 			File[] files = path.listFiles();
 			if (files == null) {
 				return true;

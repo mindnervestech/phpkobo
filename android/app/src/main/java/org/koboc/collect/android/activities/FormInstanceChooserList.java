@@ -71,7 +71,7 @@ public class FormInstanceChooserList extends ListActivity {
 
 
 
-        System.out.println("save form size::"+c.getCount());
+        //System.out.println("save form size::"+c.getCount());
 
         String[] data = new String[] {
                 InstanceColumns.DISPLAY_NAME, InstanceColumns.DISPLAY_SUBTEXT

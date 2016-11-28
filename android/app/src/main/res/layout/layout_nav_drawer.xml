@@ -74,6 +74,24 @@
 
             <TextView
                 android:layout_below="@+id/nav_contact"
+                android:visibility="gone"
+                android:id="@+id/nav_backup"
+                style="@style/nav_item"
+                android:clickable="true"
+                android:text="Backup"
+                android:onClick="navBackUp" />
+
+            <TextView
+                android:layout_below="@+id/nav_backup"
+                android:id="@+id/nav_restore"
+                style="@style/nav_item"
+                android:visibility="gone"
+                android:clickable="true"
+                android:text="Restore"
+                android:onClick="navRestore" />
+
+            <TextView
+                android:layout_below="@+id/nav_restore"
                 android:id="@+id/nav_explore"
                 style="@style/nav_item"
                 android:clickable="true"

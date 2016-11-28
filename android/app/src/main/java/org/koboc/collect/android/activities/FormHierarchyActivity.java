@@ -243,6 +243,10 @@ public class FormHierarchyActivity extends ListActivity {
                     if ( !fp.isReadOnly() || (label != null && label.length() > 0) ) {
                     	// show the question if it is an editable field.
                     	// or if it is read-only and the label is not blank.
+
+						//System.out.println("fp.getLongText() :: "+fp.getLongText());
+						//System.out.println("fp.getAnswerText() :: "+fp.getAnswerValue());
+
 	                    formList.add(new HierarchyElement(fp.getLongText(), fp.getAnswerText(), null,
 	                            Color.WHITE, QUESTION, fp.getIndex()));
                     }
@@ -292,6 +296,10 @@ public class FormHierarchyActivity extends ListActivity {
                         repeatedGroupRef =
                         		formController.getFormIndex().getReference()
                                     .toString(false);
+
+						//System.out.println("group getPrimaryText:::: "+group.getPrimaryText());
+						//System.out.println("group getSecondaryText:::: "+group.getSecondaryText());
+
                         formList.add(group);
                     }
 
@@ -312,6 +320,12 @@ public class FormHierarchyActivity extends ListActivity {
         HierarchyListAdapter itla = new HierarchyListAdapter(this);
         itla.setListItems(formList);
         setListAdapter(itla);
+
+		for(HierarchyElement element : formList){
+
+			//System.out.println("element.getPrimaryText() ::: "+element.getPrimaryText());
+			//System.out.println("element.getSecondaryText() :: "+element.getSecondaryText());
+		}
 
         // set the controller back to the current index in case the user hits 'back'
         formController.jumpToIndex(currentIndex);

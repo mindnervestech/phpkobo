@@ -128,10 +128,10 @@ public class InstanceChooserList extends ListActivity implements LocationListene
 
         while (cursor.moveToNext()){
 
-            System.out.println("traversing cursor :: "+cursor.getString(5));
-            System.out.println("traversing cursor :: "+cursor.getString(1));
-            System.out.println("traversing cursor :: "+cursor.getString(9));
-            System.out.println("traversing cursor :: "+cursor.getString(0));
+            //System.out.println("traversing cursor :: "+cursor.getString(5));
+            //System.out.println("traversing cursor :: "+cursor.getString(1));
+            //System.out.println("traversing cursor :: "+cursor.getString(9));
+            //System.out.println("traversing cursor :: "+cursor.getString(0));
 
             InstanceVM instanceVM = new InstanceVM();
 
@@ -152,21 +152,21 @@ public class InstanceChooserList extends ListActivity implements LocationListene
         Cursor cursor1 = database.rawQuery("SELECT * FROM forms" , null);
 
         while (cursor1.moveToNext()){
-            System.out.println("traversing cursor form :: "+cursor1.getString(4));
+            //System.out.println("traversing cursor form :: "+cursor1.getString(4));
             String id = cursor1.getString(4);
             String templateId = cursor1.getString(0);
             String subTitle  = cursor1.getString(2);
             boolean flag = true;
-            System.out.println("vms size :: "+vms.size());
+            //System.out.println("vms size :: "+vms.size());
             for(InstanceVM instanceVM : vms) {
-                System.out.println("form id :: "+instanceVM.getForm_id());
+              //  System.out.println("form id :: "+instanceVM.getForm_id());
                 if (id.equals(instanceVM.getForm_id())){
                     flag = false;
                     break;
                 }
             }
 
-            System.out.println("Flag :: "+flag);
+            //System.out.println("Flag :: "+flag);
             if(flag) {
                 InstanceVM vm = new InstanceVM();
                 vm.setForm_id(id);
@@ -202,8 +202,8 @@ public class InstanceChooserList extends ListActivity implements LocationListene
 
         }
 
-		System.out.println("mLongitude :::::::::: "+mLongitude);
-		System.out.println("mLatitude :::::::::: "+mLatitude);
+		//System.out.println("mLongitude :::::::::: "+mLongitude);
+		//System.out.println("mLatitude :::::::::: "+mLatitude);
 
 
          myFragmentManager = getFragmentManager();
@@ -275,13 +275,13 @@ public class InstanceChooserList extends ListActivity implements LocationListene
         Uri instanceUri;
 
         Collect.getInstance().currentId = instanceVM.getInstance_id();
-        System.out.println("instance vm :: "+instanceVM.getIsTemplate());
+        //System.out.println("instance vm :: "+instanceVM.getIsTemplate());
         if(!instanceVM.getIsTemplate()) {
-            System.out.println("Instance pick :: ::");
+        //    System.out.println("Instance pick :: ::");
              instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI,
                     Long.parseLong(instanceVM.getInstance_id()));
         }else {
-            System.out.println("Form pick :: ::");
+        //    System.out.println("Form pick :: ::");
              instanceUri =ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, Long.parseLong(instanceVM.getInstance_id()));
         }
 
@@ -307,6 +307,7 @@ public class InstanceChooserList extends ListActivity implements LocationListene
             	return;
             }*/
             // caller wants to view/edit a form, so launch formentryactivity
+			System.out.println("instanceUri ::::: "+instanceUri);
             startActivity(new Intent(Intent.ACTION_EDIT, instanceUri));
         }
         finish();

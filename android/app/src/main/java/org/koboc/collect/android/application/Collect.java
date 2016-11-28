@@ -31,6 +31,7 @@ import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 import org.koboc.collect.android.R;
 import org.koboc.collect.android.database.ActivityLogger;
+import org.koboc.collect.android.database.CaseRecord;
 import org.koboc.collect.android.logic.FormController;
 import org.koboc.collect.android.logic.PropertyManager;
 import org.koboc.collect.android.preferences.PreferencesActivity;
@@ -242,12 +243,16 @@ public class Collect extends SugarApp {
         // log.enableInfo(false);
         // log.enableDebug(false);
 
+		//
+
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         super.onCreate();
 
         PropertyManager mgr = new PropertyManager(this);
         mActivityLogger = new ActivityLogger(
                 mgr.getSingularProperty(PropertyManager.DEVICE_ID_PROPERTY));
+
+		//System.out.println("total case ::: "+ CaseRecord.listAll(CaseRecord.class).size());
     }
 
 	public void sendEmail(Exception e) {

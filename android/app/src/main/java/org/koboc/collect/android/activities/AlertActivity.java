@@ -319,8 +319,8 @@ public class AlertActivity extends Activity {
         Geocoder geocoder = new Geocoder(AlertActivity.this, Locale.getDefault());
 
         List<Address> addresses = null;
-        System.out.println("longitude::::::"+longitude);
-        System.out.println("latitude::::::"+latitude);
+       // System.out.println("longitude::::::"+longitude);
+       // System.out.println("latitude::::::"+latitude);
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 1);
             Address returnedAddress = addresses.get(0);
@@ -343,7 +343,7 @@ public class AlertActivity extends Activity {
         final String createdDate = sdf.format(new Date());
         CaseVM caseVM = new CaseVM(id,caseId, createdDate, createdDate, addressText,"New", longitude, latitude);
 
-        System.out.println("sent data ::: "+createdDate);
+        //System.out.println("sent data ::: "+createdDate);
 
         myApi.postCase(basicAuth, caseVM, new Callback<CaseResponseVM>() {
             @Override
@@ -367,7 +367,7 @@ public class AlertActivity extends Activity {
 
                     Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.failurecase), Toast.LENGTH_SHORT);
                 } else {
-                    CaseRecord caseRecord = new CaseRecord(caseId,longitude, latitude, addressText, caseVM1.id, "", createdDate, createdDate,false);
+                    CaseRecord caseRecord = new CaseRecord(caseId,longitude, latitude, addressText, caseVM1.id, "new", createdDate, createdDate,false);
 					//Uncomment foe new versionm
                      caseRecord.uid = AuthUser.findLoggedInUser().getUserId();
 					caseRecord.save();
